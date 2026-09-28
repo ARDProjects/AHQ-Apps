@@ -55,7 +55,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--c9);color:var(
 
 /* ── STATS ── */
 .statsbar{background:#fff;border-bottom:1px solid var(--c7);padding:14px 24px;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.stat{padding:12px 16px;border-radius:var(--rad);border:1px solid var(--c7);background:var(--c9)}
+.stat{padding:12px 16px;border-radius:var(--rad);border:1px solid var(--c7);background:var(--c9);cursor:pointer;transition:all .15s;user-select:none}
+.stat:hover{border-color:var(--acc);box-shadow:0 2px 8px rgba(99,102,241,.1)}
+.stat.active{border-color:var(--acc);background:var(--acc-bg);box-shadow:0 2px 12px rgba(99,102,241,.15)}
 .stat-label{font-size:10px;color:var(--c4);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:flex;align-items:center;gap:5px}
 .stat-val{font-size:21px;font-weight:700;color:var(--c1)}
 .stat-sub{font-size:11px;color:var(--c4);margin-top:2px}
@@ -316,6 +318,7 @@ tbody tr:hover .row-actions{opacity:1}
         <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-status"><option value="">— Select —</option><option>Waiting on Stripe</option><option>Waiting on Client</option><option>Closed</option></select></div>
         <div class="form-group"><label class="form-label">Outcome</label><select class="form-select" id="f-outcome"><option value="">— Pending —</option><option>Dispute Lost</option><option>Accepted Dispute</option></select></div>
         <div class="form-group"><label class="form-label">Charged Client?</label><select class="form-select" id="f-charged"><option value="">— Select —</option><option>Yes</option><option>No</option><option>Unsure</option></select></div>
+        <div class="form-group full"><label class="form-label">Dispute Link</label><input class="form-input" id="f-link" type="url" placeholder="https://dashboard.stripe.com/disputes/..."></div>
       </div>
     </div>
     <div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveDispute()">Save Dispute</button></div>
@@ -337,7 +340,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getDatabase, ref, set, push, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
 // ── STATE ──
-let db, disputesRef, disputes=[], sortKey='date', sortDir=1, search='', filterProvider='', filterReason='', page=1, selRow=null, editId=null, pendingDelete=null;
+let db, disputesRef, disputes=[], sortKey='date', sortDir=1, search='', filterProvider='', filterReason='', filterStat='', page=1, selRow=null, editId=null, pendingDelete=null;
 const PER=10;
 const COLORS=['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6'];
 const colorMap={};let ci=0;
@@ -449,6 +452,10 @@ function getFiltered(){
   if(search){const t=search.toLowerCase();d=d.filter(r=>r.provider.toLowerCase().includes(t)||r.parent.toLowerCase().includes(t)||(r.program||'').toLowerCase().includes(t)||(r.email||'').toLowerCase().includes(t));}
   if(filterProvider)d=d.filter(r=>r.provider===filterProvider);
   if(filterReason)d=d.filter(r=>r.reason===filterReason);
+  if(filterStat==='open')d=d.filter(r=>r.status!=='Closed');
+  else if(filterStat==='lost')d=d.filter(r=>r.outcome==='Dispute Lost');
+  else if(filterStat==='won')d=d.filter(r=>r.outcome==='Accepted Dispute');
+  else if(filterStat==='closed')d=d.filter(r=>r.status==='Closed');
   d.sort((a,b)=>{let av,bv;if(sortKey==='date'){av=new Date(a.date);bv=new Date(b.date);}else if(sortKey==='amount'){av=a.amount;bv=b.amount;}else{av=(a[sortKey]||'').toLowerCase();bv=(b[sortKey]||'').toLowerCase();}return av<bv?-sortDir:av>bv?sortDir:0;});
   return d;
 }
@@ -470,7 +477,7 @@ function render(){
       <td>${rPill(r.refund)}</td>
       <td>${sPill(r.status)}</td>
       <td>${oPill(r.outcome)}</td>
-      <td onclick="event.stopPropagation()"><div class="row-actions"><button class="ra-btn ra-edit" onclick="openModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="confirmDelete('${r.fbKey}')">Del</button></div></td>
+      <td onclick="event.stopPropagation()"><div class="row-actions">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" class="ra-btn" style="background:var(--sky-bg);color:var(--sky);text-decoration:none" title="Open dispute link" onclick="event.stopPropagation()">🔗</a>`:''}<button class="ra-btn ra-edit" onclick="openModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="confirmDelete('${r.fbKey}')">Del</button></div></td>
     </tr>`).join('');
   document.getElementById('pg-info').textContent=`${Math.min((page-1)*PER+1,total)}–${Math.min(page*PER,total)} of ${total}`;
   renderPagination(pages);renderStats();renderSidebar();updateAvatar();
@@ -484,9 +491,15 @@ function renderPagination(pages){
 window.goPage=p=>{page=p;render()};
 
 function renderStats(){
-  const total=disputes.length,open=disputes.filter(r=>r.status!=='Closed').length,amt=disputes.reduce((s,r)=>s+Number(r.amount||0),0),lost=disputes.filter(r=>r.outcome==='Dispute Lost').length,won=disputes.filter(r=>r.outcome==='Accepted Dispute').length;
+  const total=disputes.length,open=disputes.filter(r=>r.status!=='Closed').length,closed=disputes.filter(r=>r.status==='Closed').length,amt=disputes.reduce((s,r)=>s+Number(r.amount||0),0),lost=disputes.filter(r=>r.outcome==='Dispute Lost').length,won=disputes.filter(r=>r.outcome==='Accepted Dispute').length;
   document.getElementById('open-count').textContent=open;
-  document.getElementById('statsbar').innerHTML=[{l:'Total Disputes',v:total,s:'All time',d:'dot-pur'},{l:'Open',v:open,s:'Needs attention',d:'dot-amb'},{l:'Total at Risk',v:'$'+amt.toFixed(2),s:'Disputed',d:'dot-red'},{l:'Lost',v:lost,s:Math.round(lost/Math.max(total,1)*100)+'% rate',d:'dot-red'},{l:'Won',v:won,s:Math.round(won/Math.max(total,1)*100)+'% rate',d:'dot-grn'}].map(s=>`<div class="stat"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+  document.getElementById('statsbar').innerHTML=[
+    {l:'Total Disputes',v:total,s:'All time',d:'dot-pur',f:''},
+    {l:'Open',v:open,s:'Needs attention',d:'dot-amb',f:'open'},
+    {l:'Total at Risk',v:'$'+amt.toFixed(2),s:'Disputed',d:'dot-red',f:''},
+    {l:'Lost',v:lost,s:Math.round(lost/Math.max(total,1)*100)+'% rate',d:'dot-red',f:'lost'},
+    {l:'Won',v:won,s:Math.round(won/Math.max(total,1)*100)+'% rate',d:'dot-grn',f:'won'}
+  ].map(s=>`<div class="stat${filterStat===s.f&&s.f?' active':''}" onclick="setStatFilter('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
 }
 
 function renderSidebar(){
@@ -498,6 +511,7 @@ function renderSidebar(){
 
 // ── INTERACTIONS ──
 window.setProvider=p=>{filterProvider=filterProvider===p?'':p;page=1;render()};
+window.setStatFilter=f=>{filterStat=filterStat===f?'':f;page=1;render()};
 window.toggleFilter=r=>{filterReason=filterReason===r?'':r;page=1;['f-fraud','f-dup','f-sub'].forEach(id=>document.getElementById(id).classList.remove('on'));if(r==='Fraudulent')document.getElementById('f-fraud').classList.add('on');if(r==='Duplicate')document.getElementById('f-dup').classList.add('on');if(r==='Subscription canceled')document.getElementById('f-sub').classList.add('on');render();};
 window.sortBy=k=>{if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=-1;}['date','provider','parent','amount'].forEach(x=>{const el=document.getElementById('s-'+x);if(el)el.textContent='↕';});const el=document.getElementById('s-'+k);if(el)el.textContent=sortDir===1?'↑':'↓';render();};
 document.getElementById('search-input').addEventListener('input',function(){search=this.value;page=1;render()});
@@ -517,6 +531,7 @@ window.openPanel=fbKey=>{
       <div class="dp-field"><span class="dp-k">Outcome</span><span class="dp-v">${oPill(r.outcome)}</span></div>
       <div class="dp-field"><span class="dp-k">Refund Issued</span><span class="dp-v">${rPill(r.refund)}</span></div>
       <div class="dp-field"><span class="dp-k">Charged Client?</span><span class="dp-v">${r.charged||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Dispute Link</span><span class="dp-v">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:none;font-size:10px" title="${r.link}">🔗 Open Link</a>`:'—'}</span></div>
     </div>
     <div class="dp-sec"><div class="dp-sec-title">Parties</div>
       <div class="dp-field"><span class="dp-k">Provider</span><span class="dp-v" style="font-size:10px">${r.provider||'—'}</span></div>
@@ -549,9 +564,9 @@ window.openModal=fbKey=>{
   document.getElementById('modal-title').textContent=fbKey?'Edit Dispute':'Add Dispute';
   if(fbKey){
     const r=disputes.find(x=>x.fbKey===fbKey);
-    if(r){document.getElementById('f-date').value=r.date||'';document.getElementById('f-paydate').value=r.payDate||'';document.getElementById('f-provider').value=r.provider||'';document.getElementById('f-parent').value=r.parent||'';document.getElementById('f-email').value=r.email||'';document.getElementById('f-program').value=r.program||'';document.getElementById('f-amount').value=r.amount||'';document.getElementById('f-reason').value=r.reason||'';document.getElementById('f-refund').value=r.refund||'';document.getElementById('f-deadline').value=r.deadline||'';document.getElementById('f-evidence').value=r.evidence||'';document.getElementById('f-status').value=r.status||'';document.getElementById('f-outcome').value=r.outcome||'';document.getElementById('f-charged').value=r.charged||'';}
+    if(r){document.getElementById('f-date').value=r.date||'';document.getElementById('f-paydate').value=r.payDate||'';document.getElementById('f-provider').value=r.provider||'';document.getElementById('f-parent').value=r.parent||'';document.getElementById('f-email').value=r.email||'';document.getElementById('f-program').value=r.program||'';document.getElementById('f-amount').value=r.amount||'';document.getElementById('f-reason').value=r.reason||'';document.getElementById('f-refund').value=r.refund||'';document.getElementById('f-deadline').value=r.deadline||'';document.getElementById('f-evidence').value=r.evidence||'';document.getElementById('f-status').value=r.status||'';document.getElementById('f-outcome').value=r.outcome||'';document.getElementById('f-charged').value=r.charged||'';document.getElementById('f-link').value=r.link||'';}
   } else {
-    ['date','paydate','provider','parent','email','program','amount','reason','refund','deadline','evidence','status','outcome','charged'].forEach(f=>document.getElementById('f-'+f).value='');
+    ['date','paydate','provider','parent','email','program','amount','reason','refund','deadline','evidence','status','outcome','charged','link'].forEach(f=>document.getElementById('f-'+f).value='');
     document.getElementById('f-date').value=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   }
   document.getElementById('modal').classList.add('show');
@@ -574,6 +589,7 @@ window.saveDispute=async()=>{
     status:document.getElementById('f-status').value,
     outcome:document.getElementById('f-outcome').value,
     charged:document.getElementById('f-charged').value,
+    link:document.getElementById('f-link').value.trim(),
     addedBy:userName,
     addedAt:new Date().toISOString(),
   };
@@ -609,8 +625,8 @@ window.hideConfirm=()=>{document.getElementById('confirm-box').classList.remove(
 
 // ── EXPORT ──
 window.exportCSV=()=>{
-  const h=['ID','Date Submitted','Provider','Parent Name','Email','Program','Payment Date','Amount','Reason','Refund','Deadline','Evidence','Status','Outcome','Charged Client','Added By'];
-  const rows=disputes.map(r=>[r.id,r.date,r.provider,r.parent,r.email,r.program,r.payDate,r.amount,r.reason,r.refund,r.deadline,r.evidence,r.status,r.outcome,r.charged,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  const h=['ID','Date Submitted','Provider','Parent Name','Email','Program','Payment Date','Amount','Reason','Refund','Deadline','Evidence','Status','Outcome','Charged Client','Link','Added By'];
+  const rows=disputes.map(r=>[r.id,r.date,r.provider,r.parent,r.email,r.program,r.payDate,r.amount,r.reason,r.refund,r.deadline,r.evidence,r.status,r.outcome,r.charged,r.link,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
   const csv=[h.join(','),...rows].join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='disputes_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('CSV exported ✓','grn');
