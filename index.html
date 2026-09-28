@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AfterSchool HQ Dispute Tracker</title>
+<title>AfterSchool HQ — Tools</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --c1:#0f172a;--c2:#1e293b;--c3:#334155;--c4:#64748b;--c5:#94a3b8;--c6:#cbd5e1;--c7:#e2e8f0;--c8:#f1f5f9;--c9:#f8fafc;
-  --acc:#6366f1;--acc2:#818cf8;--acc-bg:#eef2ff;
-  --grn:#10b981;--grn-bg:#d1fae5;--red:#ef4444;--red-bg:#fee2e2;--amb:#f59e0b;--amb-bg:#fef3c7;--sky:#0ea5e9;--sky-bg:#e0f2fe;
-  --rad:10px;--rad-sm:6px;
+--c1:#0f172a;--c2:#1e293b;--c3:#334155;--c4:#64748b;--c5:#94a3b8;--c6:#cbd5e1;--c7:#e2e8f0;--c8:#f1f5f9;--c9:#f8fafc;
+--acc:#6366f1;--acc2:#818cf8;--acc-bg:#eef2ff;
+--grn:#10b981;--grn-bg:#d1fae5;--red:#ef4444;--red-bg:#fee2e2;--amb:#f59e0b;--amb-bg:#fef3c7;--sky:#0ea5e9;--sky-bg:#e0f2fe;
+--rad:10px;--rad-sm:6px;
 }
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--c9);color:var(--c1);font-size:13px;line-height:1.5;min-height:100vh}
 
@@ -43,7 +43,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--c9);color:var(
 .logo{font-weight:700;font-size:15px;color:#fff;display:flex;align-items:center;gap:8px}
 .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--acc2)}
 .topbar-nav{display:flex;gap:2px}
-.tnav{padding:6px 12px;border-radius:var(--rad-sm);color:var(--c5);font-size:12px;cursor:pointer;border:none;background:none}
+.tnav{padding:6px 12px;border-radius:var(--rad-sm);color:var(--c5);font-size:12px;cursor:pointer;border:none;background:none;font-family:inherit;transition:all .15s}
+.tnav:hover{color:var(--c6)}
 .tnav.active{color:#fff;background:var(--c2)}
 .topbar-right{display:flex;align-items:center;gap:10px}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.3)}
@@ -62,7 +63,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--c9);color:var(
 .stat-val{font-size:21px;font-weight:700;color:var(--c1)}
 .stat-sub{font-size:11px;color:var(--c4);margin-top:2px}
 .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
-.dot-grn{background:var(--grn)}.dot-red{background:var(--red)}.dot-amb{background:var(--amb)}.dot-pur{background:var(--acc)}
+.dot-grn{background:var(--grn)}.dot-red{background:var(--red)}.dot-amb{background:var(--amb)}.dot-pur{background:var(--acc)}.dot-sky{background:var(--sky)}
 
 /* ── MAIN ── */
 .main{display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 128px)}
@@ -85,11 +86,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--c9);color:var(
 .search input{width:100%;padding:7px 10px 7px 30px;border:1px solid var(--c6);border-radius:var(--rad-sm);font-size:12px;background:var(--c8);color:var(--c1);outline:none;transition:all .15s}
 .search input:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
 .si{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--c5);font-size:13px;pointer-events:none}
-.filter-btn{padding:6px 11px;border:1px solid var(--c6);border-radius:var(--rad-sm);background:#fff;color:var(--c3);font-size:11px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.filter-btn{padding:6px 11px;border:1px solid var(--c6);border-radius:var(--rad-sm);background:#fff;color:var(--c3);font-size:11px;cursor:pointer;white-space:nowrap;transition:all .15s;font-family:inherit}
 .filter-btn:hover,.filter-btn.on{border-color:var(--acc);color:var(--acc);background:var(--acc-bg)}
-.add-btn{margin-left:auto;padding:7px 16px;background:var(--acc);color:#fff;border:none;border-radius:var(--rad-sm);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.add-btn{margin-left:auto;padding:7px 16px;background:var(--acc);color:#fff;border:none;border-radius:var(--rad-sm);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
 .add-btn:hover{background:#4f46e5}
-.export-btn{padding:7px 12px;border:1px solid var(--c6);border-radius:var(--rad-sm);background:#fff;color:var(--c3);font-size:11px;cursor:pointer;white-space:nowrap}
+.export-btn{padding:7px 12px;border:1px solid var(--c6);border-radius:var(--rad-sm);background:#fff;color:var(--c3);font-size:11px;cursor:pointer;white-space:nowrap;font-family:inherit}
 .export-btn:hover{border-color:var(--grn);color:var(--grn)}
 
 /* ── TABLE ── */
@@ -123,7 +124,7 @@ tbody tr:hover .row-actions{opacity:1}
 .pagination{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:#fff;border-top:1px solid var(--c7);margin:0 18px;border-radius:0 0 var(--rad) var(--rad)}
 .pg-info{font-size:11px;color:var(--c4)}
 .pg-btns{display:flex;gap:4px}
-.pg-btn{padding:4px 9px;border:1px solid var(--c6);border-radius:4px;background:#fff;color:var(--c3);font-size:11px;cursor:pointer;transition:all .1s}
+.pg-btn{padding:4px 9px;border:1px solid var(--c6);border-radius:4px;background:#fff;color:var(--c3);font-size:11px;cursor:pointer;transition:all .1s;font-family:inherit}
 .pg-btn:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
 .pg-btn:disabled{opacity:.35;cursor:default}
 .pg-btn.cur{background:var(--acc);color:#fff;border-color:var(--acc)}
@@ -143,10 +144,10 @@ tbody tr:hover .row-actions{opacity:1}
 .dp-sec-title{font-size:9px;font-weight:700;color:var(--c5);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
 .dp-field{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--c7)}
 .dp-field:last-child{border-bottom:none}
-.dp-k{font-size:11px;color:var(--c4);flex:0 0 110px}
+.dp-k{font-size:11px;color:var(--c4);flex:0 0 120px}
 .dp-v{font-size:11px;color:var(--c1);font-weight:500;text-align:right;flex:1}
 .dp-acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.dp-btn{flex:1;min-width:90px;padding:8px 10px;border-radius:var(--rad-sm);font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--c6);background:#fff;color:var(--c2);transition:all .15s;text-align:center}
+.dp-btn{flex:1;min-width:90px;padding:8px 10px;border-radius:var(--rad-sm);font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--c6);background:#fff;color:var(--c2);transition:all .15s;text-align:center;font-family:inherit}
 .dp-btn:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-bg)}
 .dp-btn.primary{background:var(--acc);color:#fff;border-color:var(--acc)}.dp-btn.primary:hover{background:#4f46e5}
 .dp-btn.danger{border-color:var(--red);color:var(--red)}.dp-btn.danger:hover{background:var(--red-bg)}
@@ -165,19 +166,20 @@ tbody tr:hover .row-actions{opacity:1}
 .modal-box{position:relative;background:#fff;border-radius:14px;width:580px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
 .modal-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--c7);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
 .modal-title{font-size:15px;font-weight:700;color:var(--c1)}
-.modal-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--c6);background:#fff;cursor:pointer;font-size:14px;color:var(--c4);display:flex;align-items:center;justify-content:center}
+.modal-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--c6);background:#fff;cursor:pointer;font-size:14px;color:var(--c4);display:flex;align-items:center;justify-content:center;font-family:inherit}
 .modal-close:hover{background:var(--c8)}
 .modal-body{padding:20px 24px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-group.full{grid-column:1/-1}
 .form-label{font-size:11px;font-weight:600;color:var(--c3);text-transform:uppercase;letter-spacing:.4px}
-.form-input,.form-select{padding:8px 10px;border:1px solid var(--c6);border-radius:var(--rad-sm);font-size:12px;color:var(--c1);background:#fff;outline:none;transition:all .15s;width:100%;font-family:inherit}
-.form-input:focus,.form-select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.form-input,.form-select,.form-textarea{padding:8px 10px;border:1px solid var(--c6);border-radius:var(--rad-sm);font-size:12px;color:var(--c1);background:#fff;outline:none;transition:all .15s;width:100%;font-family:inherit}
+.form-textarea{resize:vertical;min-height:60px}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
 .modal-footer{padding:16px 24px;border-top:1px solid var(--c7);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:#fff}
-.btn-cancel{padding:8px 18px;border:1px solid var(--c6);border-radius:var(--rad-sm);background:#fff;color:var(--c3);font-size:12px;font-weight:600;cursor:pointer}
+.btn-cancel{padding:8px 18px;border:1px solid var(--c6);border-radius:var(--rad-sm);background:#fff;color:var(--c3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
 .btn-cancel:hover{border-color:var(--c4);color:var(--c1)}
-.btn-save{padding:8px 22px;background:var(--acc);color:#fff;border:none;border-radius:var(--rad-sm);font-size:12px;font-weight:700;cursor:pointer}
+.btn-save{padding:8px 22px;background:var(--acc);color:#fff;border:none;border-radius:var(--rad-sm);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
 .btn-save:hover{background:#4f46e5}
 
 /* ── NAME MODAL ── */
@@ -187,19 +189,32 @@ tbody tr:hover .row-actions{opacity:1}
 .name-box p{font-size:12px;color:var(--c4);margin-bottom:18px}
 .name-box input{width:100%;padding:10px 12px;border:1px solid var(--c6);border-radius:var(--rad-sm);font-size:13px;outline:none;margin-bottom:14px;font-family:inherit}
 .name-box input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
-.name-box button{width:100%;padding:10px;background:var(--acc);color:#fff;border:none;border-radius:var(--rad-sm);font-size:13px;font-weight:700;cursor:pointer}
+.name-box button{width:100%;padding:10px;background:var(--acc);color:#fff;border:none;border-radius:var(--rad-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 .name-box button:hover{background:#4f46e5}
 
 /* ── CONFIRM / TOAST ── */
 .confirm-box{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--c1);color:#fff;padding:12px 20px;border-radius:10px;display:flex;align-items:center;gap:14px;font-size:12px;z-index:500;opacity:0;pointer-events:none;transition:all .2s;white-space:nowrap}
 .confirm-box.show{opacity:1;pointer-events:all}
-.confirm-yes{padding:5px 14px;background:var(--red);border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;cursor:pointer}
-.confirm-no{padding:5px 14px;background:rgba(255,255,255,.15);border:none;border-radius:6px;color:#fff;font-size:11px;cursor:pointer}
+.confirm-yes{padding:5px 14px;background:var(--red);border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.confirm-no{padding:5px 14px;background:rgba(255,255,255,.15);border:none;border-radius:6px;color:#fff;font-size:11px;cursor:pointer;font-family:inherit}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--c1);color:#fff;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:500;z-index:600;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
 .toast.grn{background:#065f46}
 .toast.err{background:#991b1b}
 .empty-state{text-align:center;padding:48px;color:var(--c5)}
+
+/* ── SUPPORT ELIGIBILITY BANNER ── */
+.support-banner{padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.support-yes{background:var(--grn-bg);color:#065f46}
+.support-no{background:var(--red-bg);color:#991b1b}
+.support-grace{background:var(--amb-bg);color:#92400e}
+
+/* ── MISMATCH INDICATOR ── */
+.mismatch-icon{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;background:#fef3c7;color:#92400e;cursor:help}
+
+/* ── TAB VIEWS ── */
+.tab-view{display:none}
+.tab-view.active{display:block}
 </style>
 </head>
 <body>
@@ -236,7 +251,10 @@ tbody tr:hover .row-actions{opacity:1}
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:16px">
     <div class="logo"><span class="logo-dot"></span>AfterSchool HQ</div>
-    <div class="topbar-nav"><button class="tnav active">Tracker</button></div>
+    <div class="topbar-nav">
+      <button class="tnav active" id="tab-disputes-btn" onclick="switchTab('disputes')">Dispute Tracker</button>
+      <button class="tnav" id="tab-payments-btn" onclick="switchTab('payments')">Client Payments</button>
+    </div>
   </div>
   <div class="topbar-right">
     <span class="sync-dot" id="sync-dot"></span>
@@ -246,43 +264,95 @@ tbody tr:hover .row-actions{opacity:1}
   </div>
 </div>
 
-<div class="statsbar" id="statsbar"></div>
+<!-- ════════════════════════════════════════════════════════ -->
+<!--                   DISPUTES TAB                          -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="tab-view active" id="tab-disputes">
+
+<div class="statsbar" id="d-statsbar"></div>
 
 <div class="main">
   <div class="sidebar">
-    <div style="margin-bottom:8px"><div class="sb-head">By Provider</div><div id="provider-list"></div></div>
-    <div><div class="sb-head">By Reason</div><div id="reason-list"></div></div>
+    <div style="margin-bottom:8px"><div class="sb-head">By Provider</div><div id="d-provider-list"></div></div>
+    <div><div class="sb-head">By Reason</div><div id="d-reason-list"></div></div>
   </div>
   <div class="content">
     <div class="toolbar">
-      <div class="search"><span class="si">⌕</span><input type="text" id="search-input" placeholder="Search disputes…"></div>
-      <button class="filter-btn" id="f-fraud" onclick="toggleFilter('Fraudulent')">🚨 Fraudulent</button>
-      <button class="filter-btn" id="f-dup" onclick="toggleFilter('Duplicate')">🔁 Duplicate</button>
-      <button class="filter-btn" id="f-sub" onclick="toggleFilter('Subscription canceled')">⊘ Sub Canceled</button>
-      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
-      <button class="add-btn" onclick="openModal()">+ Add Dispute</button>
+      <div class="search"><span class="si">⌕</span><input type="text" id="d-search-input" placeholder="Search disputes…"></div>
+      <button class="filter-btn" id="df-fraud" onclick="dToggleFilter('Fraudulent')">🚨 Fraudulent</button>
+      <button class="filter-btn" id="df-dup" onclick="dToggleFilter('Duplicate')">🔁 Duplicate</button>
+      <button class="filter-btn" id="df-sub" onclick="dToggleFilter('Subscription canceled')">⊘ Sub Canceled</button>
+      <button class="export-btn" onclick="dExportCSV()">⬇ Export CSV</button>
+      <button class="add-btn" onclick="dOpenModal()">+ Add Dispute</button>
     </div>
     <div class="table-wrap">
-      <table id="main-table">
+      <table id="d-main-table">
         <thead><tr>
-          <th style="width:86px" onclick="sortBy('date')">Date<span class="sa" id="s-date">↕</span></th>
-          <th style="width:138px" onclick="sortBy('provider')">Provider<span class="sa" id="s-provider">↕</span></th>
-          <th style="width:102px" onclick="sortBy('parent')">Parent<span class="sa" id="s-parent">↕</span></th>
+          <th style="width:86px" onclick="dSortBy('date')">Date<span class="sa" id="ds-date">↕</span></th>
+          <th style="width:138px" onclick="dSortBy('provider')">Provider<span class="sa" id="ds-provider">↕</span></th>
+          <th style="width:102px" onclick="dSortBy('parent')">Parent<span class="sa" id="ds-parent">↕</span></th>
           <th style="width:118px">Program</th>
-          <th style="width:66px" onclick="sortBy('amount')">Amount<span class="sa" id="s-amount">↕</span></th>
+          <th style="width:66px" onclick="dSortBy('amount')">Amount<span class="sa" id="ds-amount">↕</span></th>
           <th style="width:80px">Reason</th>
           <th style="width:60px">Refund</th>
           <th style="width:88px">Status</th>
           <th style="width:74px">Outcome</th>
           <th style="width:78px"></th>
         </tr></thead>
-        <tbody id="tbody"></tbody>
+        <tbody id="d-tbody"></tbody>
       </table>
-      <div id="empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">🔍</div><div>No disputes match your filters</div></div>
+      <div id="d-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">🔍</div><div>No disputes match your filters</div></div>
     </div>
-    <div class="pagination"><span class="pg-info" id="pg-info"></span><div class="pg-btns" id="pg-btns"></div></div>
+    <div class="pagination"><span class="pg-info" id="d-pg-info"></span><div class="pg-btns" id="d-pg-btns"></div></div>
   </div>
 </div>
+</div><!-- end #tab-disputes -->
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!--                  PAYMENTS TAB                           -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="tab-view" id="tab-payments">
+
+<div class="statsbar" id="p-statsbar"></div>
+
+<div class="main">
+  <div class="sidebar">
+    <div style="margin-bottom:8px"><div class="sb-head">By Status</div><div id="p-status-list"></div></div>
+    <div style="margin-bottom:8px"><div class="sb-head">By Method</div><div id="p-method-list"></div></div>
+    <div><div class="sb-head">Support Eligible</div><div id="p-support-list"></div></div>
+  </div>
+  <div class="content">
+    <div class="toolbar">
+      <div class="search"><span class="si">⌕</span><input type="text" id="p-search-input" placeholder="Search clients…"></div>
+      <button class="filter-btn" id="pf-pastdue" onclick="pToggleFilter('Past Due')">⚠ Past Due</button>
+      <button class="filter-btn" id="pf-mismatch" onclick="pToggleMismatch()">🔀 Stripe Mismatch</button>
+      <button class="filter-btn" id="pf-nosupport" onclick="pToggleNoSupport()">🚫 No Support</button>
+      <button class="export-btn" onclick="pExportCSV()">⬇ Export CSV</button>
+      <button class="add-btn" onclick="pOpenModal()">+ Add Payment Record</button>
+    </div>
+    <div class="table-wrap">
+      <table id="p-main-table">
+        <thead><tr>
+          <th style="width:150px" onclick="pSortBy('client')">Client<span class="sa" id="ps-client">↕</span></th>
+          <th style="width:120px" onclick="pSortBy('contact')">Contact<span class="sa" id="ps-contact">↕</span></th>
+          <th style="width:78px" onclick="pSortBy('amount')">Amount<span class="sa" id="ps-amount">↕</span></th>
+          <th style="width:86px" onclick="pSortBy('paymentDate')">Paid On<span class="sa" id="ps-paymentDate">↕</span></th>
+          <th style="width:76px">Period</th>
+          <th style="width:80px">Method</th>
+          <th style="width:78px">Stripe</th>
+          <th style="width:84px">Acct Status</th>
+          <th style="width:72px">Support</th>
+          <th style="width:68px"></th>
+        </tr></thead>
+        <tbody id="p-tbody"></tbody>
+      </table>
+      <div id="p-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">💳</div><div>No payment records match your filters</div></div>
+    </div>
+    <div class="pagination"><span class="pg-info" id="p-pg-info"></span><div class="pg-btns" id="p-pg-btns"></div></div>
+  </div>
+</div>
+</div><!-- end #tab-payments -->
+
 </div><!-- end #app -->
 
 <!-- OVERLAY -->
@@ -297,37 +367,63 @@ tbody tr:hover .row-actions{opacity:1}
   <div class="dp-body" id="dp-body"></div>
 </div>
 
-<!-- ADD/EDIT MODAL -->
-<div class="modal" id="modal">
-  <div class="modal-bg" onclick="closeModal()"></div>
+<!-- ADD/EDIT MODAL — DISPUTES -->
+<div class="modal" id="d-modal">
+  <div class="modal-bg" onclick="dCloseModal()"></div>
   <div class="modal-box">
-    <div class="modal-hdr"><div class="modal-title" id="modal-title">Add Dispute</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-hdr"><div class="modal-title" id="d-modal-title">Add Dispute</div><button class="modal-close" onclick="dCloseModal()">✕</button></div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-group"><label class="form-label">Date Submitted</label><input class="form-input" id="f-date" placeholder="e.g. May 16, 2026"></div>
-        <div class="form-group"><label class="form-label">Payment Date</label><input class="form-input" id="f-paydate" placeholder="e.g. May 10, 2026"></div>
-        <div class="form-group full"><label class="form-label">Provider</label><input class="form-input" id="f-provider" placeholder="Organization name"></div>
-        <div class="form-group"><label class="form-label">Parent Name</label><input class="form-input" id="f-parent" placeholder="Family name"></div>
-        <div class="form-group"><label class="form-label">Parent Email</label><input class="form-input" id="f-email" type="email" placeholder="email@example.com"></div>
-        <div class="form-group full"><label class="form-label">Program Name</label><input class="form-input" id="f-program" placeholder="Program or service name"></div>
-        <div class="form-group"><label class="form-label">Dispute Amount ($)</label><input class="form-input" id="f-amount" type="number" step="0.01" placeholder="0.00"></div>
-        <div class="form-group"><label class="form-label">Reason</label><select class="form-select" id="f-reason"><option value="">— Select —</option><option>Fraudulent</option><option>Duplicate</option><option>Subscription canceled</option><option>Other</option></select></div>
-        <div class="form-group"><label class="form-label">Refund Issued?</label><select class="form-select" id="f-refund"><option value="">— Select —</option><option>No</option><option>Yes</option><option>Unsure</option></select></div>
-        <div class="form-group"><label class="form-label">Deadline to Respond</label><input class="form-input" id="f-deadline" placeholder="e.g. Jun 1, 2026"></div>
-        <div class="form-group"><label class="form-label">Evidence Submitted?</label><select class="form-select" id="f-evidence"><option value="">— Select —</option><option>Yes</option><option>No</option></select></div>
-        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-status"><option value="">— Select —</option><option>Waiting on Stripe</option><option>Waiting on Client</option><option>Closed</option></select></div>
-        <div class="form-group"><label class="form-label">Outcome</label><select class="form-select" id="f-outcome"><option value="">— Pending —</option><option>Dispute Lost</option><option>Accepted Dispute</option></select></div>
-        <div class="form-group"><label class="form-label">Charged Client?</label><select class="form-select" id="f-charged"><option value="">— Select —</option><option>Yes</option><option>No</option><option>Unsure</option></select></div>
-        <div class="form-group full"><label class="form-label">Dispute Link</label><input class="form-input" id="f-link" type="url" placeholder="https://dashboard.stripe.com/disputes/..."></div>
+        <div class="form-group"><label class="form-label">Date Submitted</label><input class="form-input" id="df-date" placeholder="e.g. May 16, 2026"></div>
+        <div class="form-group"><label class="form-label">Payment Date</label><input class="form-input" id="df-paydate" placeholder="e.g. May 10, 2026"></div>
+        <div class="form-group full"><label class="form-label">Provider</label><input class="form-input" id="df-provider" placeholder="Organization name"></div>
+        <div class="form-group"><label class="form-label">Parent Name</label><input class="form-input" id="df-parent" placeholder="Family name"></div>
+        <div class="form-group"><label class="form-label">Parent Email</label><input class="form-input" id="df-email" type="email" placeholder="email@example.com"></div>
+        <div class="form-group full"><label class="form-label">Program Name</label><input class="form-input" id="df-program" placeholder="Program or service name"></div>
+        <div class="form-group"><label class="form-label">Dispute Amount ($)</label><input class="form-input" id="df-amount" type="number" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label class="form-label">Reason</label><select class="form-select" id="df-reason"><option value="">— Select —</option><option>Fraudulent</option><option>Duplicate</option><option>Subscription canceled</option><option>Other</option></select></div>
+        <div class="form-group"><label class="form-label">Refund Issued?</label><select class="form-select" id="df-refund"><option value="">— Select —</option><option>No</option><option>Yes</option><option>Unsure</option></select></div>
+        <div class="form-group"><label class="form-label">Deadline to Respond</label><input class="form-input" id="df-deadline" placeholder="e.g. Jun 1, 2026"></div>
+        <div class="form-group"><label class="form-label">Evidence Submitted?</label><select class="form-select" id="df-evidence"><option value="">— Select —</option><option>Yes</option><option>No</option></select></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="df-status"><option value="">— Select —</option><option>Waiting on Stripe</option><option>Waiting on Client</option><option>Closed</option></select></div>
+        <div class="form-group"><label class="form-label">Outcome</label><select class="form-select" id="df-outcome"><option value="">— Pending —</option><option>Dispute Lost</option><option>Accepted Dispute</option></select></div>
+        <div class="form-group"><label class="form-label">Charged Client?</label><select class="form-select" id="df-charged"><option value="">— Select —</option><option>Yes</option><option>No</option><option>Unsure</option></select></div>
+        <div class="form-group full"><label class="form-label">Dispute Link</label><input class="form-input" id="df-link" type="url" placeholder="https://dashboard.stripe.com/disputes/..."></div>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveDispute()">Save Dispute</button></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="dCloseModal()">Cancel</button><button class="btn-save" onclick="dSaveDispute()">Save Dispute</button></div>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL — PAYMENTS -->
+<div class="modal" id="p-modal">
+  <div class="modal-bg" onclick="pCloseModal()"></div>
+  <div class="modal-box">
+    <div class="modal-hdr"><div class="modal-title" id="p-modal-title">Add Payment Record</div><button class="modal-close" onclick="pCloseModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label class="form-label">Client / Provider Name</label><input class="form-input" id="pf-client" placeholder="Organization name"></div>
+        <div class="form-group"><label class="form-label">Contact Person</label><input class="form-input" id="pf-contact" placeholder="e.g. John Smith"></div>
+        <div class="form-group"><label class="form-label">Contact Email</label><input class="form-input" id="pf-email" type="email" placeholder="email@example.com"></div>
+        <div class="form-group"><label class="form-label">Amount ($)</label><input class="form-input" id="pf-amount" type="number" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label class="form-label">Payment Date</label><input class="form-input" id="pf-paydate" placeholder="e.g. Sep 1, 2026"></div>
+        <div class="form-group"><label class="form-label">Billing Period</label><input class="form-input" id="pf-period" placeholder="e.g. Sep 2026, Q3 2026"></div>
+        <div class="form-group"><label class="form-label">Payment Method</label><select class="form-select" id="pf-method"><option value="">— Select —</option><option>Stripe</option><option>Check</option><option>Cash</option><option>ACH / Wire</option><option>Other</option></select></div>
+        <div class="form-group"><label class="form-label">Stripe Status</label><select class="form-select" id="pf-stripe"><option value="">— Select —</option><option>Paid</option><option>Unpaid</option><option>Partial</option><option>N/A</option></select></div>
+        <div class="form-group"><label class="form-label">Account Status</label><select class="form-select" id="pf-acctStatus"><option value="">— Select —</option><option>Active</option><option>Past Due</option><option>Suspended</option><option>Cancelled</option><option>Grace Period</option></select></div>
+        <div class="form-group"><label class="form-label">Support Eligible?</label><select class="form-select" id="pf-support"><option value="">— Auto-detect —</option><option>Yes</option><option>No</option><option>Grace Period</option></select></div>
+        <div class="form-group"><label class="form-label">Check / Ref Number</label><input class="form-input" id="pf-refNum" placeholder="e.g. Check #4521"></div>
+        <div class="form-group"><label class="form-label">Verified By</label><input class="form-input" id="pf-verifiedBy" placeholder="Team member who verified"></div>
+        <div class="form-group full"><label class="form-label">Notes</label><textarea class="form-textarea" id="pf-notes" placeholder="e.g. Check received by front desk on 9/1, not yet in Stripe…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="pCloseModal()">Cancel</button><button class="btn-save" onclick="pSavePayment()">Save Record</button></div>
   </div>
 </div>
 
 <!-- CONFIRM DELETE -->
 <div class="confirm-box" id="confirm-box">
-  <span>Delete this dispute?</span>
+  <span id="confirm-text">Delete this record?</span>
   <button class="confirm-yes" id="confirm-yes">Delete</button>
   <button class="confirm-no" onclick="hideConfirm()">Cancel</button>
 </div>
@@ -337,19 +433,34 @@ tbody tr:hover .row-actions{opacity:1}
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, set, push, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getDatabase, ref, set, push, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-// ── STATE ──
-let db, disputesRef, disputes=[], sortKey='date', sortDir=1, search='', filterProvider='', filterReason='', filterStat='', page=1, selRow=null, editId=null, pendingDelete=null;
-const PER=10;
+// ══════════════════════════════════════════════════
+//  SHARED STATE
+// ══════════════════════════════════════════════════
+let db, disputesRef, paymentsRef;
+let currentTab = 'disputes';
+let userName = localStorage.getItem('disputeos_name')||'';
+let dbURL = localStorage.getItem('disputeos_db')||'';
 const COLORS=['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6'];
 const colorMap={};let ci=0;
 function pc(p){if(!colorMap[p])colorMap[p]=COLORS[ci++%COLORS.length];return colorMap[p]}
+function initials(n){return(n||'').split(' ').slice(0,2).map(w=>w[0]).join('')}
 
-let userName = localStorage.getItem('disputeos_name')||'';
-let dbURL = localStorage.getItem('disputeos_db')||'';
+// ══════════════════════════════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════════════════════════════
+window.switchTab = function(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tnav').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab+'-btn').classList.add('active');
+};
 
-// ── BOOT ──
+// ══════════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════════
 if(dbURL && userName){
   document.getElementById('setup-screen').style.display='none';
   bootApp(dbURL);
@@ -378,25 +489,38 @@ function bootApp(url){
     const app = initializeApp({databaseURL: url, apiKey:'local', projectId:'local'}, 'disputeos-'+Math.random());
     db = getDatabase(app);
     disputesRef = ref(db,'disputes');
-    // listen for real-time changes
+    paymentsRef = ref(db,'payments');
+
+    let disputesLoaded=false, paymentsLoaded=false;
+    function checkReady(){
+      if(disputesLoaded && paymentsLoaded){
+        document.getElementById('connecting-screen').style.display='none';
+        document.getElementById('app').style.display='block';
+        setSyncStatus(true);
+      }
+    }
+
     onValue(disputesRef, snap=>{
-      document.getElementById('connecting-screen').style.display='none';
-      document.getElementById('app').style.display='block';
-      setSyncStatus(true);
       const val=snap.val();
       disputes = val ? Object.entries(val).map(([fbKey,d])=>({...d,fbKey})) : [];
-      // seed default data if empty
-      if(disputes.length===0) seedDefaults();
-      render();
+      if(disputes.length===0 && !disputesLoaded) seedDisputeDefaults();
+      disputesLoaded=true;
+      checkReady();
+      dRender();
     }, err=>{
-      document.getElementById('connecting-screen').style.display='none';
       setSyncStatus(false);
       showToast('Connection error — check your database URL','err');
-      setTimeout(()=>{
-        localStorage.removeItem('disputeos_db');
-        location.reload();
-      },3000);
+      setTimeout(()=>{localStorage.removeItem('disputeos_db');location.reload();},3000);
     });
+
+    onValue(paymentsRef, snap=>{
+      const val=snap.val();
+      payments = val ? Object.entries(val).map(([fbKey,d])=>({...d,fbKey})) : [];
+      paymentsLoaded=true;
+      checkReady();
+      pRender();
+    }, err=>{ /* dispute listener handles errors */ });
+
   }catch(e){
     document.getElementById('connecting-screen').style.display='none';
     showToast('Invalid Firebase config — please try again','err');
@@ -420,118 +544,106 @@ window.changeName=function(){
 };
 setTimeout(updateAvatar,100);
 
-// ── SEED ──
-const DEFAULT=[
-  {id:'D001',date:'Jan 11, 2026',provider:'Higher Heights Youth Empowerment Programs, Inc.',parent:'Wright Family',email:'Nkingwood@gmail.com',program:'2025–2026 College Access Program (Fall Session)',payDate:'Jan 4, 2026',amount:84.91,reason:'Fraudulent',refund:'No',deadline:'Mar 1, 2026',evidence:'Yes',status:'Closed',outcome:'Dispute Lost',charged:'Yes'},
-  {id:'D002',date:'Feb 22, 2026',provider:'Palmer Drug Abuse Program – Houston Inc',parent:'Senegal Family',email:'vdanielles@hotmail.com',program:'PLAN 3',payDate:'Jan 29, 2026',amount:150.00,reason:'Duplicate',refund:'No',deadline:'Feb 6, 2026',evidence:'No',status:'Closed',outcome:'Dispute Lost',charged:'Unsure'},
-  {id:'D003',date:'Apr 4, 2026',provider:'Higher Heights Youth Empowerment Programs, Inc.',parent:'Lindsay Family',email:'clindsay281@gmail.com',program:'2026-2027COLLEGEACCESS',payDate:'Mar 27, 2026',amount:103.20,reason:'Subscription canceled',refund:'No',deadline:'Apr 19, 2026',evidence:'No',status:'Closed',outcome:'Accepted Dispute',charged:'Yes'},
-  {id:'D004',date:'Apr 10, 2026',provider:'Foundation Academy Charter School',parent:'Ivory Family',email:'mzjennette07@gmail.com',program:'BEFORECAREPROGRAM',payDate:'Apr 2, 2026',amount:123.78,reason:'Fraudulent',refund:'No',deadline:'May 20, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
-  {id:'D005',date:'Apr 16, 2026',provider:'Nehemiah Community Empowerment Center, Inc',parent:'Amber Cohen',email:'ambercohen@yahoo.com',program:'2026STEMSUMMERCAMP311',payDate:'Mar 16, 2026',amount:50.72,reason:'Duplicate',refund:'No',deadline:'May 2, 2026',evidence:'No',status:'Closed',outcome:'Dispute Lost',charged:'No'},
-  {id:'D006',date:'May 1, 2026',provider:'Foundation Academy Charter School',parent:'Harris Family',email:'nasiaharris2519@gmail.com',program:'Foundation Academy K-8 Aftercare 25-26 SY',payDate:'May 1, 2026',amount:247.26,reason:'Subscription canceled',refund:'Unsure',deadline:'May 19, 2026',evidence:'No',status:'Waiting on Client',outcome:'',charged:''},
-  {id:'D007',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-21',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 21, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
-  {id:'D008',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-21',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 24, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
-  {id:'D009',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-20',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 24, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
-  {id:'D010',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-24',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 24, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
-  {id:'D011',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-20',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 24, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
-  {id:'D012',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-25',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 24, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
-  {id:'D013',date:'May 5, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-22',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 25, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
-  {id:'D014',date:'May 5, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-25',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 25, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
-  {id:'D015',date:'May 12, 2026',provider:'Young Explorers Centers Enrichment',parent:'Budhwani Family',email:'naushadbbudhwani@gmail.com',program:'Annual Registration Fee (2026-2027) @Harrisburg',payDate:'May 11, 2026',amount:26.03,reason:'Fraudulent',refund:'Unsure',deadline:'Jun 22, 2026',evidence:'No',status:'Waiting on Client',outcome:'',charged:''},
-];
-async function seedDefaults(){for(const d of DEFAULT){const r=push(disputesRef);await set(r,{...d,addedBy:'System',addedAt:new Date().toISOString()});}}
+// ── SHARED ──
+window.closePanel=()=>{document.getElementById('dpanel').classList.remove('open');document.getElementById('overlay').classList.remove('show');dSelRow=null;pSelRow=null;dRender();pRender();};
+window.showToast=(msg,type)=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(type?' '+type:'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);};
+window.hideConfirm=()=>{document.getElementById('confirm-box').classList.remove('show');};
+
+// ══════════════════════════════════════════════════
+//  DISPUTES MODULE
+// ══════════════════════════════════════════════════
+let disputes=[], dSortKey='date', dSortDir=1, dSearch='', dFilterProvider='', dFilterReason='', dFilterStat='', dPage=1, dSelRow=null, dEditId=null, dPendingDelete=null;
+const D_PER=10;
 
 // ── PILLS ──
-function sPill(s){if(!s)return'<span class="pill p-gray">—</span>';if(s==='Closed')return'<span class="pill p-gray">Closed</span>';if(s.includes('Stripe'))return'<span class="pill p-sky">⟳ Stripe</span>';if(s.includes('Client'))return'<span class="pill p-amb">⏳ Client</span>';return`<span class="pill p-pur">${s}</span>`;}
-function oPill(o){if(!o)return'<span class="pill p-gray">Pending</span>';if(o==='Dispute Lost')return'<span class="pill p-red">Lost</span>';if(o==='Accepted Dispute')return'<span class="pill p-grn">Won</span>';return`<span class="pill p-gray">${o}</span>`;}
-function rPill(r){if(r==='No')return'<span class="pill p-red">No</span>';if(r==='Yes')return'<span class="pill p-grn">Yes</span>';if(r==='Unsure')return'<span class="pill p-amb">?</span>';return'—';}
-function rnPill(r){if(r==='Fraudulent')return'<span class="pill p-red">🚨 Fraud</span>';if(r==='Duplicate')return'<span class="pill p-amb">🔁 Dup</span>';if(r==='Subscription canceled')return'<span class="pill p-sky">⊘ Sub</span>';return`<span class="pill p-gray">${r||'—'}</span>`;}
+function dSPill(s){if(!s)return'<span class="pill p-gray">—</span>';if(s==='Closed')return'<span class="pill p-gray">Closed</span>';if(s.includes('Stripe'))return'<span class="pill p-sky">⟳ Stripe</span>';if(s.includes('Client'))return'<span class="pill p-amb">⏳ Client</span>';return`<span class="pill p-pur">${s}</span>`;}
+function dOPill(o){if(!o)return'<span class="pill p-gray">Pending</span>';if(o==='Dispute Lost')return'<span class="pill p-red">Lost</span>';if(o==='Accepted Dispute')return'<span class="pill p-grn">Won</span>';return`<span class="pill p-gray">${o}</span>`;}
+function dRPill(r){if(r==='No')return'<span class="pill p-red">No</span>';if(r==='Yes')return'<span class="pill p-grn">Yes</span>';if(r==='Unsure')return'<span class="pill p-amb">?</span>';return'—';}
+function dRnPill(r){if(r==='Fraudulent')return'<span class="pill p-red">🚨 Fraud</span>';if(r==='Duplicate')return'<span class="pill p-amb">🔁 Dup</span>';if(r==='Subscription canceled')return'<span class="pill p-sky">⊘ Sub</span>';return`<span class="pill p-gray">${r||'—'}</span>`;}
 
-// ── FILTER ──
-function getFiltered(){
+function dGetFiltered(){
   let d=[...disputes];
-  if(search){const t=search.toLowerCase();d=d.filter(r=>r.provider.toLowerCase().includes(t)||r.parent.toLowerCase().includes(t)||(r.program||'').toLowerCase().includes(t)||(r.email||'').toLowerCase().includes(t));}
-  if(filterProvider)d=d.filter(r=>r.provider===filterProvider);
-  if(filterReason)d=d.filter(r=>r.reason===filterReason);
-  if(filterStat==='open')d=d.filter(r=>r.status!=='Closed');
-  else if(filterStat==='lost')d=d.filter(r=>r.outcome==='Dispute Lost');
-  else if(filterStat==='won')d=d.filter(r=>r.outcome==='Accepted Dispute');
-  else if(filterStat==='closed')d=d.filter(r=>r.status==='Closed');
-  d.sort((a,b)=>{let av,bv;if(sortKey==='date'){av=new Date(a.date);bv=new Date(b.date);}else if(sortKey==='amount'){av=a.amount;bv=b.amount;}else{av=(a[sortKey]||'').toLowerCase();bv=(b[sortKey]||'').toLowerCase();}return av<bv?-sortDir:av>bv?sortDir:0;});
+  if(dSearch){const t=dSearch.toLowerCase();d=d.filter(r=>r.provider.toLowerCase().includes(t)||r.parent.toLowerCase().includes(t)||(r.program||'').toLowerCase().includes(t)||(r.email||'').toLowerCase().includes(t));}
+  if(dFilterProvider)d=d.filter(r=>r.provider===dFilterProvider);
+  if(dFilterReason)d=d.filter(r=>r.reason===dFilterReason);
+  if(dFilterStat==='open')d=d.filter(r=>r.status!=='Closed');
+  else if(dFilterStat==='lost')d=d.filter(r=>r.outcome==='Dispute Lost');
+  else if(dFilterStat==='won')d=d.filter(r=>r.outcome==='Accepted Dispute');
+  else if(dFilterStat==='closed')d=d.filter(r=>r.status==='Closed');
+  d.sort((a,b)=>{let av,bv;if(dSortKey==='date'){av=new Date(a.date);bv=new Date(b.date);}else if(dSortKey==='amount'){av=a.amount;bv=b.amount;}else{av=(a[dSortKey]||'').toLowerCase();bv=(b[dSortKey]||'').toLowerCase();}return av<bv?-dSortDir:av>bv?dSortDir:0;});
   return d;
 }
 
-// ── RENDER ──
-function render(){
-  const filtered=getFiltered();const total=filtered.length;const pages=Math.max(1,Math.ceil(total/PER));if(page>pages)page=1;
-  const slice=filtered.slice((page-1)*PER,page*PER);
-  const tb=document.getElementById('tbody');const em=document.getElementById('empty');const tbl=document.getElementById('main-table');
+function dRender(){
+  const filtered=dGetFiltered();const total=filtered.length;const pages=Math.max(1,Math.ceil(total/D_PER));if(dPage>pages)dPage=1;
+  const slice=filtered.slice((dPage-1)*D_PER,dPage*D_PER);
+  const tb=document.getElementById('d-tbody');const em=document.getElementById('d-empty');const tbl=document.getElementById('d-main-table');
   if(!slice.length){tb.innerHTML='';em.style.display='';tbl.style.display='none';}else{em.style.display='none';tbl.style.display='';}
   tb.innerHTML=slice.map(r=>`
-    <tr onclick="openPanel('${r.fbKey}')" class="${selRow===r.fbKey?'sel':''}">
+    <tr onclick="dOpenPanel('${r.fbKey}')" class="${dSelRow===r.fbKey?'sel':''}">
       <td><span class="dt">${(r.date||'').replace(', 2026','')}</span></td>
-      <td><div style="display:flex;align-items:center;gap:6px"><div class="pav" style="background:${pc(r.provider)}">${(r.provider||'').split(' ').slice(0,2).map(w=>w[0]).join('')}</div><span class="pn">${r.provider||'—'}</span></div></td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="pav" style="background:${pc(r.provider)}">${initials(r.provider)}</div><span class="pn">${r.provider||'—'}</span></div></td>
       <td><span style="font-size:12px;color:var(--c2)">${r.parent||'—'}</span></td>
       <td><span class="pg">${r.program||'—'}</span></td>
       <td><span class="amt">$${Number(r.amount||0).toFixed(2)}</span></td>
-      <td>${rnPill(r.reason)}</td>
-      <td>${rPill(r.refund)}</td>
-      <td>${sPill(r.status)}</td>
-      <td>${oPill(r.outcome)}</td>
-      <td onclick="event.stopPropagation()"><div class="row-actions">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" class="ra-btn" style="background:var(--sky-bg);color:var(--sky);text-decoration:none" title="Open dispute link" onclick="event.stopPropagation()">🔗</a>`:''}<button class="ra-btn ra-edit" onclick="openModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="confirmDelete('${r.fbKey}')">Del</button></div></td>
+      <td>${dRnPill(r.reason)}</td>
+      <td>${dRPill(r.refund)}</td>
+      <td>${dSPill(r.status)}</td>
+      <td>${dOPill(r.outcome)}</td>
+      <td onclick="event.stopPropagation()"><div class="row-actions">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" class="ra-btn" style="background:var(--sky-bg);color:var(--sky);text-decoration:none" title="Open dispute link" onclick="event.stopPropagation()">🔗</a>`:''}<button class="ra-btn ra-edit" onclick="dOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="dConfirmDelete('${r.fbKey}')">Del</button></div></td>
     </tr>`).join('');
-  document.getElementById('pg-info').textContent=`${Math.min((page-1)*PER+1,total)}–${Math.min(page*PER,total)} of ${total}`;
-  renderPagination(pages);renderStats();renderSidebar();updateAvatar();
+  document.getElementById('d-pg-info').textContent=total?`${(dPage-1)*D_PER+1}–${Math.min(dPage*D_PER,total)} of ${total}`:'0 disputes';
+  dRenderPagination(pages);dRenderStats();dRenderSidebar();updateAvatar();
 }
 
-function renderPagination(pages){
-  const pb=document.getElementById('pg-btns');let h=`<button class="pg-btn" onclick="goPage(${page-1})" ${page===1?'disabled':''}>‹</button>`;
-  for(let i=1;i<=pages;i++)h+=`<button class="pg-btn${i===page?' cur':''}" onclick="goPage(${i})">${i}</button>`;
-  h+=`<button class="pg-btn" onclick="goPage(${page+1})" ${page===pages?'disabled':''}>›</button>`;pb.innerHTML=h;
+function dRenderPagination(pages){
+  const pb=document.getElementById('d-pg-btns');let h=`<button class="pg-btn" onclick="dGoPage(${dPage-1})" ${dPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++)h+=`<button class="pg-btn${i===dPage?' cur':''}" onclick="dGoPage(${i})">${i}</button>`;
+  h+=`<button class="pg-btn" onclick="dGoPage(${dPage+1})" ${dPage===pages?'disabled':''}>›</button>`;pb.innerHTML=h;
 }
-window.goPage=p=>{page=p;render()};
+window.dGoPage=p=>{dPage=p;dRender()};
 
-function renderStats(){
-  const total=disputes.length,open=disputes.filter(r=>r.status!=='Closed').length,closed=disputes.filter(r=>r.status==='Closed').length,amt=disputes.reduce((s,r)=>s+Number(r.amount||0),0),lost=disputes.filter(r=>r.outcome==='Dispute Lost').length,won=disputes.filter(r=>r.outcome==='Accepted Dispute').length;
+function dRenderStats(){
+  const total=disputes.length,open=disputes.filter(r=>r.status!=='Closed').length,amt=disputes.reduce((s,r)=>s+Number(r.amount||0),0),lost=disputes.filter(r=>r.outcome==='Dispute Lost').length,won=disputes.filter(r=>r.outcome==='Accepted Dispute').length;
   document.getElementById('open-count').textContent=open;
-  document.getElementById('statsbar').innerHTML=[
+  document.getElementById('d-statsbar').innerHTML=[
     {l:'Total Disputes',v:total,s:'All time',d:'dot-pur',f:''},
     {l:'Open',v:open,s:'Needs attention',d:'dot-amb',f:'open'},
     {l:'Total at Risk',v:'$'+amt.toFixed(2),s:'Disputed',d:'dot-red',f:''},
     {l:'Lost',v:lost,s:Math.round(lost/Math.max(total,1)*100)+'% rate',d:'dot-red',f:'lost'},
     {l:'Won',v:won,s:Math.round(won/Math.max(total,1)*100)+'% rate',d:'dot-grn',f:'won'}
-  ].map(s=>`<div class="stat${filterStat===s.f&&s.f?' active':''}" onclick="setStatFilter('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+  ].map(s=>`<div class="stat${dFilterStat===s.f&&s.f?' active':''}" onclick="dSetStatFilter('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
 }
 
-function renderSidebar(){
+function dRenderSidebar(){
   const providers=[...new Set(disputes.map(r=>r.provider))];
-  document.getElementById('provider-list').innerHTML=providers.map(p=>({p,c:disputes.filter(r=>r.provider===p).length})).sort((a,b)=>b.c-a.c).map(({p,c})=>`<div class="sb-row${filterProvider===p?' active':''}" onclick="setProvider('${p.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><div class="pav" style="background:${pc(p)};width:20px;height:20px;font-size:8px;border-radius:3px">${(p||'').split(' ').slice(0,2).map(w=>w[0]).join('')}</div><span class="sb-name">${p}</span><span class="sb-ct${c>=5?' hot':c>=3?' med':''}">${c}</span></div>`).join('');
+  document.getElementById('d-provider-list').innerHTML=providers.map(p=>({p,c:disputes.filter(r=>r.provider===p).length})).sort((a,b)=>b.c-a.c).map(({p,c})=>`<div class="sb-row${dFilterProvider===p?' active':''}" onclick="dSetProvider('${p.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><div class="pav" style="background:${pc(p)};width:20px;height:20px;font-size:8px;border-radius:3px">${initials(p)}</div><span class="sb-name">${p}</span><span class="sb-ct${c>=5?' hot':c>=3?' med':''}">${c}</span></div>`).join('');
   const reasons=[...new Set(disputes.map(r=>r.reason))];
-  document.getElementById('reason-list').innerHTML=reasons.map(r=>{const c=disputes.filter(d=>d.reason===r).length;return`<div class="sb-row"><span class="sb-name">${r||'Unknown'}</span><span class="sb-ct${r==='Fraudulent'?' hot':''}">${c}</span></div>`;}).join('');
+  document.getElementById('d-reason-list').innerHTML=reasons.map(r=>{const c=disputes.filter(d=>d.reason===r).length;return`<div class="sb-row"><span class="sb-name">${r||'Unknown'}</span><span class="sb-ct${r==='Fraudulent'?' hot':''}">${c}</span></div>`;}).join('');
 }
 
-// ── INTERACTIONS ──
-window.setProvider=p=>{filterProvider=filterProvider===p?'':p;page=1;render()};
-window.setStatFilter=f=>{filterStat=filterStat===f?'':f;page=1;render()};
-window.toggleFilter=r=>{filterReason=filterReason===r?'':r;page=1;['f-fraud','f-dup','f-sub'].forEach(id=>document.getElementById(id).classList.remove('on'));if(r==='Fraudulent')document.getElementById('f-fraud').classList.add('on');if(r==='Duplicate')document.getElementById('f-dup').classList.add('on');if(r==='Subscription canceled')document.getElementById('f-sub').classList.add('on');render();};
-window.sortBy=k=>{if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=-1;}['date','provider','parent','amount'].forEach(x=>{const el=document.getElementById('s-'+x);if(el)el.textContent='↕';});const el=document.getElementById('s-'+k);if(el)el.textContent=sortDir===1?'↑':'↓';render();};
-document.getElementById('search-input').addEventListener('input',function(){search=this.value;page=1;render()});
+window.dSetProvider=p=>{dFilterProvider=dFilterProvider===p?'':p;dPage=1;dRender()};
+window.dSetStatFilter=f=>{dFilterStat=dFilterStat===f?'':f;dPage=1;dRender()};
+window.dToggleFilter=r=>{dFilterReason=dFilterReason===r?'':r;dPage=1;['df-fraud','df-dup','df-sub'].forEach(id=>document.getElementById(id).classList.remove('on'));if(dFilterReason==='Fraudulent')document.getElementById('df-fraud').classList.add('on');if(dFilterReason==='Duplicate')document.getElementById('df-dup').classList.add('on');if(dFilterReason==='Subscription canceled')document.getElementById('df-sub').classList.add('on');dRender();};
+window.dSortBy=k=>{if(dSortKey===k)dSortDir*=-1;else{dSortKey=k;dSortDir=-1;}['date','provider','parent','amount'].forEach(x=>{const el=document.getElementById('ds-'+x);if(el)el.textContent='↕';});const el=document.getElementById('ds-'+k);if(el)el.textContent=dSortDir===1?'↑':'↓';dRender();};
+document.getElementById('d-search-input').addEventListener('input',function(){dSearch=this.value;dPage=1;dRender()});
 
-// ── PANEL ──
-window.openPanel=fbKey=>{
+// ── DISPUTE DETAIL PANEL ──
+window.dOpenPanel=fbKey=>{
   const r=disputes.find(x=>x.fbKey===fbKey);if(!r)return;
-  selRow=fbKey;render();
+  dSelRow=fbKey;dRender();
   document.getElementById('dp-title').textContent='Dispute '+(r.id||'');
-  document.getElementById('dp-sub').textContent=(r.provider||'')+'·'+(r.parent||'');
+  document.getElementById('dp-sub').textContent=(r.provider||'')+' · '+(r.parent||'');
   const events=[{ev:'Dispute submitted by '+r.parent,ts:r.date,col:'#6366f1'},{ev:'Payment on Stripe',ts:r.payDate,col:'#0ea5e9'},r.evidence==='Yes'?{ev:'Evidence submitted',ts:r.deadline+' (deadline)',col:'#10b981'}:null,r.status==='Closed'?{ev:'Case closed — '+(r.outcome||'no outcome'),ts:r.deadline,col:r.outcome==='Dispute Lost'?'#ef4444':'#10b981'}:null].filter(Boolean);
   document.getElementById('dp-body').innerHTML=`
     <div class="dp-sec"><div class="dp-sec-title">Dispute Info</div>
       <div class="dp-field"><span class="dp-k">Amount</span><span class="dp-v" style="color:var(--red);font-weight:700">$${Number(r.amount||0).toFixed(2)}</span></div>
-      <div class="dp-field"><span class="dp-k">Reason</span><span class="dp-v">${rnPill(r.reason)}</span></div>
-      <div class="dp-field"><span class="dp-k">Status</span><span class="dp-v">${sPill(r.status)}</span></div>
-      <div class="dp-field"><span class="dp-k">Outcome</span><span class="dp-v">${oPill(r.outcome)}</span></div>
-      <div class="dp-field"><span class="dp-k">Refund Issued</span><span class="dp-v">${rPill(r.refund)}</span></div>
+      <div class="dp-field"><span class="dp-k">Reason</span><span class="dp-v">${dRnPill(r.reason)}</span></div>
+      <div class="dp-field"><span class="dp-k">Status</span><span class="dp-v">${dSPill(r.status)}</span></div>
+      <div class="dp-field"><span class="dp-k">Outcome</span><span class="dp-v">${dOPill(r.outcome)}</span></div>
+      <div class="dp-field"><span class="dp-k">Refund Issued</span><span class="dp-v">${dRPill(r.refund)}</span></div>
       <div class="dp-field"><span class="dp-k">Charged Client?</span><span class="dp-v">${r.charged||'—'}</span></div>
-      <div class="dp-field"><span class="dp-k">Dispute Link</span><span class="dp-v">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:none;font-size:10px" title="${r.link}">🔗 Open Link</a>`:'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Dispute Link</span><span class="dp-v">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:none;font-size:10px">🔗 Open</a>`:'—'}</span></div>
     </div>
     <div class="dp-sec"><div class="dp-sec-title">Parties</div>
       <div class="dp-field"><span class="dp-k">Provider</span><span class="dp-v" style="font-size:10px">${r.provider||'—'}</span></div>
@@ -550,81 +662,74 @@ window.openPanel=fbKey=>{
     </div>
     ${r.addedBy?`<div class="added-by">Added by <strong>${r.addedBy}</strong>${r.addedAt?' · '+new Date(r.addedAt).toLocaleDateString():''}</div>`:''}
     <div class="dp-acts">
-      <button class="dp-btn primary" onclick="openModal('${fbKey}');closePanel()">✏ Edit</button>
-      <button class="dp-btn danger" onclick="confirmDelete('${fbKey}');closePanel()">🗑 Delete</button>
+      <button class="dp-btn primary" onclick="dOpenModal('${fbKey}');closePanel()">✏ Edit</button>
+      <button class="dp-btn danger" onclick="dConfirmDelete('${fbKey}');closePanel()">🗑 Delete</button>
     </div>`;
   document.getElementById('dpanel').classList.add('open');
   document.getElementById('overlay').classList.add('show');
 };
-window.closePanel=()=>{document.getElementById('dpanel').classList.remove('open');document.getElementById('overlay').classList.remove('show');selRow=null;render();};
 
-// ── MODAL ──
-window.openModal=fbKey=>{
-  editId=fbKey||null;
-  document.getElementById('modal-title').textContent=fbKey?'Edit Dispute':'Add Dispute';
+// ── DISPUTE MODAL ──
+window.dOpenModal=fbKey=>{
+  dEditId=fbKey||null;
+  document.getElementById('d-modal-title').textContent=fbKey?'Edit Dispute':'Add Dispute';
   if(fbKey){
     const r=disputes.find(x=>x.fbKey===fbKey);
-    if(r){document.getElementById('f-date').value=r.date||'';document.getElementById('f-paydate').value=r.payDate||'';document.getElementById('f-provider').value=r.provider||'';document.getElementById('f-parent').value=r.parent||'';document.getElementById('f-email').value=r.email||'';document.getElementById('f-program').value=r.program||'';document.getElementById('f-amount').value=r.amount||'';document.getElementById('f-reason').value=r.reason||'';document.getElementById('f-refund').value=r.refund||'';document.getElementById('f-deadline').value=r.deadline||'';document.getElementById('f-evidence').value=r.evidence||'';document.getElementById('f-status').value=r.status||'';document.getElementById('f-outcome').value=r.outcome||'';document.getElementById('f-charged').value=r.charged||'';document.getElementById('f-link').value=r.link||'';}
+    if(r){['date','paydate','provider','parent','email','program','amount','reason','refund','deadline','evidence','status','outcome','charged','link'].forEach(f=>{const el=document.getElementById('df-'+f);const key=f==='paydate'?'payDate':f;el.value=r[key]||'';});}
   } else {
-    ['date','paydate','provider','parent','email','program','amount','reason','refund','deadline','evidence','status','outcome','charged','link'].forEach(f=>document.getElementById('f-'+f).value='');
-    document.getElementById('f-date').value=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    ['date','paydate','provider','parent','email','program','amount','reason','refund','deadline','evidence','status','outcome','charged','link'].forEach(f=>document.getElementById('df-'+f).value='');
+    document.getElementById('df-date').value=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   }
-  document.getElementById('modal').classList.add('show');
+  document.getElementById('d-modal').classList.add('show');
 };
-window.closeModal=()=>{document.getElementById('modal').classList.remove('show');editId=null;};
+window.dCloseModal=()=>{document.getElementById('d-modal').classList.remove('show');dEditId=null;};
 
-window.saveDispute=async()=>{
+window.dSaveDispute=async()=>{
   const d={
-    date:document.getElementById('f-date').value.trim(),
-    payDate:document.getElementById('f-paydate').value.trim(),
-    provider:document.getElementById('f-provider').value.trim(),
-    parent:document.getElementById('f-parent').value.trim(),
-    email:document.getElementById('f-email').value.trim(),
-    program:document.getElementById('f-program').value.trim(),
-    amount:parseFloat(document.getElementById('f-amount').value)||0,
-    reason:document.getElementById('f-reason').value,
-    refund:document.getElementById('f-refund').value,
-    deadline:document.getElementById('f-deadline').value.trim(),
-    evidence:document.getElementById('f-evidence').value,
-    status:document.getElementById('f-status').value,
-    outcome:document.getElementById('f-outcome').value,
-    charged:document.getElementById('f-charged').value,
-    link:document.getElementById('f-link').value.trim(),
-    addedBy:userName,
-    addedAt:new Date().toISOString(),
+    date:document.getElementById('df-date').value.trim(),
+    payDate:document.getElementById('df-paydate').value.trim(),
+    provider:document.getElementById('df-provider').value.trim(),
+    parent:document.getElementById('df-parent').value.trim(),
+    email:document.getElementById('df-email').value.trim(),
+    program:document.getElementById('df-program').value.trim(),
+    amount:parseFloat(document.getElementById('df-amount').value)||0,
+    reason:document.getElementById('df-reason').value,
+    refund:document.getElementById('df-refund').value,
+    deadline:document.getElementById('df-deadline').value.trim(),
+    evidence:document.getElementById('df-evidence').value,
+    status:document.getElementById('df-status').value,
+    outcome:document.getElementById('df-outcome').value,
+    charged:document.getElementById('df-charged').value,
+    link:document.getElementById('df-link').value.trim(),
+    addedBy:userName,addedAt:new Date().toISOString(),
   };
   if(!d.provider||!d.parent){showToast('Provider and Parent Name are required','err');return;}
   try{
-    if(editId){
-      const existing=disputes.find(x=>x.fbKey===editId);
-      d.id=existing?.id||'D?';
-      d.addedBy=existing?.addedBy||userName;
-      d.addedAt=existing?.addedAt||d.addedAt;
-      d.updatedBy=userName;
-      d.updatedAt=new Date().toISOString();
-      await set(ref(db,'disputes/'+editId),d);
+    if(dEditId){
+      const existing=disputes.find(x=>x.fbKey===dEditId);
+      d.id=existing?.id||'D?';d.addedBy=existing?.addedBy||userName;d.addedAt=existing?.addedAt||d.addedAt;
+      d.updatedBy=userName;d.updatedAt=new Date().toISOString();
+      await set(ref(db,'disputes/'+dEditId),d);
     }else{
       const nums=disputes.map(x=>parseInt((x.id||'D0').slice(1))||0);
       d.id='D'+String(Math.max(0,...nums)+1).padStart(3,'0');
       await push(disputesRef,d);
     }
-    closeModal();showToast(editId?'Dispute updated ✓':'Dispute added ✓','grn');
+    dCloseModal();showToast(dEditId?'Dispute updated ✓':'Dispute added ✓','grn');
   }catch(e){showToast('Save failed — check connection','err');}
 };
 
-// ── DELETE ──
-window.confirmDelete=fbKey=>{
-  pendingDelete=fbKey;
+window.dConfirmDelete=fbKey=>{
+  dPendingDelete=fbKey;
+  document.getElementById('confirm-text').textContent='Delete this dispute?';
   document.getElementById('confirm-box').classList.add('show');
   document.getElementById('confirm-yes').onclick=async()=>{
-    try{await remove(ref(db,'disputes/'+pendingDelete));hideConfirm();showToast('Dispute deleted','');}
+    try{await remove(ref(db,'disputes/'+dPendingDelete));hideConfirm();showToast('Dispute deleted','');}
     catch(e){showToast('Delete failed','err');}
   };
 };
-window.hideConfirm=()=>{document.getElementById('confirm-box').classList.remove('show');pendingDelete=null;};
 
-// ── EXPORT ──
-window.exportCSV=()=>{
+window.dExportCSV=()=>{
   const h=['ID','Date Submitted','Provider','Parent Name','Email','Program','Payment Date','Amount','Reason','Refund','Deadline','Evidence','Status','Outcome','Charged Client','Link','Added By'];
   const rows=disputes.map(r=>[r.id,r.date,r.provider,r.parent,r.email,r.program,r.payDate,r.amount,r.reason,r.refund,r.deadline,r.evidence,r.status,r.outcome,r.charged,r.link,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
   const csv=[h.join(','),...rows].join('\n');
@@ -632,8 +737,294 @@ window.exportCSV=()=>{
   showToast('CSV exported ✓','grn');
 };
 
-// ── TOAST ──
-window.showToast=(msg,type)=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(type?' '+type:'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);};
+// ── SEED DISPUTES ──
+const D_DEFAULT=[
+  {id:'D001',date:'Jan 11, 2026',provider:'Higher Heights Youth Empowerment Programs, Inc.',parent:'Wright Family',email:'Nkingwood@gmail.com',program:'2025–2026 College Access Program (Fall Session)',payDate:'Jan 4, 2026',amount:84.91,reason:'Fraudulent',refund:'No',deadline:'Mar 1, 2026',evidence:'Yes',status:'Closed',outcome:'Dispute Lost',charged:'Yes'},
+  {id:'D002',date:'Feb 22, 2026',provider:'Palmer Drug Abuse Program – Houston Inc',parent:'Senegal Family',email:'vdanielles@hotmail.com',program:'PLAN 3',payDate:'Jan 29, 2026',amount:150.00,reason:'Duplicate',refund:'No',deadline:'Feb 6, 2026',evidence:'No',status:'Closed',outcome:'Dispute Lost',charged:'Unsure'},
+  {id:'D003',date:'Apr 4, 2026',provider:'Higher Heights Youth Empowerment Programs, Inc.',parent:'Lindsay Family',email:'clindsay281@gmail.com',program:'2026-2027COLLEGEACCESS',payDate:'Mar 27, 2026',amount:103.20,reason:'Subscription canceled',refund:'No',deadline:'Apr 19, 2026',evidence:'No',status:'Closed',outcome:'Accepted Dispute',charged:'Yes'},
+  {id:'D004',date:'Apr 10, 2026',provider:'Foundation Academy Charter School',parent:'Ivory Family',email:'mzjennette07@gmail.com',program:'BEFORECAREPROGRAM',payDate:'Apr 2, 2026',amount:123.78,reason:'Fraudulent',refund:'No',deadline:'May 20, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
+  {id:'D005',date:'Apr 16, 2026',provider:'Nehemiah Community Empowerment Center, Inc',parent:'Amber Cohen',email:'ambercohen@yahoo.com',program:'2026STEMSUMMERCAMP311',payDate:'Mar 16, 2026',amount:50.72,reason:'Duplicate',refund:'No',deadline:'May 2, 2026',evidence:'No',status:'Closed',outcome:'Dispute Lost',charged:'No'},
+  {id:'D006',date:'May 1, 2026',provider:'Foundation Academy Charter School',parent:'Harris Family',email:'nasiaharris2519@gmail.com',program:'Foundation Academy K-8 Aftercare 25-26 SY',payDate:'May 1, 2026',amount:247.26,reason:'Subscription canceled',refund:'Unsure',deadline:'May 19, 2026',evidence:'No',status:'Waiting on Client',outcome:'',charged:''},
+  {id:'D007',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-21',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 21, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
+  {id:'D008',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-21',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 24, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
+  {id:'D009',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-20',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 24, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
+  {id:'D010',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-24',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 24, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
+  {id:'D011',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-20',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 24, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
+  {id:'D012',date:'May 4, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-25',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 24, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
+  {id:'D013',date:'May 5, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-22',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 25, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
+  {id:'D014',date:'May 5, 2026',provider:'Halls Enterprises Group',parent:'Torres Family',email:'katiria_1086@yahoo.com',program:'6AMEARLYDROPOFF2025-25',payDate:'Apr 28, 2026',amount:62.04,reason:'Fraudulent',refund:'No',deadline:'May 25, 2026',evidence:'Yes',status:'Waiting on Stripe',outcome:'',charged:''},
+  {id:'D015',date:'May 12, 2026',provider:'Young Explorers Centers Enrichment',parent:'Budhwani Family',email:'naushadbbudhwani@gmail.com',program:'Annual Registration Fee (2026-2027) @Harrisburg',payDate:'May 11, 2026',amount:26.03,reason:'Fraudulent',refund:'Unsure',deadline:'Jun 22, 2026',evidence:'No',status:'Waiting on Client',outcome:'',charged:''},
+];
+async function seedDisputeDefaults(){for(const d of D_DEFAULT){const r=push(disputesRef);await set(r,{...d,addedBy:'System',addedAt:new Date().toISOString()});}}
+
+
+// ══════════════════════════════════════════════════
+//  PAYMENTS MODULE
+// ══════════════════════════════════════════════════
+let payments=[], pSortKey='paymentDate', pSortDir=1, pSearch='', pFilterStatus='', pFilterMismatch=false, pFilterNoSupport=false, pPage=1, pSelRow=null, pEditId=null, pPendingDelete=null;
+const P_PER=10;
+
+// ── SUPPORT ELIGIBILITY LOGIC ──
+function calcSupport(r){
+  // If manually set, use that
+  if(r.support==='Yes') return 'Yes';
+  if(r.support==='No') return 'No';
+  if(r.support==='Grace Period') return 'Grace Period';
+  // Auto-detect from account status
+  if(r.acctStatus==='Active') return 'Yes';
+  if(r.acctStatus==='Grace Period') return 'Grace Period';
+  if(r.acctStatus==='Past Due') return 'Grace Period';
+  if(r.acctStatus==='Suspended'||r.acctStatus==='Cancelled') return 'No';
+  return 'Yes'; // default
+}
+
+function hasMismatch(r){
+  // Stripe says unpaid but payment was received via another method
+  if(r.stripeStatus==='Unpaid' && r.method && r.method!=='Stripe' && r.method!=='') return true;
+  // Stripe says paid but account is past due/suspended
+  if(r.stripeStatus==='Paid' && (r.acctStatus==='Past Due'||r.acctStatus==='Suspended')) return true;
+  return false;
+}
+
+// ── PILLS ──
+function pMethodPill(m){
+  if(!m)return'<span class="pill p-gray">—</span>';
+  if(m==='Stripe')return'<span class="pill p-pur">💳 Stripe</span>';
+  if(m==='Check')return'<span class="pill p-sky">📝 Check</span>';
+  if(m==='Cash')return'<span class="pill p-grn">💵 Cash</span>';
+  if(m==='ACH / Wire')return'<span class="pill p-sky">🏦 ACH</span>';
+  return`<span class="pill p-gray">${m}</span>`;
+}
+function pStripePill(s){
+  if(!s||s==='N/A')return'<span class="pill p-gray">N/A</span>';
+  if(s==='Paid')return'<span class="pill p-grn">✓ Paid</span>';
+  if(s==='Unpaid')return'<span class="pill p-red">✗ Unpaid</span>';
+  if(s==='Partial')return'<span class="pill p-amb">◐ Partial</span>';
+  return`<span class="pill p-gray">${s}</span>`;
+}
+function pAcctPill(s){
+  if(!s)return'<span class="pill p-gray">—</span>';
+  if(s==='Active')return'<span class="pill p-grn">Active</span>';
+  if(s==='Past Due')return'<span class="pill p-red">Past Due</span>';
+  if(s==='Suspended')return'<span class="pill p-red">Suspended</span>';
+  if(s==='Cancelled')return'<span class="pill p-gray">Cancelled</span>';
+  if(s==='Grace Period')return'<span class="pill p-amb">Grace</span>';
+  return`<span class="pill p-gray">${s}</span>`;
+}
+function pSupportPill(r){
+  const s=calcSupport(r);
+  if(s==='Yes')return'<span class="support-banner support-yes">✓ Yes</span>';
+  if(s==='No')return'<span class="support-banner support-no">✗ No</span>';
+  if(s==='Grace Period')return'<span class="support-banner support-grace">⏳ Grace</span>';
+  return'<span class="pill p-gray">—</span>';
+}
+
+function pGetFiltered(){
+  let d=[...payments];
+  if(pSearch){const t=pSearch.toLowerCase();d=d.filter(r=>(r.client||'').toLowerCase().includes(t)||(r.contact||'').toLowerCase().includes(t)||(r.email||'').toLowerCase().includes(t)||(r.notes||'').toLowerCase().includes(t)||(r.refNum||'').toLowerCase().includes(t));}
+  if(pFilterStatus)d=d.filter(r=>r.acctStatus===pFilterStatus);
+  if(pFilterMismatch)d=d.filter(r=>hasMismatch(r));
+  if(pFilterNoSupport)d=d.filter(r=>calcSupport(r)==='No');
+  d.sort((a,b)=>{let av,bv;if(pSortKey==='paymentDate'){av=new Date(a.paymentDate||0);bv=new Date(b.paymentDate||0);}else if(pSortKey==='amount'){av=Number(a.amount)||0;bv=Number(b.amount)||0;}else{av=(a[pSortKey]||'').toLowerCase();bv=(b[pSortKey]||'').toLowerCase();}return av<bv?-pSortDir:av>bv?pSortDir:0;});
+  return d;
+}
+
+function pRender(){
+  const filtered=pGetFiltered();const total=filtered.length;const pages=Math.max(1,Math.ceil(total/P_PER));if(pPage>pages)pPage=1;
+  const slice=filtered.slice((pPage-1)*P_PER,pPage*P_PER);
+  const tb=document.getElementById('p-tbody');const em=document.getElementById('p-empty');const tbl=document.getElementById('p-main-table');
+  if(!slice.length){tb.innerHTML='';em.style.display='';tbl.style.display='none';}else{em.style.display='none';tbl.style.display='';}
+  tb.innerHTML=slice.map(r=>{
+    const mm=hasMismatch(r);
+    return`<tr onclick="pOpenPanel('${r.fbKey}')" class="${pSelRow===r.fbKey?'sel':''}${mm?' style="background:#fffbeb"':''}">
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="pav" style="background:${pc(r.client||'?')}">${initials(r.client)}</div><span class="pn">${r.client||'—'}</span>${mm?'<span class="mismatch-icon" title="Stripe status doesn\'t match payment method or account status">⚠ Mismatch</span>':''}</div></td>
+      <td><span style="font-size:12px;color:var(--c2)">${r.contact||'—'}</span></td>
+      <td><span class="amt">$${Number(r.amount||0).toFixed(2)}</span></td>
+      <td><span class="dt">${r.paymentDate||'—'}</span></td>
+      <td><span class="dt">${r.period||'—'}</span></td>
+      <td>${pMethodPill(r.method)}</td>
+      <td>${pStripePill(r.stripeStatus)}</td>
+      <td>${pAcctPill(r.acctStatus)}</td>
+      <td>${pSupportPill(r)}</td>
+      <td onclick="event.stopPropagation()"><div class="row-actions"><button class="ra-btn ra-edit" onclick="pOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="pConfirmDelete('${r.fbKey}')">Del</button></div></td>
+    </tr>`}).join('');
+  document.getElementById('p-pg-info').textContent=total?`${(pPage-1)*P_PER+1}–${Math.min(pPage*P_PER,total)} of ${total}`:'0 records';
+  pRenderPagination(pages);pRenderStats();pRenderSidebar();
+}
+
+function pRenderPagination(pages){
+  const pb=document.getElementById('p-pg-btns');let h=`<button class="pg-btn" onclick="pGoPage(${pPage-1})" ${pPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++)h+=`<button class="pg-btn${i===pPage?' cur':''}" onclick="pGoPage(${i})">${i}</button>`;
+  h+=`<button class="pg-btn" onclick="pGoPage(${pPage+1})" ${pPage===pages?'disabled':''}>›</button>`;pb.innerHTML=h;
+}
+window.pGoPage=p=>{pPage=p;pRender()};
+
+function pRenderStats(){
+  const total=payments.length;
+  const active=payments.filter(r=>r.acctStatus==='Active').length;
+  const pastDue=payments.filter(r=>r.acctStatus==='Past Due').length;
+  const totalAmt=payments.reduce((s,r)=>s+Number(r.amount||0),0);
+  const mismatches=payments.filter(r=>hasMismatch(r)).length;
+  const noSupport=payments.filter(r=>calcSupport(r)==='No').length;
+  document.getElementById('p-statsbar').innerHTML=[
+    {l:'Total Records',v:total,s:'All clients',d:'dot-pur',f:''},
+    {l:'Active',v:active,s:'In good standing',d:'dot-grn',f:'Active'},
+    {l:'Past Due',v:pastDue,s:'Needs follow-up',d:'dot-red',f:'Past Due'},
+    {l:'Mismatches',v:mismatches,s:'Stripe vs actual',d:'dot-amb',f:'_mismatch'},
+    {l:'No Support',v:noSupport,s:'Payment required',d:'dot-red',f:'_nosupport'}
+  ].map(s=>`<div class="stat${(pFilterStatus===s.f||(s.f==='_mismatch'&&pFilterMismatch)||(s.f==='_nosupport'&&pFilterNoSupport))?' active':''}" onclick="pStatClick('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+}
+
+window.pStatClick=f=>{
+  if(f==='_mismatch'){pFilterMismatch=!pFilterMismatch;pFilterNoSupport=false;pFilterStatus='';}
+  else if(f==='_nosupport'){pFilterNoSupport=!pFilterNoSupport;pFilterMismatch=false;pFilterStatus='';}
+  else{pFilterStatus=pFilterStatus===f?'':f;pFilterMismatch=false;pFilterNoSupport=false;}
+  pPage=1;pRender();
+};
+
+function pRenderSidebar(){
+  const statuses=['Active','Past Due','Grace Period','Suspended','Cancelled'];
+  document.getElementById('p-status-list').innerHTML=statuses.map(s=>{
+    const c=payments.filter(r=>r.acctStatus===s).length;if(!c)return'';
+    return`<div class="sb-row${pFilterStatus===s?' active':''}" onclick="pSetStatusFilter('${s}')"><span class="sb-name">${s}</span><span class="sb-ct${s==='Past Due'||s==='Suspended'?' hot':''}">${c}</span></div>`;
+  }).join('');
+  const methods=[...new Set(payments.map(r=>r.method).filter(Boolean))];
+  document.getElementById('p-method-list').innerHTML=methods.map(m=>{const c=payments.filter(r=>r.method===m).length;return`<div class="sb-row"><span class="sb-name">${m}</span><span class="sb-ct">${c}</span></div>`;}).join('');
+  const supportYes=payments.filter(r=>calcSupport(r)==='Yes').length;
+  const supportNo=payments.filter(r=>calcSupport(r)==='No').length;
+  const supportGrace=payments.filter(r=>calcSupport(r)==='Grace Period').length;
+  document.getElementById('p-support-list').innerHTML=[
+    supportYes?`<div class="sb-row"><span class="sb-name">✓ Eligible</span><span class="sb-ct" style="background:var(--grn-bg);color:#065f46">${supportYes}</span></div>`:'',
+    supportGrace?`<div class="sb-row"><span class="sb-name">⏳ Grace Period</span><span class="sb-ct med">${supportGrace}</span></div>`:'',
+    supportNo?`<div class="sb-row"><span class="sb-name">✗ Not Eligible</span><span class="sb-ct hot">${supportNo}</span></div>`:'',
+  ].join('');
+}
+
+window.pSetStatusFilter=s=>{pFilterStatus=pFilterStatus===s?'':s;pFilterMismatch=false;pFilterNoSupport=false;pPage=1;pRender()};
+window.pToggleFilter=s=>{
+  if(s==='Past Due'){pFilterStatus=pFilterStatus==='Past Due'?'':'Past Due';document.getElementById('pf-pastdue').classList.toggle('on',pFilterStatus==='Past Due');}
+  pFilterMismatch=false;pFilterNoSupport=false;pPage=1;pRender();
+};
+window.pToggleMismatch=()=>{pFilterMismatch=!pFilterMismatch;pFilterStatus='';pFilterNoSupport=false;document.getElementById('pf-mismatch').classList.toggle('on',pFilterMismatch);document.getElementById('pf-pastdue').classList.remove('on');document.getElementById('pf-nosupport').classList.remove('on');pPage=1;pRender();};
+window.pToggleNoSupport=()=>{pFilterNoSupport=!pFilterNoSupport;pFilterStatus='';pFilterMismatch=false;document.getElementById('pf-nosupport').classList.toggle('on',pFilterNoSupport);document.getElementById('pf-pastdue').classList.remove('on');document.getElementById('pf-mismatch').classList.remove('on');pPage=1;pRender();};
+window.pSortBy=k=>{if(pSortKey===k)pSortDir*=-1;else{pSortKey=k;pSortDir=-1;}['client','contact','amount','paymentDate'].forEach(x=>{const el=document.getElementById('ps-'+x);if(el)el.textContent='↕';});const el=document.getElementById('ps-'+k);if(el)el.textContent=pSortDir===1?'↑':'↓';pRender();};
+document.getElementById('p-search-input').addEventListener('input',function(){pSearch=this.value;pPage=1;pRender()});
+
+// ── PAYMENT DETAIL PANEL ──
+window.pOpenPanel=fbKey=>{
+  const r=payments.find(x=>x.fbKey===fbKey);if(!r)return;
+  pSelRow=fbKey;pRender();
+  const sup=calcSupport(r);const mm=hasMismatch(r);
+  document.getElementById('dp-title').textContent=r.client||'Payment Record';
+  document.getElementById('dp-sub').textContent=(r.contact||'')+(r.period?' · '+r.period:'');
+  document.getElementById('dp-body').innerHTML=`
+    ${mm?`<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#92400e"><strong>⚠ Mismatch Detected:</strong> Stripe shows <strong>${r.stripeStatus||'unknown'}</strong> but payment was received via <strong>${r.method||'unknown'}</strong>. Account is <strong>${r.acctStatus||'unknown'}</strong>. Please verify and update.</div>`:''}
+    <div class="dp-sec"><div class="dp-sec-title">Payment Info</div>
+      <div class="dp-field"><span class="dp-k">Amount</span><span class="dp-v" style="font-weight:700;color:var(--grn)">$${Number(r.amount||0).toFixed(2)}</span></div>
+      <div class="dp-field"><span class="dp-k">Payment Date</span><span class="dp-v">${r.paymentDate||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Billing Period</span><span class="dp-v">${r.period||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Method</span><span class="dp-v">${pMethodPill(r.method)}</span></div>
+      <div class="dp-field"><span class="dp-k">Ref / Check #</span><span class="dp-v">${r.refNum||'—'}</span></div>
+    </div>
+    <div class="dp-sec"><div class="dp-sec-title">Account Status</div>
+      <div class="dp-field"><span class="dp-k">Stripe Status</span><span class="dp-v">${pStripePill(r.stripeStatus)}</span></div>
+      <div class="dp-field"><span class="dp-k">Account Status</span><span class="dp-v">${pAcctPill(r.acctStatus)}</span></div>
+      <div class="dp-field"><span class="dp-k">Support Eligible</span><span class="dp-v">${pSupportPill(r)}</span></div>
+      <div class="dp-field"><span class="dp-k">Verified By</span><span class="dp-v">${r.verifiedBy||'—'}</span></div>
+    </div>
+    <div class="dp-sec"><div class="dp-sec-title">Client</div>
+      <div class="dp-field"><span class="dp-k">Client</span><span class="dp-v" style="font-size:10px">${r.client||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Contact</span><span class="dp-v">${r.contact||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Email</span><span class="dp-v" style="color:var(--acc)">${r.email||'—'}</span></div>
+    </div>
+    ${r.notes?`<div class="dp-sec"><div class="dp-sec-title">Notes</div><div style="font-size:11px;color:var(--c2);background:var(--c8);padding:10px 14px;border-radius:var(--rad-sm);white-space:pre-wrap">${r.notes}</div></div>`:''}
+    ${r.addedBy?`<div class="added-by">Added by <strong>${r.addedBy}</strong>${r.addedAt?' · '+new Date(r.addedAt).toLocaleDateString():''}${r.updatedBy?' · Updated by <strong>'+r.updatedBy+'</strong>':''}</div>`:''}
+    <div class="dp-acts">
+      <button class="dp-btn primary" onclick="pOpenModal('${fbKey}');closePanel()">✏ Edit</button>
+      <button class="dp-btn danger" onclick="pConfirmDelete('${fbKey}');closePanel()">🗑 Delete</button>
+    </div>`;
+  document.getElementById('dpanel').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+};
+
+// ── PAYMENT MODAL ──
+window.pOpenModal=fbKey=>{
+  pEditId=fbKey||null;
+  document.getElementById('p-modal-title').textContent=fbKey?'Edit Payment Record':'Add Payment Record';
+  if(fbKey){
+    const r=payments.find(x=>x.fbKey===fbKey);
+    if(r){
+      document.getElementById('pf-client').value=r.client||'';
+      document.getElementById('pf-contact').value=r.contact||'';
+      document.getElementById('pf-email').value=r.email||'';
+      document.getElementById('pf-amount').value=r.amount||'';
+      document.getElementById('pf-paydate').value=r.paymentDate||'';
+      document.getElementById('pf-period').value=r.period||'';
+      document.getElementById('pf-method').value=r.method||'';
+      document.getElementById('pf-stripe').value=r.stripeStatus||'';
+      document.getElementById('pf-acctStatus').value=r.acctStatus||'';
+      document.getElementById('pf-support').value=r.support||'';
+      document.getElementById('pf-refNum').value=r.refNum||'';
+      document.getElementById('pf-verifiedBy').value=r.verifiedBy||'';
+      document.getElementById('pf-notes').value=r.notes||'';
+    }
+  } else {
+    ['client','contact','email','amount','paydate','period','method','stripe','acctStatus','support','refNum','verifiedBy','notes'].forEach(f=>document.getElementById('pf-'+f).value='');
+  }
+  document.getElementById('p-modal').classList.add('show');
+};
+window.pCloseModal=()=>{document.getElementById('p-modal').classList.remove('show');pEditId=null;};
+
+window.pSavePayment=async()=>{
+  const d={
+    client:document.getElementById('pf-client').value.trim(),
+    contact:document.getElementById('pf-contact').value.trim(),
+    email:document.getElementById('pf-email').value.trim(),
+    amount:parseFloat(document.getElementById('pf-amount').value)||0,
+    paymentDate:document.getElementById('pf-paydate').value.trim(),
+    period:document.getElementById('pf-period').value.trim(),
+    method:document.getElementById('pf-method').value,
+    stripeStatus:document.getElementById('pf-stripe').value,
+    acctStatus:document.getElementById('pf-acctStatus').value,
+    support:document.getElementById('pf-support').value,
+    refNum:document.getElementById('pf-refNum').value.trim(),
+    verifiedBy:document.getElementById('pf-verifiedBy').value.trim(),
+    notes:document.getElementById('pf-notes').value.trim(),
+    addedBy:userName,addedAt:new Date().toISOString(),
+  };
+  if(!d.client){showToast('Client name is required','err');return;}
+  try{
+    if(pEditId){
+      const existing=payments.find(x=>x.fbKey===pEditId);
+      d.id=existing?.id||'P?';d.addedBy=existing?.addedBy||userName;d.addedAt=existing?.addedAt||d.addedAt;
+      d.updatedBy=userName;d.updatedAt=new Date().toISOString();
+      await set(ref(db,'payments/'+pEditId),d);
+    }else{
+      const nums=payments.map(x=>parseInt((x.id||'P0').slice(1))||0);
+      d.id='P'+String(Math.max(0,...nums)+1).padStart(3,'0');
+      await push(paymentsRef,d);
+    }
+    pCloseModal();showToast(pEditId?'Payment record updated ✓':'Payment record added ✓','grn');
+  }catch(e){showToast('Save failed — check connection','err');}
+};
+
+window.pConfirmDelete=fbKey=>{
+  pPendingDelete=fbKey;
+  document.getElementById('confirm-text').textContent='Delete this payment record?';
+  document.getElementById('confirm-box').classList.add('show');
+  document.getElementById('confirm-yes').onclick=async()=>{
+    try{await remove(ref(db,'payments/'+pPendingDelete));hideConfirm();showToast('Payment record deleted','');}
+    catch(e){showToast('Delete failed','err');}
+  };
+};
+
+window.pExportCSV=()=>{
+  const h=['ID','Client','Contact','Email','Amount','Payment Date','Period','Method','Stripe Status','Account Status','Support Eligible','Ref/Check #','Verified By','Notes','Added By'];
+  const rows=payments.map(r=>[r.id,r.client,r.contact,r.email,r.amount,r.paymentDate,r.period,r.method,r.stripeStatus,r.acctStatus,calcSupport(r),r.refNum,r.verifiedBy,r.notes,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  const csv=[h.join(','),...rows].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='payments_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('CSV exported ✓','grn');
+};
 </script>
 </body>
 </html>
