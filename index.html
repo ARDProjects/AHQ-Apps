@@ -226,6 +226,34 @@ tbody tr:hover .row-actions{opacity:1}
 .tab-view{display:none}
 .tab-view.active{display:block}
 
+/* ── DASHBOARD ── */
+.dash{padding:28px 32px;max-width:1200px;margin:0 auto}
+.dash-header{margin-bottom:28px}
+.dash-header h1{font-size:22px;font-weight:800;color:var(--c1);margin-bottom:4px}
+.dash-header p{font-size:13px;color:var(--c4)}
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.dash-card{background:#fff;border:1px solid var(--c7);border-radius:14px;overflow:hidden;transition:all .2s;cursor:pointer}
+.dash-card:hover{border-color:var(--acc);box-shadow:0 4px 20px rgba(99,102,241,.12);transform:translateY(-2px)}
+.dash-card-head{padding:18px 22px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--c8)}
+.dash-card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.dash-card-icon.disputes{background:var(--acc-bg)}
+.dash-card-icon.payments{background:#dbeafe}
+.dash-card-icon.devupdates{background:#fef3c7}
+.dash-card-title{font-size:15px;font-weight:700;color:var(--c1)}
+.dash-card-sub{font-size:11px;color:var(--c4);margin-top:1px}
+.dash-card-body{padding:16px 22px 20px}
+.dash-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dash-metric{padding:10px 12px;background:var(--c9);border-radius:var(--rad-sm);border:1px solid var(--c8)}
+.dash-metric-val{font-size:18px;font-weight:700;color:var(--c1)}
+.dash-metric-label{font-size:10px;color:var(--c4);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+.dash-metric.alert .dash-metric-val{color:var(--red)}
+.dash-metric.warn .dash-metric-val{color:var(--amb)}
+.dash-metric.good .dash-metric-val{color:var(--grn)}
+.dash-card-footer{padding:0 22px 16px;display:flex;align-items:center;gap:6px;color:var(--acc);font-size:11px;font-weight:600}
+.dash-card-footer svg{width:14px;height:14px}
+@media(max-width:900px){.dash-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.dash{padding:16px}}
+
 /* ── VIEW TOGGLE ── */
 .view-toggle{display:inline-flex;border:1px solid var(--c7);border-radius:6px;overflow:hidden;margin-left:auto}
 .view-toggle button{background:none;border:none;padding:5px 12px;font-size:11px;font-weight:600;color:var(--c4);cursor:pointer;transition:all .15s}
@@ -284,9 +312,10 @@ tbody tr:hover .row-actions{opacity:1}
       <span></span><span></span><span></span>
     </button>
     <div class="logo"><span class="logo-dot"></span>AfterSchool HQ</div>
-    <span id="current-tab-label" style="color:var(--c5);font-size:12px;font-weight:500;padding:4px 10px;background:var(--c2);border-radius:var(--rad-sm)">Dispute Tracker</span>
+    <span id="current-tab-label" style="color:var(--c5);font-size:12px;font-weight:500;padding:4px 10px;background:var(--c2);border-radius:var(--rad-sm)">Dashboard</span>
     <div class="nav-menu" id="nav-menu">
-      <button class="nav-menu-item active" id="tab-disputes-btn" onclick="switchTab('disputes')"><span class="nav-menu-icon">⚖</span><span class="nav-menu-label">Dispute Tracker</span></button>
+      <button class="nav-menu-item active" id="tab-dashboard-btn" onclick="switchTab('dashboard')"><span class="nav-menu-icon">📊</span><span class="nav-menu-label">Dashboard</span></button>
+      <button class="nav-menu-item" id="tab-disputes-btn" onclick="switchTab('disputes')"><span class="nav-menu-icon">⚖</span><span class="nav-menu-label">Dispute Tracker</span></button>
       <button class="nav-menu-item" id="tab-payments-btn" onclick="switchTab('payments')"><span class="nav-menu-icon">💳</span><span class="nav-menu-label">Client Payments</span></button>
       <button class="nav-menu-item" id="tab-devupdates-btn" onclick="switchTab('devupdates')"><span class="nav-menu-icon">🛠</span><span class="nav-menu-label">Dev Tracker</span></button>
     </div>
@@ -300,9 +329,22 @@ tbody tr:hover .row-actions{opacity:1}
 </div>
 
 <!-- ════════════════════════════════════════════════════════ -->
+<!--                   DASHBOARD                             -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="tab-view active" id="tab-dashboard">
+  <div class="dash">
+    <div class="dash-header">
+      <h1>Welcome back</h1>
+      <p>Here's what's happening across your tools</p>
+    </div>
+    <div class="dash-grid" id="dash-grid"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
 <!--                   DISPUTES TAB                          -->
 <!-- ════════════════════════════════════════════════════════ -->
-<div class="tab-view active" id="tab-disputes">
+<div class="tab-view" id="tab-disputes">
 
 <div class="statsbar" id="d-statsbar"></div>
 
@@ -549,7 +591,7 @@ import { getDatabase, ref, set, push, remove, onValue } from 'https://www.gstati
 //  SHARED STATE
 // ══════════════════════════════════════════════════
 let db, disputesRef, paymentsRef, devUpdatesRef;
-let currentTab = 'disputes';
+let currentTab = 'dashboard';
 let userName = localStorage.getItem('disputeos_name')||'';
 let dbURL = localStorage.getItem('disputeos_db')||'';
 const COLORS=['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6'];
@@ -560,7 +602,7 @@ function initials(n){return(n||'').split(' ').slice(0,2).map(w=>w[0]).join('')}
 // ══════════════════════════════════════════════════
 //  TAB SWITCHING
 // ══════════════════════════════════════════════════
-const TAB_LABELS = {disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Dev Tracker'};
+const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Dev Tracker'};
 window.switchTab = function(tab){
   currentTab = tab;
   document.querySelectorAll('.tab-view').forEach(el=>el.classList.remove('active'));
@@ -569,6 +611,7 @@ window.switchTab = function(tab){
   document.getElementById('tab-'+tab+'-btn').classList.add('active');
   document.getElementById('current-tab-label').textContent=TAB_LABELS[tab]||tab;
   document.getElementById('nav-menu').classList.remove('open');
+  if(tab==='dashboard') renderDashboard();
 };
 window.toggleNavMenu = function(){
   document.getElementById('nav-menu').classList.toggle('open');
@@ -622,6 +665,7 @@ function bootApp(url){
         document.getElementById('connecting-screen').style.display='none';
         document.getElementById('app').style.display='block';
         setSyncStatus(true);
+        renderDashboard();
       }
     }
 
@@ -632,6 +676,7 @@ function bootApp(url){
       disputesLoaded=true;
       checkReady();
       dRender();
+      if(currentTab==='dashboard') renderDashboard();
     }, err=>{
       setSyncStatus(false);
       showToast('Connection error — check your database URL','err');
@@ -644,6 +689,7 @@ function bootApp(url){
       paymentsLoaded=true;
       checkReady();
       pRender();
+      if(currentTab==='dashboard') renderDashboard();
     }, err=>{ /* dispute listener handles errors */ });
 
     onValue(devUpdatesRef, snap=>{
@@ -652,6 +698,7 @@ function bootApp(url){
       devUpdatesLoaded=true;
       checkReady();
       vRender();
+      if(currentTab==='dashboard') renderDashboard();
     }, err=>{ /* dispute listener handles errors */ });
 
   }catch(e){
@@ -681,6 +728,79 @@ setTimeout(updateAvatar,100);
 window.closePanel=()=>{document.getElementById('dpanel').classList.remove('open');document.getElementById('overlay').classList.remove('show');dSelRow=null;pSelRow=null;vSelRow=null;dRender();pRender();if(typeof vRender==='function')vRender();};
 window.showToast=(msg,type)=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(type?' '+type:'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);};
 window.hideConfirm=()=>{document.getElementById('confirm-box').classList.remove('show');};
+
+// ══════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════
+function renderDashboard(){
+  const el=document.getElementById('dash-grid');
+  if(!el) return;
+
+  // Dispute stats
+  const dTotal=disputes.length, dOpen=disputes.filter(r=>r.status!=='Closed').length;
+  const dAmt=disputes.reduce((s,r)=>s+Number(r.amount||0),0);
+  const dWon=disputes.filter(r=>r.outcome==='Accepted Dispute').length;
+
+  // Payment stats
+  const pTotal=payments.length, pActive=payments.filter(r=>r.acctStatus==='Active').length;
+  const pPastDue=payments.filter(r=>r.acctStatus==='Past Due').length;
+  const pTotalAmt=payments.reduce((s,r)=>s+Number(r.amount||0),0);
+
+  // Dev stats
+  const vTotal=devUpdates.length, vDeployed=devUpdates.filter(r=>r.status==='Deployed').length;
+  const vInProg=devUpdates.filter(r=>r.status==='In Progress'||r.status==='Testing').length;
+  const vBugs=devUpdates.filter(r=>r.category==='Bug Fix'||r.category==='Hotfix').length;
+
+  el.innerHTML=`
+    <div class="dash-card" onclick="switchTab('disputes')">
+      <div class="dash-card-head">
+        <div class="dash-card-icon disputes">⚖</div>
+        <div><div class="dash-card-title">Dispute Tracker</div><div class="dash-card-sub">Monitor &amp; manage payment disputes</div></div>
+      </div>
+      <div class="dash-card-body">
+        <div class="dash-metrics">
+          <div class="dash-metric"><div class="dash-metric-val">${dTotal}</div><div class="dash-metric-label">Total Disputes</div></div>
+          <div class="dash-metric${dOpen?' warn':''}"><div class="dash-metric-val">${dOpen}</div><div class="dash-metric-label">Open</div></div>
+          <div class="dash-metric alert"><div class="dash-metric-val">$${dAmt.toFixed(0)}</div><div class="dash-metric-label">At Risk</div></div>
+          <div class="dash-metric good"><div class="dash-metric-val">${dWon}</div><div class="dash-metric-label">Won</div></div>
+        </div>
+      </div>
+      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Dispute Tracker</div>
+    </div>
+
+    <div class="dash-card" onclick="switchTab('payments')">
+      <div class="dash-card-head">
+        <div class="dash-card-icon payments">💳</div>
+        <div><div class="dash-card-title">Client Payments</div><div class="dash-card-sub">Track client payment statuses</div></div>
+      </div>
+      <div class="dash-card-body">
+        <div class="dash-metrics">
+          <div class="dash-metric"><div class="dash-metric-val">${pTotal}</div><div class="dash-metric-label">Total Records</div></div>
+          <div class="dash-metric good"><div class="dash-metric-val">${pActive}</div><div class="dash-metric-label">Active</div></div>
+          <div class="dash-metric${pPastDue?' alert':''}"><div class="dash-metric-val">${pPastDue}</div><div class="dash-metric-label">Past Due</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">$${pTotalAmt.toFixed(0)}</div><div class="dash-metric-label">Total Billed</div></div>
+        </div>
+      </div>
+      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Client Payments</div>
+    </div>
+
+    <div class="dash-card" onclick="switchTab('devupdates')">
+      <div class="dash-card-head">
+        <div class="dash-card-icon devupdates">🛠</div>
+        <div><div class="dash-card-title">Dev Tracker</div><div class="dash-card-sub">Development updates &amp; releases</div></div>
+      </div>
+      <div class="dash-card-body">
+        <div class="dash-metrics">
+          <div class="dash-metric"><div class="dash-metric-val">${vTotal}</div><div class="dash-metric-label">Total Updates</div></div>
+          <div class="dash-metric good"><div class="dash-metric-val">${vDeployed}</div><div class="dash-metric-label">Deployed</div></div>
+          <div class="dash-metric${vInProg?' warn':''}"><div class="dash-metric-val">${vInProg}</div><div class="dash-metric-label">In Progress</div></div>
+          <div class="dash-metric${vBugs?' alert':''}"><div class="dash-metric-val">${vBugs}</div><div class="dash-metric-label">Bug Fixes</div></div>
+        </div>
+      </div>
+      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Dev Tracker</div>
+    </div>
+  `;
+}
 
 // ══════════════════════════════════════════════════
 //  DISPUTES MODULE
