@@ -215,6 +215,26 @@ tbody tr:hover .row-actions{opacity:1}
 /* ── TAB VIEWS ── */
 .tab-view{display:none}
 .tab-view.active{display:block}
+
+/* ── VIEW TOGGLE ── */
+.view-toggle{display:inline-flex;border:1px solid var(--c7);border-radius:6px;overflow:hidden;margin-left:auto}
+.view-toggle button{background:none;border:none;padding:5px 12px;font-size:11px;font-weight:600;color:var(--c4);cursor:pointer;transition:all .15s}
+.view-toggle button.active{background:var(--acc);color:#fff}
+.view-toggle button:hover:not(.active){background:var(--c8)}
+
+/* ── DEV TIMELINE VIEW ── */
+.v-timeline{padding:8px 0}
+.v-tl-card{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--c8)}
+.v-tl-card:last-child{border-bottom:none}
+.v-tl-left{display:flex;flex-direction:column;align-items:center;min-width:60px}
+.v-tl-date{font-size:10px;font-weight:700;color:var(--c4);text-align:center;line-height:1.3}
+.v-tl-line-v{flex:1;width:2px;background:var(--c7);margin-top:6px;min-height:20px}
+.v-tl-body{flex:1}
+.v-tl-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.v-tl-title{font-size:13px;font-weight:700;color:var(--c1)}
+.v-tl-desc{font-size:11px;color:var(--c3);margin-bottom:6px;line-height:1.5}
+.v-tl-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.v-tl-tag{font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--c8);color:var(--c3)}
 </style>
 </head>
 <body>
@@ -254,6 +274,7 @@ tbody tr:hover .row-actions{opacity:1}
     <div class="topbar-nav">
       <button class="tnav active" id="tab-disputes-btn" onclick="switchTab('disputes')">Dispute Tracker</button>
       <button class="tnav" id="tab-payments-btn" onclick="switchTab('payments')">Client Payments</button>
+      <button class="tnav" id="tab-devupdates-btn" onclick="switchTab('devupdates')">Dev Tracker</button>
     </div>
   </div>
   <div class="topbar-right">
@@ -353,6 +374,59 @@ tbody tr:hover .row-actions{opacity:1}
 </div>
 </div><!-- end #tab-payments -->
 
+<!-- ════════════════════════════════════════════════════════ -->
+<!--                DEV TRACKER TAB                          -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="tab-view" id="tab-devupdates">
+
+<div class="statsbar" id="v-statsbar"></div>
+
+<div class="main">
+  <div class="sidebar">
+    <div style="margin-bottom:8px"><div class="sb-head">By Category</div><div id="v-cat-list"></div></div>
+    <div style="margin-bottom:8px"><div class="sb-head">By Status</div><div id="v-status-list"></div></div>
+    <div><div class="sb-head">By Area</div><div id="v-area-list"></div></div>
+  </div>
+  <div class="content">
+    <div class="toolbar">
+      <div class="search"><span class="si">⌕</span><input type="text" id="v-search-input" placeholder="Search updates…"></div>
+      <button class="filter-btn" id="vf-bug" onclick="vToggleFilter('Bug Fix')">🐛 Bug Fix</button>
+      <button class="filter-btn" id="vf-feat" onclick="vToggleFilter('Feature')">✨ Feature</button>
+      <button class="filter-btn" id="vf-hotfix" onclick="vToggleFilter('Hotfix')">🔥 Hotfix</button>
+      <div class="view-toggle">
+        <button class="active" id="v-view-table" onclick="vSetView('table')">▤ Table</button>
+        <button id="v-view-timeline" onclick="vSetView('timeline')">⏱ Timeline</button>
+      </div>
+      <button class="export-btn" onclick="vExportCSV()">⬇ Export CSV</button>
+      <button class="add-btn" onclick="vOpenModal()">+ Add Update</button>
+    </div>
+    <div id="v-table-view">
+      <div class="table-wrap">
+        <table id="v-main-table">
+          <thead><tr>
+            <th style="width:80px" onclick="vSortBy('date')">Date<span class="sa" id="vs-date">↕</span></th>
+            <th style="width:170px" onclick="vSortBy('title')">Title<span class="sa" id="vs-title">↕</span></th>
+            <th style="width:80px">Category</th>
+            <th style="width:110px">Affected Area</th>
+            <th style="width:68px" onclick="vSortBy('version')">Version<span class="sa" id="vs-version">↕</span></th>
+            <th style="width:80px">Status</th>
+            <th style="width:78px" onclick="vSortBy('updatedBy')">By<span class="sa" id="vs-updatedBy">↕</span></th>
+            <th style="width:68px"></th>
+          </tr></thead>
+          <tbody id="v-tbody"></tbody>
+        </table>
+        <div id="v-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">🛠</div><div>No dev updates match your filters</div></div>
+      </div>
+      <div class="pagination"><span class="pg-info" id="v-pg-info"></span><div class="pg-btns" id="v-pg-btns"></div></div>
+    </div>
+    <div id="v-timeline-view" style="display:none">
+      <div id="v-tl-container" class="v-timeline"></div>
+      <div class="pagination"><span class="pg-info" id="v-tl-pg-info"></span><div class="pg-btns" id="v-tl-pg-btns"></div></div>
+    </div>
+  </div>
+</div>
+</div><!-- end #tab-devupdates -->
+
 </div><!-- end #app -->
 
 <!-- OVERLAY -->
@@ -421,6 +495,28 @@ tbody tr:hover .row-actions{opacity:1}
   </div>
 </div>
 
+<!-- ADD/EDIT MODAL — DEV UPDATES -->
+<div class="modal" id="v-modal">
+  <div class="modal-bg" onclick="vCloseModal()"></div>
+  <div class="modal-box">
+    <div class="modal-hdr"><div class="modal-title" id="v-modal-title">Add Dev Update</div><button class="modal-close" onclick="vCloseModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="vf-date" placeholder="e.g. Sep 28, 2026"></div>
+        <div class="form-group"><label class="form-label">Version / Release</label><input class="form-input" id="vf-version" placeholder="e.g. v2.4.1"></div>
+        <div class="form-group full"><label class="form-label">Title</label><input class="form-input" id="vf-title" placeholder="Short description of the change"></div>
+        <div class="form-group full"><label class="form-label">Description</label><textarea class="form-textarea" id="vf-desc" placeholder="Detailed description of what changed and why…"></textarea></div>
+        <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="vf-category"><option value="">— Select —</option><option>Bug Fix</option><option>Feature</option><option>Config Change</option><option>Hotfix</option></select></div>
+        <div class="form-group"><label class="form-label">Affected Area</label><input class="form-input" id="vf-area" placeholder="e.g. Registration, Billing, Reports"></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="vf-status"><option value="">— Select —</option><option>Deployed</option><option>In Progress</option><option>Testing</option><option>Rolled Back</option></select></div>
+        <div class="form-group"><label class="form-label">Updated By</label><input class="form-input" id="vf-updatedBy" placeholder="Who made this change"></div>
+        <div class="form-group full"><label class="form-label">Link (Ticket / PR)</label><input class="form-input" id="vf-link" type="url" placeholder="https://github.com/..."></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="vCloseModal()">Cancel</button><button class="btn-save" onclick="vSaveUpdate()">Save Update</button></div>
+  </div>
+</div>
+
 <!-- CONFIRM DELETE -->
 <div class="confirm-box" id="confirm-box">
   <span id="confirm-text">Delete this record?</span>
@@ -438,7 +534,7 @@ import { getDatabase, ref, set, push, remove, onValue } from 'https://www.gstati
 // ══════════════════════════════════════════════════
 //  SHARED STATE
 // ══════════════════════════════════════════════════
-let db, disputesRef, paymentsRef;
+let db, disputesRef, paymentsRef, devUpdatesRef;
 let currentTab = 'disputes';
 let userName = localStorage.getItem('disputeos_name')||'';
 let dbURL = localStorage.getItem('disputeos_db')||'';
@@ -490,10 +586,11 @@ function bootApp(url){
     db = getDatabase(app);
     disputesRef = ref(db,'disputes');
     paymentsRef = ref(db,'payments');
+    devUpdatesRef = ref(db,'devupdates');
 
-    let disputesLoaded=false, paymentsLoaded=false;
+    let disputesLoaded=false, paymentsLoaded=false, devUpdatesLoaded=false;
     function checkReady(){
-      if(disputesLoaded && paymentsLoaded){
+      if(disputesLoaded && paymentsLoaded && devUpdatesLoaded){
         document.getElementById('connecting-screen').style.display='none';
         document.getElementById('app').style.display='block';
         setSyncStatus(true);
@@ -521,6 +618,14 @@ function bootApp(url){
       pRender();
     }, err=>{ /* dispute listener handles errors */ });
 
+    onValue(devUpdatesRef, snap=>{
+      const val=snap.val();
+      devUpdates = val ? Object.entries(val).map(([fbKey,d])=>({...d,fbKey})) : [];
+      devUpdatesLoaded=true;
+      checkReady();
+      vRender();
+    }, err=>{ /* dispute listener handles errors */ });
+
   }catch(e){
     document.getElementById('connecting-screen').style.display='none';
     showToast('Invalid Firebase config — please try again','err');
@@ -545,7 +650,7 @@ window.changeName=function(){
 setTimeout(updateAvatar,100);
 
 // ── SHARED ──
-window.closePanel=()=>{document.getElementById('dpanel').classList.remove('open');document.getElementById('overlay').classList.remove('show');dSelRow=null;pSelRow=null;dRender();pRender();};
+window.closePanel=()=>{document.getElementById('dpanel').classList.remove('open');document.getElementById('overlay').classList.remove('show');dSelRow=null;pSelRow=null;vSelRow=null;dRender();pRender();if(typeof vRender==='function')vRender();};
 window.showToast=(msg,type)=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(type?' '+type:'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);};
 window.hideConfirm=()=>{document.getElementById('confirm-box').classList.remove('show');};
 
@@ -1023,6 +1128,265 @@ window.pExportCSV=()=>{
   const rows=payments.map(r=>[r.id,r.client,r.contact,r.email,r.amount,r.paymentDate,r.period,r.method,r.stripeStatus,r.acctStatus,calcSupport(r),r.refNum,r.verifiedBy,r.notes,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
   const csv=[h.join(','),...rows].join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='payments_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('CSV exported ✓','grn');
+};
+
+
+// ══════════════════════════════════════════════════
+//  DEV UPDATES MODULE
+// ══════════════════════════════════════════════════
+let devUpdates=[], vSortKey='date', vSortDir=1, vSearch='', vFilterCat='', vFilterStatus='', vPage=1, vSelRow=null, vEditId=null, vPendingDelete=null, vViewMode='table';
+const V_PER=10;
+
+// ── PILLS ──
+function vCatPill(c){
+  if(!c)return'<span class="pill p-gray">—</span>';
+  if(c==='Bug Fix')return'<span class="pill p-red">🐛 Bug Fix</span>';
+  if(c==='Feature')return'<span class="pill p-grn">✨ Feature</span>';
+  if(c==='Config Change')return'<span class="pill p-amb">⚙ Config</span>';
+  if(c==='Hotfix')return'<span class="pill p-red">🔥 Hotfix</span>';
+  return`<span class="pill p-gray">${c}</span>`;
+}
+function vStatusPill(s){
+  if(!s)return'<span class="pill p-gray">—</span>';
+  if(s==='Deployed')return'<span class="pill p-grn">✓ Deployed</span>';
+  if(s==='In Progress')return'<span class="pill p-sky">⟳ In Progress</span>';
+  if(s==='Testing')return'<span class="pill p-amb">🧪 Testing</span>';
+  if(s==='Rolled Back')return'<span class="pill p-red">⮌ Rolled Back</span>';
+  return`<span class="pill p-gray">${s}</span>`;
+}
+
+function vGetFiltered(){
+  let d=[...devUpdates];
+  if(vSearch){const t=vSearch.toLowerCase();d=d.filter(r=>(r.title||'').toLowerCase().includes(t)||(r.description||'').toLowerCase().includes(t)||(r.area||'').toLowerCase().includes(t)||(r.version||'').toLowerCase().includes(t)||(r.updatedBy||'').toLowerCase().includes(t));}
+  if(vFilterCat)d=d.filter(r=>r.category===vFilterCat);
+  if(vFilterStatus)d=d.filter(r=>r.status===vFilterStatus);
+  d.sort((a,b)=>{let av,bv;if(vSortKey==='date'){av=new Date(a.date||0);bv=new Date(b.date||0);}else if(vSortKey==='version'){av=(a.version||'').toLowerCase();bv=(b.version||'').toLowerCase();}else{av=(a[vSortKey]||'').toLowerCase();bv=(b[vSortKey]||'').toLowerCase();}return av<bv?-vSortDir:av>bv?vSortDir:0;});
+  return d;
+}
+
+// ── VIEW TOGGLE ──
+window.vSetView=mode=>{
+  vViewMode=mode;
+  document.getElementById('v-view-table').classList.toggle('active',mode==='table');
+  document.getElementById('v-view-timeline').classList.toggle('active',mode==='timeline');
+  document.getElementById('v-table-view').style.display=mode==='table'?'':'none';
+  document.getElementById('v-timeline-view').style.display=mode==='timeline'?'':'none';
+  vRender();
+};
+
+function vRender(){
+  const filtered=vGetFiltered();const total=filtered.length;const pages=Math.max(1,Math.ceil(total/V_PER));if(vPage>pages)vPage=1;
+  const slice=filtered.slice((vPage-1)*V_PER,vPage*V_PER);
+
+  if(vViewMode==='table'){
+    const tb=document.getElementById('v-tbody');const em=document.getElementById('v-empty');const tbl=document.getElementById('v-main-table');
+    if(!slice.length){tb.innerHTML='';em.style.display='';tbl.style.display='none';}else{em.style.display='none';tbl.style.display='';}
+    tb.innerHTML=slice.map(r=>`
+      <tr onclick="vOpenPanel('${r.fbKey}')" class="${vSelRow===r.fbKey?'sel':''}">
+        <td><span class="dt">${(r.date||'').replace(', 2026','')}</span></td>
+        <td><span class="pn" style="font-weight:600">${r.title||'—'}</span></td>
+        <td>${vCatPill(r.category)}</td>
+        <td><span class="pg">${r.area||'—'}</span></td>
+        <td><span style="font-size:11px;font-weight:600;color:var(--acc)">${r.version||'—'}</span></td>
+        <td>${vStatusPill(r.status)}</td>
+        <td><span style="font-size:11px;color:var(--c3)">${r.updatedBy||'—'}</span></td>
+        <td onclick="event.stopPropagation()"><div class="row-actions">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" class="ra-btn" style="background:var(--sky-bg);color:var(--sky);text-decoration:none" title="Open link" onclick="event.stopPropagation()">🔗</a>`:''}<button class="ra-btn ra-edit" onclick="vOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="vConfirmDelete('${r.fbKey}')">Del</button></div></td>
+      </tr>`).join('');
+    document.getElementById('v-pg-info').textContent=total?`${(vPage-1)*V_PER+1}–${Math.min(vPage*V_PER,total)} of ${total}`:'0 updates';
+    vRenderPagination('v-pg-btns',pages);
+  } else {
+    // Timeline view
+    const container=document.getElementById('v-tl-container');
+    if(!slice.length){
+      container.innerHTML='<div class="empty-state"><div style="font-size:32px;margin-bottom:10px">🛠</div><div>No dev updates match your filters</div></div>';
+    } else {
+      container.innerHTML=slice.map(r=>{
+        const dateStr=r.date||'';
+        const parts=dateStr.split(' ');
+        const mon=parts[0]||'';
+        const day=(parts[1]||'').replace(',','');
+        return`<div class="v-tl-card" onclick="vOpenPanel('${r.fbKey}')" style="cursor:pointer">
+          <div class="v-tl-left"><div class="v-tl-date">${mon}<br>${day}</div><div class="v-tl-line-v"></div></div>
+          <div class="v-tl-body">
+            <div class="v-tl-head"><span class="v-tl-title">${r.title||'Untitled'}</span>${vCatPill(r.category)}</div>
+            ${r.description?`<div class="v-tl-desc">${r.description.length>120?r.description.slice(0,120)+'…':r.description}</div>`:''}
+            <div class="v-tl-meta">
+              ${vStatusPill(r.status)}
+              ${r.version?`<span class="v-tl-tag">${r.version}</span>`:''}
+              ${r.area?`<span class="v-tl-tag">${r.area}</span>`:''}
+              ${r.updatedBy?`<span class="v-tl-tag">by ${r.updatedBy}</span>`:''}
+              ${r.link?`<a href="${r.link}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-size:9px;color:var(--acc);text-decoration:none;font-weight:600">🔗 Link</a>`:''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    document.getElementById('v-tl-pg-info').textContent=total?`${(vPage-1)*V_PER+1}–${Math.min(vPage*V_PER,total)} of ${total}`:'0 updates';
+    vRenderPagination('v-tl-pg-btns',pages);
+  }
+  vRenderStats();vRenderSidebar();
+}
+
+function vRenderPagination(containerId,pages){
+  const pb=document.getElementById(containerId);let h=`<button class="pg-btn" onclick="vGoPage(${vPage-1})" ${vPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++)h+=`<button class="pg-btn${i===vPage?' cur':''}" onclick="vGoPage(${i})">${i}</button>`;
+  h+=`<button class="pg-btn" onclick="vGoPage(${vPage+1})" ${vPage===pages?'disabled':''}>›</button>`;pb.innerHTML=h;
+}
+window.vGoPage=p=>{vPage=p;vRender()};
+
+function vRenderStats(){
+  const total=devUpdates.length;
+  const deployed=devUpdates.filter(r=>r.status==='Deployed').length;
+  const inProgress=devUpdates.filter(r=>r.status==='In Progress'||r.status==='Testing').length;
+  const bugs=devUpdates.filter(r=>r.category==='Bug Fix'||r.category==='Hotfix').length;
+  const rolledBack=devUpdates.filter(r=>r.status==='Rolled Back').length;
+  document.getElementById('v-statsbar').innerHTML=[
+    {l:'Total Updates',v:total,s:'All time',d:'dot-pur',f:''},
+    {l:'Deployed',v:deployed,s:'In production',d:'dot-grn',f:'Deployed'},
+    {l:'In Progress',v:inProgress,s:'Being worked on',d:'dot-sky',f:'_active'},
+    {l:'Bug Fixes',v:bugs,s:'Fixes & hotfixes',d:'dot-red',f:'_bugs'},
+    {l:'Rolled Back',v:rolledBack,s:'Reverted',d:'dot-amb',f:'Rolled Back'}
+  ].map(s=>`<div class="stat${(vFilterStatus===s.f||(s.f==='_active'&&(vFilterStatus==='In Progress'||vFilterStatus==='Testing'))||(s.f==='_bugs'&&(vFilterCat==='Bug Fix'||vFilterCat==='Hotfix')))?' active':''}" onclick="vStatClick('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+}
+
+window.vStatClick=f=>{
+  if(f==='_active'){
+    if(vFilterStatus==='In Progress'||vFilterStatus==='Testing'){vFilterStatus='';vFilterCat='';}
+    else{vFilterStatus='In Progress';vFilterCat='';}
+  } else if(f==='_bugs'){
+    if(vFilterCat==='Bug Fix'||vFilterCat==='Hotfix'){vFilterCat='';vFilterStatus='';}
+    else{vFilterCat='Bug Fix';vFilterStatus='';}
+  } else if(f){
+    vFilterStatus=vFilterStatus===f?'':f;vFilterCat='';
+  } else {vFilterStatus='';vFilterCat='';}
+  vPage=1;vRender();
+};
+
+function vRenderSidebar(){
+  const cats=['Bug Fix','Feature','Config Change','Hotfix'];
+  document.getElementById('v-cat-list').innerHTML=cats.map(c=>{
+    const ct=devUpdates.filter(r=>r.category===c).length;if(!ct)return'';
+    return`<div class="sb-row${vFilterCat===c?' active':''}" onclick="vSetCatFilter('${c}')"><span class="sb-name">${c}</span><span class="sb-ct${c==='Bug Fix'||c==='Hotfix'?' hot':''}">${ct}</span></div>`;
+  }).join('');
+  const statuses=['Deployed','In Progress','Testing','Rolled Back'];
+  document.getElementById('v-status-list').innerHTML=statuses.map(s=>{
+    const ct=devUpdates.filter(r=>r.status===s).length;if(!ct)return'';
+    return`<div class="sb-row${vFilterStatus===s?' active':''}" onclick="vSetStatusFilter('${s}')"><span class="sb-name">${s}</span><span class="sb-ct${s==='Rolled Back'?' hot':''}">${ct}</span></div>`;
+  }).join('');
+  const areas=[...new Set(devUpdates.map(r=>r.area).filter(Boolean))];
+  document.getElementById('v-area-list').innerHTML=areas.map(a=>{const ct=devUpdates.filter(r=>r.area===a).length;return`<div class="sb-row"><span class="sb-name">${a}</span><span class="sb-ct">${ct}</span></div>`;}).join('');
+}
+
+window.vSetCatFilter=c=>{vFilterCat=vFilterCat===c?'':c;vFilterStatus='';vPage=1;vRender()};
+window.vSetStatusFilter=s=>{vFilterStatus=vFilterStatus===s?'':s;vFilterCat='';vPage=1;vRender()};
+window.vToggleFilter=c=>{
+  vFilterCat=vFilterCat===c?'':c;vFilterStatus='';
+  ['vf-bug','vf-feat','vf-hotfix'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  if(vFilterCat==='Bug Fix')document.getElementById('vf-bug').classList.add('on');
+  if(vFilterCat==='Feature')document.getElementById('vf-feat').classList.add('on');
+  if(vFilterCat==='Hotfix')document.getElementById('vf-hotfix').classList.add('on');
+  vPage=1;vRender();
+};
+window.vSortBy=k=>{if(vSortKey===k)vSortDir*=-1;else{vSortKey=k;vSortDir=-1;}['date','title','version','updatedBy'].forEach(x=>{const el=document.getElementById('vs-'+x);if(el)el.textContent='↕';});const el=document.getElementById('vs-'+k);if(el)el.textContent=vSortDir===1?'↑':'↓';vRender();};
+document.getElementById('v-search-input').addEventListener('input',function(){vSearch=this.value;vPage=1;vRender()});
+
+// ── DEV UPDATE DETAIL PANEL ──
+window.vOpenPanel=fbKey=>{
+  const r=devUpdates.find(x=>x.fbKey===fbKey);if(!r)return;
+  vSelRow=fbKey;vRender();
+  document.getElementById('dp-title').textContent=r.title||'Dev Update';
+  document.getElementById('dp-sub').textContent=(r.version||'')+(r.area?' · '+r.area:'');
+  document.getElementById('dp-body').innerHTML=`
+    <div class="dp-sec"><div class="dp-sec-title">Update Info</div>
+      <div class="dp-field"><span class="dp-k">Date</span><span class="dp-v">${r.date||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Category</span><span class="dp-v">${vCatPill(r.category)}</span></div>
+      <div class="dp-field"><span class="dp-k">Status</span><span class="dp-v">${vStatusPill(r.status)}</span></div>
+      <div class="dp-field"><span class="dp-k">Version</span><span class="dp-v" style="font-weight:700;color:var(--acc)">${r.version||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Affected Area</span><span class="dp-v">${r.area||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Updated By</span><span class="dp-v">${r.updatedBy||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Link</span><span class="dp-v">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:none;font-size:10px">🔗 Open</a>`:'—'}</span></div>
+    </div>
+    ${r.description?`<div class="dp-sec"><div class="dp-sec-title">Description</div><div style="font-size:11px;color:var(--c2);background:var(--c8);padding:10px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.6">${r.description}</div></div>`:''}
+    ${r.addedBy?`<div class="added-by">Added by <strong>${r.addedBy}</strong>${r.addedAt?' · '+new Date(r.addedAt).toLocaleDateString():''}${r.lastEditedBy?' · Edited by <strong>'+r.lastEditedBy+'</strong>':''}</div>`:''}
+    <div class="dp-acts">
+      <button class="dp-btn primary" onclick="vOpenModal('${fbKey}');closePanel()">✏ Edit</button>
+      <button class="dp-btn danger" onclick="vConfirmDelete('${fbKey}');closePanel()">🗑 Delete</button>
+    </div>`;
+  document.getElementById('dpanel').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+};
+
+// ── DEV UPDATE MODAL ──
+window.vOpenModal=fbKey=>{
+  vEditId=fbKey||null;
+  document.getElementById('v-modal-title').textContent=fbKey?'Edit Dev Update':'Add Dev Update';
+  if(fbKey){
+    const r=devUpdates.find(x=>x.fbKey===fbKey);
+    if(r){
+      document.getElementById('vf-date').value=r.date||'';
+      document.getElementById('vf-version').value=r.version||'';
+      document.getElementById('vf-title').value=r.title||'';
+      document.getElementById('vf-desc').value=r.description||'';
+      document.getElementById('vf-category').value=r.category||'';
+      document.getElementById('vf-area').value=r.area||'';
+      document.getElementById('vf-status').value=r.status||'';
+      document.getElementById('vf-updatedBy').value=r.updatedBy||'';
+      document.getElementById('vf-link').value=r.link||'';
+    }
+  } else {
+    ['date','version','title','desc','category','area','status','updatedBy','link'].forEach(f=>document.getElementById('vf-'+f).value='');
+    document.getElementById('vf-date').value=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    document.getElementById('vf-updatedBy').value=userName;
+  }
+  document.getElementById('v-modal').classList.add('show');
+};
+window.vCloseModal=()=>{document.getElementById('v-modal').classList.remove('show');vEditId=null;};
+
+window.vSaveUpdate=async()=>{
+  const d={
+    date:document.getElementById('vf-date').value.trim(),
+    version:document.getElementById('vf-version').value.trim(),
+    title:document.getElementById('vf-title').value.trim(),
+    description:document.getElementById('vf-desc').value.trim(),
+    category:document.getElementById('vf-category').value,
+    area:document.getElementById('vf-area').value.trim(),
+    status:document.getElementById('vf-status').value,
+    updatedBy:document.getElementById('vf-updatedBy').value.trim(),
+    link:document.getElementById('vf-link').value.trim(),
+    addedBy:userName,addedAt:new Date().toISOString(),
+  };
+  if(!d.title){showToast('Title is required','err');return;}
+  try{
+    if(vEditId){
+      const existing=devUpdates.find(x=>x.fbKey===vEditId);
+      d.id=existing?.id||'DEV?';d.addedBy=existing?.addedBy||userName;d.addedAt=existing?.addedAt||d.addedAt;
+      d.lastEditedBy=userName;d.lastEditedAt=new Date().toISOString();
+      await set(ref(db,'devupdates/'+vEditId),d);
+    }else{
+      const nums=devUpdates.map(x=>parseInt((x.id||'DEV0').slice(3))||0);
+      d.id='DEV'+String(Math.max(0,...nums)+1).padStart(3,'0');
+      await push(devUpdatesRef,d);
+    }
+    vCloseModal();showToast(vEditId?'Update saved ✓':'Dev update added ✓','grn');
+  }catch(e){showToast('Save failed — check connection','err');}
+};
+
+window.vConfirmDelete=fbKey=>{
+  vPendingDelete=fbKey;
+  document.getElementById('confirm-text').textContent='Delete this dev update?';
+  document.getElementById('confirm-box').classList.add('show');
+  document.getElementById('confirm-yes').onclick=async()=>{
+    try{await remove(ref(db,'devupdates/'+vPendingDelete));hideConfirm();showToast('Dev update deleted','');}
+    catch(e){showToast('Delete failed','err');}
+  };
+};
+
+window.vExportCSV=()=>{
+  const h=['ID','Date','Title','Description','Category','Affected Area','Version','Status','Updated By','Link','Added By'];
+  const rows=devUpdates.map(r=>[r.id,r.date,r.title,r.description,r.category,r.area,r.version,r.status,r.updatedBy,r.link,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  const csv=[h.join(','),...rows].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='dev_updates_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('CSV exported ✓','grn');
 };
 </script>
