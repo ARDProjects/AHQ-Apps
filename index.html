@@ -565,7 +565,7 @@ tbody tr:hover .row-actions{opacity:1}
         <div class="form-group"><label class="form-label">Affected Area</label><input class="form-input" id="vf-area" placeholder="e.g. Registration, Billing, Reports"></div>
         <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="vf-status"><option value="">— Select —</option><option>Deployed</option></select></div>
         <div class="form-group"><label class="form-label">Deployed By</label><input class="form-input" id="vf-updatedBy" placeholder="Who deployed this change"></div>
-        <div class="form-group full"><label class="form-label">Link (Ticket / PR)</label><input class="form-input" id="vf-link" type="url" placeholder="https://github.com/..."></div>
+        <div class="form-group full"><label class="form-label">ClickUp Link</label><input class="form-input" id="vf-link" type="url" placeholder="https://app.clickup.com/..."></div>
       </div>
     </div>
     <div class="modal-footer"><button class="btn-cancel" onclick="vCloseModal()">Cancel</button><button class="btn-save" onclick="vSaveUpdate()">Save Deployment</button></div>
@@ -1334,7 +1334,7 @@ function vRender(){
         <td><span style="font-size:11px;font-weight:600;color:var(--acc)">${r.version||'—'}</span></td>
         <td>${vStatusPill(r.status)}</td>
         <td><span style="font-size:11px;color:var(--c3)">${r.updatedBy||'—'}</span></td>
-        <td onclick="event.stopPropagation()"><div class="row-actions">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" class="ra-btn" style="background:var(--sky-bg);color:var(--sky);text-decoration:none" title="Open link" onclick="event.stopPropagation()">🔗</a>`:''}<button class="ra-btn ra-edit" onclick="vOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="vConfirmDelete('${r.fbKey}')">Del</button></div></td>
+        <td onclick="event.stopPropagation()"><div class="row-actions">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" class="ra-btn" style="background:var(--sky-bg);color:var(--sky);text-decoration:none" title="Open in ClickUp" onclick="event.stopPropagation()">🔗</a>`:''}<button class="ra-btn ra-edit" onclick="vOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="vConfirmDelete('${r.fbKey}')">Del</button></div></td>
       </tr>`).join('');
     document.getElementById('v-pg-info').textContent=total?`${(vPage-1)*V_PER+1}–${Math.min(vPage*V_PER,total)} of ${total}`:'0 deployments';
     vRenderPagination('v-pg-btns',pages);
@@ -1359,7 +1359,7 @@ function vRender(){
               ${r.version?`<span class="v-tl-tag">${r.version}</span>`:''}
               ${r.area?`<span class="v-tl-tag">${r.area}</span>`:''}
               ${r.updatedBy?`<span class="v-tl-tag">by ${r.updatedBy}</span>`:''}
-              ${r.link?`<a href="${r.link}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-size:9px;color:var(--acc);text-decoration:none;font-weight:600">🔗 Link</a>`:''}
+              ${r.link?`<a href="${r.link}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-size:9px;color:var(--acc);text-decoration:none;font-weight:600">🔗 ClickUp</a>`:''}
             </div>
           </div>
         </div>`;
@@ -1451,7 +1451,7 @@ window.vOpenPanel=fbKey=>{
       <div class="dp-field"><span class="dp-k">Version</span><span class="dp-v" style="font-weight:700;color:var(--acc)">${r.version||'—'}</span></div>
       <div class="dp-field"><span class="dp-k">Affected Area</span><span class="dp-v">${r.area||'—'}</span></div>
       <div class="dp-field"><span class="dp-k">Deployed By</span><span class="dp-v">${r.updatedBy||'—'}</span></div>
-      <div class="dp-field"><span class="dp-k">Link</span><span class="dp-v">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:none;font-size:10px">🔗 Open</a>`:'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">ClickUp Link</span><span class="dp-v">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:none;font-size:10px">🔗 Open in ClickUp</a>`:'—'}</span></div>
     </div>
     ${r.description?`<div class="dp-sec"><div class="dp-sec-title">Description</div><div style="font-size:11px;color:var(--c2);background:var(--c8);padding:10px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.6">${r.description}</div></div>`:''}
     ${r.addedBy?`<div class="added-by">Added by <strong>${r.addedBy}</strong>${r.addedAt?' · '+new Date(r.addedAt).toLocaleDateString():''}${r.lastEditedBy?' · Edited by <strong>'+r.lastEditedBy+'</strong>':''}</div>`:''}
