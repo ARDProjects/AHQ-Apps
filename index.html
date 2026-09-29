@@ -564,7 +564,7 @@ tbody tr:hover .row-actions{opacity:1}
         <div class="form-group full"><label class="form-label">Description</label><textarea class="form-textarea" id="vf-desc" placeholder="Details about this deployment…"></textarea></div>
         <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="vf-category"><option value="">— Select —</option><option>Bug Fix</option><option>Feature</option><option>Config Change</option><option>Hotfix</option></select></div>
         <div class="form-group"><label class="form-label">Affected Area</label><input class="form-input" id="vf-area" placeholder="e.g. Registration, Billing, Reports"></div>
-        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="vf-status"><option value="">— Select —</option><option>Deployed</option><option>Rolled Back</option></select></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="vf-status"><option value="">— Select —</option><option>Deployed</option></select></div>
         <div class="form-group"><label class="form-label">Deployed By</label><input class="form-input" id="vf-updatedBy" placeholder="Who deployed this change"></div>
         <div class="form-group full"><label class="form-label">Link (Ticket / PR)</label><input class="form-input" id="vf-link" type="url" placeholder="https://github.com/..."></div>
       </div>
@@ -748,7 +748,7 @@ function renderDashboard(){
 
   // Dev stats
   const vTotal=devUpdates.length, vDeployed=devUpdates.filter(r=>r.status==='Deployed').length;
-  const vRolledBack=devUpdates.filter(r=>r.status==='Rolled Back').length;
+  const vFeatures=devUpdates.filter(r=>r.category==='Feature').length;
   const vBugs=devUpdates.filter(r=>r.category==='Bug Fix'||r.category==='Hotfix').length;
 
   el.innerHTML=`
@@ -793,7 +793,7 @@ function renderDashboard(){
         <div class="dash-metrics">
           <div class="dash-metric"><div class="dash-metric-val">${vTotal}</div><div class="dash-metric-label">Total Deployments</div></div>
           <div class="dash-metric good"><div class="dash-metric-val">${vDeployed}</div><div class="dash-metric-label">Deployed</div></div>
-          <div class="dash-metric${vRolledBack?' alert':''}"><div class="dash-metric-val">${vRolledBack}</div><div class="dash-metric-label">Rolled Back</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${vFeatures}</div><div class="dash-metric-label">Features</div></div>
           <div class="dash-metric${vBugs?' warn':''}"><div class="dash-metric-val">${vBugs}</div><div class="dash-metric-label">Bug Fixes</div></div>
         </div>
       </div>
@@ -1298,7 +1298,6 @@ function vCatPill(c){
 function vStatusPill(s){
   if(!s)return'<span class="pill p-gray">—</span>';
   if(s==='Deployed')return'<span class="pill p-grn">✓ Deployed</span>';
-  if(s==='Rolled Back')return'<span class="pill p-red">⮌ Rolled Back</span>';
   return`<span class="pill p-gray">${s}</span>`;
 }
 
@@ -1387,13 +1386,13 @@ function vRenderStats(){
   const now=new Date();const week=new Date(now.getTime()-7*864e5);
   const recent=devUpdates.filter(r=>{try{return new Date(r.date)>=week}catch(e){return false}}).length;
   const bugs=devUpdates.filter(r=>r.category==='Bug Fix'||r.category==='Hotfix').length;
-  const rolledBack=devUpdates.filter(r=>r.status==='Rolled Back').length;
+  const features=devUpdates.filter(r=>r.category==='Feature').length;
   document.getElementById('v-statsbar').innerHTML=[
     {l:'Total Deployments',v:total,s:'All Time',d:'dot-pur',f:''},
     {l:'Deployed',v:deployed,s:'In Production',d:'dot-grn',f:'Deployed'},
     {l:'Last 7 Days',v:recent,s:'Recent Activity',d:'dot-sky',f:'_recent'},
     {l:'Bug Fixes',v:bugs,s:'Fixes & Hotfixes',d:'dot-red',f:'_bugs'},
-    {l:'Rolled Back',v:rolledBack,s:'Reverted',d:'dot-amb',f:'Rolled Back'}
+    {l:'Features',v:features,s:'New Functionality',d:'dot-amb',f:'_features'}
   ].map(s=>`<div class="stat${(vFilterStatus===s.f||(s.f==='_bugs'&&(vFilterCat==='Bug Fix'||vFilterCat==='Hotfix')))?' active':''}" onclick="vStatClick('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
 }
 
@@ -1404,6 +1403,9 @@ window.vStatClick=f=>{
   } else if(f==='_bugs'){
     if(vFilterCat==='Bug Fix'||vFilterCat==='Hotfix'){vFilterCat='';vFilterStatus='';}
     else{vFilterCat='Bug Fix';vFilterStatus='';}
+  } else if(f==='_features'){
+    if(vFilterCat==='Feature'){vFilterCat='';vFilterStatus='';}
+    else{vFilterCat='Feature';vFilterStatus='';}
   } else if(f){
     vFilterStatus=vFilterStatus===f?'':f;vFilterCat='';
   } else {vFilterStatus='';vFilterCat='';}
@@ -1416,7 +1418,7 @@ function vRenderSidebar(){
     const ct=devUpdates.filter(r=>r.category===c).length;if(!ct)return'';
     return`<div class="sb-row${vFilterCat===c?' active':''}" onclick="vSetCatFilter('${c}')"><span class="sb-name">${c}</span><span class="sb-ct${c==='Bug Fix'||c==='Hotfix'?' hot':''}">${ct}</span></div>`;
   }).join('');
-  const statuses=['Deployed','Rolled Back'];
+  const statuses=['Deployed'];
   document.getElementById('v-status-list').innerHTML=statuses.map(s=>{
     const ct=devUpdates.filter(r=>r.status===s).length;if(!ct)return'';
     return`<div class="sb-row${vFilterStatus===s?' active':''}" onclick="vSetStatusFilter('${s}')"><span class="sb-name">${s}</span><span class="sb-ct${s==='Rolled Back'?' hot':''}">${ct}</span></div>`;
