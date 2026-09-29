@@ -445,37 +445,37 @@ tbody tr:hover .row-actions{opacity:1}
   </div>
   <div class="content">
     <div class="toolbar">
-      <div class="search"><span class="si">⌕</span><input type="text" id="v-search-input" placeholder="Search updates…"></div>
+      <div class="search"><span class="si">⌕</span><input type="text" id="v-search-input" placeholder="Search deployments…"></div>
       <button class="filter-btn" id="vf-bug" onclick="vToggleFilter('Bug Fix')">🐛 Bug Fix</button>
       <button class="filter-btn" id="vf-feat" onclick="vToggleFilter('Feature')">✨ Feature</button>
       <button class="filter-btn" id="vf-hotfix" onclick="vToggleFilter('Hotfix')">🔥 Hotfix</button>
       <div class="view-toggle">
-        <button class="active" id="v-view-table" onclick="vSetView('table')">▤ Table</button>
-        <button id="v-view-timeline" onclick="vSetView('timeline')">⏱ Timeline</button>
+        <button id="v-view-table" onclick="vSetView('table')">▤ Table</button>
+        <button class="active" id="v-view-timeline" onclick="vSetView('timeline')">⏱ Timeline</button>
       </div>
       <button class="export-btn" onclick="vExportCSV()">⬇ Export CSV</button>
-      <button class="add-btn" onclick="vOpenModal()">+ Add Update</button>
+      <button class="add-btn" onclick="vOpenModal()">+ Add Deployment</button>
     </div>
-    <div id="v-table-view">
+    <div id="v-table-view" style="display:none">
       <div class="table-wrap">
         <table id="v-main-table">
           <thead><tr>
             <th style="width:80px" onclick="vSortBy('date')">Date<span class="sa" id="vs-date">↕</span></th>
-            <th style="width:170px" onclick="vSortBy('title')">Title<span class="sa" id="vs-title">↕</span></th>
+            <th style="width:170px" onclick="vSortBy('title')">What Changed<span class="sa" id="vs-title">↕</span></th>
             <th style="width:80px">Category</th>
             <th style="width:110px">Affected Area</th>
             <th style="width:68px" onclick="vSortBy('version')">Version<span class="sa" id="vs-version">↕</span></th>
             <th style="width:80px">Status</th>
-            <th style="width:78px" onclick="vSortBy('updatedBy')">By<span class="sa" id="vs-updatedBy">↕</span></th>
+            <th style="width:78px" onclick="vSortBy('updatedBy')">Deployed By<span class="sa" id="vs-updatedBy">↕</span></th>
             <th style="width:68px"></th>
           </tr></thead>
           <tbody id="v-tbody"></tbody>
         </table>
-        <div id="v-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">🛠</div><div>No dev updates match your filters</div></div>
+        <div id="v-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">🚀</div><div>No deployments match your filters</div></div>
       </div>
       <div class="pagination"><span class="pg-info" id="v-pg-info"></span><div class="pg-btns" id="v-pg-btns"></div></div>
     </div>
-    <div id="v-timeline-view" style="display:none">
+    <div id="v-timeline-view">
       <div id="v-tl-container" class="v-timeline"></div>
       <div class="pagination"><span class="pg-info" id="v-tl-pg-info"></span><div class="pg-btns" id="v-tl-pg-btns"></div></div>
     </div>
@@ -555,21 +555,21 @@ tbody tr:hover .row-actions{opacity:1}
 <div class="modal" id="v-modal">
   <div class="modal-bg" onclick="vCloseModal()"></div>
   <div class="modal-box">
-    <div class="modal-hdr"><div class="modal-title" id="v-modal-title">Add Dev Update</div><button class="modal-close" onclick="vCloseModal()">✕</button></div>
+    <div class="modal-hdr"><div class="modal-title" id="v-modal-title">Add Deployment</div><button class="modal-close" onclick="vCloseModal()">✕</button></div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="vf-date" placeholder="e.g. Sep 28, 2026"></div>
+        <div class="form-group"><label class="form-label">Date Deployed</label><input class="form-input" id="vf-date" placeholder="e.g. Sep 28, 2026"></div>
         <div class="form-group"><label class="form-label">Version / Release</label><input class="form-input" id="vf-version" placeholder="e.g. v2.4.1"></div>
-        <div class="form-group full"><label class="form-label">Title</label><input class="form-input" id="vf-title" placeholder="Short description of the change"></div>
-        <div class="form-group full"><label class="form-label">Description</label><textarea class="form-textarea" id="vf-desc" placeholder="Detailed description of what changed and why…"></textarea></div>
+        <div class="form-group full"><label class="form-label">What Changed</label><input class="form-input" id="vf-title" placeholder="Brief summary of what was deployed"></div>
+        <div class="form-group full"><label class="form-label">Description</label><textarea class="form-textarea" id="vf-desc" placeholder="Details about this deployment…"></textarea></div>
         <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="vf-category"><option value="">— Select —</option><option>Bug Fix</option><option>Feature</option><option>Config Change</option><option>Hotfix</option></select></div>
         <div class="form-group"><label class="form-label">Affected Area</label><input class="form-input" id="vf-area" placeholder="e.g. Registration, Billing, Reports"></div>
-        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="vf-status"><option value="">— Select —</option><option>Deployed</option><option>In Progress</option><option>Testing</option><option>Rolled Back</option></select></div>
-        <div class="form-group"><label class="form-label">Updated By</label><input class="form-input" id="vf-updatedBy" placeholder="Who made this change"></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="vf-status"><option value="">— Select —</option><option>Deployed</option><option>Rolled Back</option></select></div>
+        <div class="form-group"><label class="form-label">Deployed By</label><input class="form-input" id="vf-updatedBy" placeholder="Who deployed this change"></div>
         <div class="form-group full"><label class="form-label">Link (Ticket / PR)</label><input class="form-input" id="vf-link" type="url" placeholder="https://github.com/..."></div>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="vCloseModal()">Cancel</button><button class="btn-save" onclick="vSaveUpdate()">Save Update</button></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="vCloseModal()">Cancel</button><button class="btn-save" onclick="vSaveUpdate()">Save Deployment</button></div>
   </div>
 </div>
 
@@ -748,7 +748,7 @@ function renderDashboard(){
 
   // Dev stats
   const vTotal=devUpdates.length, vDeployed=devUpdates.filter(r=>r.status==='Deployed').length;
-  const vInProg=devUpdates.filter(r=>r.status==='In Progress'||r.status==='Testing').length;
+  const vRolledBack=devUpdates.filter(r=>r.status==='Rolled Back').length;
   const vBugs=devUpdates.filter(r=>r.category==='Bug Fix'||r.category==='Hotfix').length;
 
   el.innerHTML=`
@@ -786,15 +786,15 @@ function renderDashboard(){
 
     <div class="dash-card" onclick="switchTab('devupdates')">
       <div class="dash-card-head">
-        <div class="dash-card-icon devupdates">🛠</div>
-        <div><div class="dash-card-title">Development Tracker</div><div class="dash-card-sub">Development Updates &amp; Releases</div></div>
+        <div class="dash-card-icon devupdates">🚀</div>
+        <div><div class="dash-card-title">Development Tracker</div><div class="dash-card-sub">Production Deployments &amp; Releases</div></div>
       </div>
       <div class="dash-card-body">
         <div class="dash-metrics">
-          <div class="dash-metric"><div class="dash-metric-val">${vTotal}</div><div class="dash-metric-label">Total Updates</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${vTotal}</div><div class="dash-metric-label">Total Deployments</div></div>
           <div class="dash-metric good"><div class="dash-metric-val">${vDeployed}</div><div class="dash-metric-label">Deployed</div></div>
-          <div class="dash-metric${vInProg?' warn':''}"><div class="dash-metric-val">${vInProg}</div><div class="dash-metric-label">In Progress</div></div>
-          <div class="dash-metric${vBugs?' alert':''}"><div class="dash-metric-val">${vBugs}</div><div class="dash-metric-label">Bug Fixes</div></div>
+          <div class="dash-metric${vRolledBack?' alert':''}"><div class="dash-metric-val">${vRolledBack}</div><div class="dash-metric-label">Rolled Back</div></div>
+          <div class="dash-metric${vBugs?' warn':''}"><div class="dash-metric-val">${vBugs}</div><div class="dash-metric-label">Bug Fixes</div></div>
         </div>
       </div>
       <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Development Tracker</div>
@@ -1283,7 +1283,7 @@ window.pExportCSV=()=>{
 // ══════════════════════════════════════════════════
 //  DEV UPDATES MODULE
 // ══════════════════════════════════════════════════
-let devUpdates=[], vSortKey='date', vSortDir=1, vSearch='', vFilterCat='', vFilterStatus='', vPage=1, vSelRow=null, vEditId=null, vPendingDelete=null, vViewMode='table';
+let devUpdates=[], vSortKey='date', vSortDir=1, vSearch='', vFilterCat='', vFilterStatus='', vPage=1, vSelRow=null, vEditId=null, vPendingDelete=null, vViewMode='timeline';
 const V_PER=10;
 
 // ── PILLS ──
@@ -1298,8 +1298,6 @@ function vCatPill(c){
 function vStatusPill(s){
   if(!s)return'<span class="pill p-gray">—</span>';
   if(s==='Deployed')return'<span class="pill p-grn">✓ Deployed</span>';
-  if(s==='In Progress')return'<span class="pill p-sky">⟳ In Progress</span>';
-  if(s==='Testing')return'<span class="pill p-amb">🧪 Testing</span>';
   if(s==='Rolled Back')return'<span class="pill p-red">⮌ Rolled Back</span>';
   return`<span class="pill p-gray">${s}</span>`;
 }
@@ -1341,13 +1339,13 @@ function vRender(){
         <td><span style="font-size:11px;color:var(--c3)">${r.updatedBy||'—'}</span></td>
         <td onclick="event.stopPropagation()"><div class="row-actions">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" class="ra-btn" style="background:var(--sky-bg);color:var(--sky);text-decoration:none" title="Open link" onclick="event.stopPropagation()">🔗</a>`:''}<button class="ra-btn ra-edit" onclick="vOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="vConfirmDelete('${r.fbKey}')">Del</button></div></td>
       </tr>`).join('');
-    document.getElementById('v-pg-info').textContent=total?`${(vPage-1)*V_PER+1}–${Math.min(vPage*V_PER,total)} of ${total}`:'0 updates';
+    document.getElementById('v-pg-info').textContent=total?`${(vPage-1)*V_PER+1}–${Math.min(vPage*V_PER,total)} of ${total}`:'0 deployments';
     vRenderPagination('v-pg-btns',pages);
   } else {
     // Timeline view
     const container=document.getElementById('v-tl-container');
     if(!slice.length){
-      container.innerHTML='<div class="empty-state"><div style="font-size:32px;margin-bottom:10px">🛠</div><div>No dev updates match your filters</div></div>';
+      container.innerHTML='<div class="empty-state"><div style="font-size:32px;margin-bottom:10px">🚀</div><div>No deployments match your filters</div></div>';
     } else {
       container.innerHTML=slice.map(r=>{
         const dateStr=r.date||'';
@@ -1370,7 +1368,7 @@ function vRender(){
         </div>`;
       }).join('');
     }
-    document.getElementById('v-tl-pg-info').textContent=total?`${(vPage-1)*V_PER+1}–${Math.min(vPage*V_PER,total)} of ${total}`:'0 updates';
+    document.getElementById('v-tl-pg-info').textContent=total?`${(vPage-1)*V_PER+1}–${Math.min(vPage*V_PER,total)} of ${total}`:'0 deployments';
     vRenderPagination('v-tl-pg-btns',pages);
   }
   vRenderStats();vRenderSidebar();
@@ -1386,22 +1384,23 @@ window.vGoPage=p=>{vPage=p;vRender()};
 function vRenderStats(){
   const total=devUpdates.length;
   const deployed=devUpdates.filter(r=>r.status==='Deployed').length;
-  const inProgress=devUpdates.filter(r=>r.status==='In Progress'||r.status==='Testing').length;
+  const now=new Date();const week=new Date(now.getTime()-7*864e5);
+  const recent=devUpdates.filter(r=>{try{return new Date(r.date)>=week}catch(e){return false}}).length;
   const bugs=devUpdates.filter(r=>r.category==='Bug Fix'||r.category==='Hotfix').length;
   const rolledBack=devUpdates.filter(r=>r.status==='Rolled Back').length;
   document.getElementById('v-statsbar').innerHTML=[
-    {l:'Total Updates',v:total,s:'All time',d:'dot-pur',f:''},
+    {l:'Total Deployments',v:total,s:'All time',d:'dot-pur',f:''},
     {l:'Deployed',v:deployed,s:'In production',d:'dot-grn',f:'Deployed'},
-    {l:'In Progress',v:inProgress,s:'Being worked on',d:'dot-sky',f:'_active'},
+    {l:'Last 7 Days',v:recent,s:'Recent activity',d:'dot-sky',f:'_recent'},
     {l:'Bug Fixes',v:bugs,s:'Fixes & hotfixes',d:'dot-red',f:'_bugs'},
     {l:'Rolled Back',v:rolledBack,s:'Reverted',d:'dot-amb',f:'Rolled Back'}
-  ].map(s=>`<div class="stat${(vFilterStatus===s.f||(s.f==='_active'&&(vFilterStatus==='In Progress'||vFilterStatus==='Testing'))||(s.f==='_bugs'&&(vFilterCat==='Bug Fix'||vFilterCat==='Hotfix')))?' active':''}" onclick="vStatClick('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+  ].map(s=>`<div class="stat${(vFilterStatus===s.f||(s.f==='_bugs'&&(vFilterCat==='Bug Fix'||vFilterCat==='Hotfix')))?' active':''}" onclick="vStatClick('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
 }
 
 window.vStatClick=f=>{
-  if(f==='_active'){
-    if(vFilterStatus==='In Progress'||vFilterStatus==='Testing'){vFilterStatus='';vFilterCat='';}
-    else{vFilterStatus='In Progress';vFilterCat='';}
+  if(f==='_recent'){
+    // Last 7 days is informational only, just clear filters
+    vFilterStatus='';vFilterCat='';
   } else if(f==='_bugs'){
     if(vFilterCat==='Bug Fix'||vFilterCat==='Hotfix'){vFilterCat='';vFilterStatus='';}
     else{vFilterCat='Bug Fix';vFilterStatus='';}
@@ -1417,7 +1416,7 @@ function vRenderSidebar(){
     const ct=devUpdates.filter(r=>r.category===c).length;if(!ct)return'';
     return`<div class="sb-row${vFilterCat===c?' active':''}" onclick="vSetCatFilter('${c}')"><span class="sb-name">${c}</span><span class="sb-ct${c==='Bug Fix'||c==='Hotfix'?' hot':''}">${ct}</span></div>`;
   }).join('');
-  const statuses=['Deployed','In Progress','Testing','Rolled Back'];
+  const statuses=['Deployed','Rolled Back'];
   document.getElementById('v-status-list').innerHTML=statuses.map(s=>{
     const ct=devUpdates.filter(r=>r.status===s).length;if(!ct)return'';
     return`<div class="sb-row${vFilterStatus===s?' active':''}" onclick="vSetStatusFilter('${s}')"><span class="sb-name">${s}</span><span class="sb-ct${s==='Rolled Back'?' hot':''}">${ct}</span></div>`;
@@ -1443,16 +1442,16 @@ document.getElementById('v-search-input').addEventListener('input',function(){vS
 window.vOpenPanel=fbKey=>{
   const r=devUpdates.find(x=>x.fbKey===fbKey);if(!r)return;
   vSelRow=fbKey;vRender();
-  document.getElementById('dp-title').textContent=r.title||'Dev Update';
+  document.getElementById('dp-title').textContent=r.title||'Deployment';
   document.getElementById('dp-sub').textContent=(r.version||'')+(r.area?' · '+r.area:'');
   document.getElementById('dp-body').innerHTML=`
-    <div class="dp-sec"><div class="dp-sec-title">Update Info</div>
-      <div class="dp-field"><span class="dp-k">Date</span><span class="dp-v">${r.date||'—'}</span></div>
+    <div class="dp-sec"><div class="dp-sec-title">Deployment Info</div>
+      <div class="dp-field"><span class="dp-k">Date Deployed</span><span class="dp-v">${r.date||'—'}</span></div>
       <div class="dp-field"><span class="dp-k">Category</span><span class="dp-v">${vCatPill(r.category)}</span></div>
       <div class="dp-field"><span class="dp-k">Status</span><span class="dp-v">${vStatusPill(r.status)}</span></div>
       <div class="dp-field"><span class="dp-k">Version</span><span class="dp-v" style="font-weight:700;color:var(--acc)">${r.version||'—'}</span></div>
       <div class="dp-field"><span class="dp-k">Affected Area</span><span class="dp-v">${r.area||'—'}</span></div>
-      <div class="dp-field"><span class="dp-k">Updated By</span><span class="dp-v">${r.updatedBy||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Deployed By</span><span class="dp-v">${r.updatedBy||'—'}</span></div>
       <div class="dp-field"><span class="dp-k">Link</span><span class="dp-v">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc);text-decoration:none;font-size:10px">🔗 Open</a>`:'—'}</span></div>
     </div>
     ${r.description?`<div class="dp-sec"><div class="dp-sec-title">Description</div><div style="font-size:11px;color:var(--c2);background:var(--c8);padding:10px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.6">${r.description}</div></div>`:''}
@@ -1468,7 +1467,7 @@ window.vOpenPanel=fbKey=>{
 // ── DEV UPDATE MODAL ──
 window.vOpenModal=fbKey=>{
   vEditId=fbKey||null;
-  document.getElementById('v-modal-title').textContent=fbKey?'Edit Dev Update':'Add Dev Update';
+  document.getElementById('v-modal-title').textContent=fbKey?'Edit Deployment':'Add Deployment';
   if(fbKey){
     const r=devUpdates.find(x=>x.fbKey===fbKey);
     if(r){
@@ -1504,7 +1503,7 @@ window.vSaveUpdate=async()=>{
     link:document.getElementById('vf-link').value.trim(),
     addedBy:userName,addedAt:new Date().toISOString(),
   };
-  if(!d.title){showToast('Title is required','err');return;}
+  if(!d.title){showToast('What Changed is required','err');return;}
   try{
     if(vEditId){
       const existing=devUpdates.find(x=>x.fbKey===vEditId);
@@ -1516,13 +1515,13 @@ window.vSaveUpdate=async()=>{
       d.id='DEV'+String(Math.max(0,...nums)+1).padStart(3,'0');
       await push(devUpdatesRef,d);
     }
-    vCloseModal();showToast(vEditId?'Update saved ✓':'Dev update added ✓','grn');
+    vCloseModal();showToast(vEditId?'Deployment saved ✓':'Deployment added ✓','grn');
   }catch(e){showToast('Save failed — check connection','err');}
 };
 
 window.vConfirmDelete=fbKey=>{
   vPendingDelete=fbKey;
-  document.getElementById('confirm-text').textContent='Delete this dev update?';
+  document.getElementById('confirm-text').textContent='Delete this deployment?';
   document.getElementById('confirm-box').classList.add('show');
   document.getElementById('confirm-yes').onclick=async()=>{
     try{await remove(ref(db,'devupdates/'+vPendingDelete));hideConfirm();showToast('Dev update deleted','');}
