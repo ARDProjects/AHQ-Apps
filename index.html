@@ -860,8 +860,8 @@ function dRenderStats(){
   const total=disputes.length,open=disputes.filter(r=>r.status!=='Closed').length,amt=disputes.reduce((s,r)=>s+Number(r.amount||0),0),lost=disputes.filter(r=>r.outcome==='Dispute Lost').length,won=disputes.filter(r=>r.outcome==='Accepted Dispute').length;
   document.getElementById('open-count').textContent=open;
   document.getElementById('d-statsbar').innerHTML=[
-    {l:'Total Disputes',v:total,s:'All time',d:'dot-pur',f:''},
-    {l:'Open',v:open,s:'Needs attention',d:'dot-amb',f:'open'},
+    {l:'Total Disputes',v:total,s:'All Time',d:'dot-pur',f:''},
+    {l:'Open',v:open,s:'Needs Attention',d:'dot-amb',f:'open'},
     {l:'Total at Risk',v:'$'+amt.toFixed(2),s:'Disputed',d:'dot-red',f:''},
     {l:'Lost',v:lost,s:Math.round(lost/Math.max(total,1)*100)+'% rate',d:'dot-red',f:'lost'},
     {l:'Won',v:won,s:Math.round(won/Math.max(total,1)*100)+'% rate',d:'dot-grn',f:'won'}
@@ -1120,11 +1120,11 @@ function pRenderStats(){
   const mismatches=payments.filter(r=>hasMismatch(r)).length;
   const noSupport=payments.filter(r=>calcSupport(r)==='No').length;
   document.getElementById('p-statsbar').innerHTML=[
-    {l:'Total Records',v:total,s:'All clients',d:'dot-pur',f:''},
-    {l:'Active',v:active,s:'In good standing',d:'dot-grn',f:'Active'},
-    {l:'Past Due',v:pastDue,s:'Needs follow-up',d:'dot-red',f:'Past Due'},
-    {l:'Mismatches',v:mismatches,s:'Stripe vs actual',d:'dot-amb',f:'_mismatch'},
-    {l:'No Support',v:noSupport,s:'Payment required',d:'dot-red',f:'_nosupport'}
+    {l:'Total Records',v:total,s:'All Clients',d:'dot-pur',f:''},
+    {l:'Active',v:active,s:'In Good Standing',d:'dot-grn',f:'Active'},
+    {l:'Past Due',v:pastDue,s:'Needs Follow-Up',d:'dot-red',f:'Past Due'},
+    {l:'Mismatches',v:mismatches,s:'Stripe vs Actual',d:'dot-amb',f:'_mismatch'},
+    {l:'No Support',v:noSupport,s:'Payment Required',d:'dot-red',f:'_nosupport'}
   ].map(s=>`<div class="stat${(pFilterStatus===s.f||(s.f==='_mismatch'&&pFilterMismatch)||(s.f==='_nosupport'&&pFilterNoSupport))?' active':''}" onclick="pStatClick('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
 }
 
@@ -1389,10 +1389,10 @@ function vRenderStats(){
   const bugs=devUpdates.filter(r=>r.category==='Bug Fix'||r.category==='Hotfix').length;
   const rolledBack=devUpdates.filter(r=>r.status==='Rolled Back').length;
   document.getElementById('v-statsbar').innerHTML=[
-    {l:'Total Deployments',v:total,s:'All time',d:'dot-pur',f:''},
-    {l:'Deployed',v:deployed,s:'In production',d:'dot-grn',f:'Deployed'},
-    {l:'Last 7 Days',v:recent,s:'Recent activity',d:'dot-sky',f:'_recent'},
-    {l:'Bug Fixes',v:bugs,s:'Fixes & hotfixes',d:'dot-red',f:'_bugs'},
+    {l:'Total Deployments',v:total,s:'All Time',d:'dot-pur',f:''},
+    {l:'Deployed',v:deployed,s:'In Production',d:'dot-grn',f:'Deployed'},
+    {l:'Last 7 Days',v:recent,s:'Recent Activity',d:'dot-sky',f:'_recent'},
+    {l:'Bug Fixes',v:bugs,s:'Fixes & Hotfixes',d:'dot-red',f:'_bugs'},
     {l:'Rolled Back',v:rolledBack,s:'Reverted',d:'dot-amb',f:'Rolled Back'}
   ].map(s=>`<div class="stat${(vFilterStatus===s.f||(s.f==='_bugs'&&(vFilterCat==='Bug Fix'||vFilterCat==='Hotfix')))?' active':''}" onclick="vStatClick('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
 }
