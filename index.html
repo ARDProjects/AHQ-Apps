@@ -448,7 +448,6 @@ tbody tr:hover .row-actions{opacity:1}
       <div class="search"><span class="si">⌕</span><input type="text" id="v-search-input" placeholder="Search deployments…"></div>
       <button class="filter-btn" id="vf-bug" onclick="vToggleFilter('Bug Fix')">🐛 Bug Fix</button>
       <button class="filter-btn" id="vf-feat" onclick="vToggleFilter('Feature')">✨ Feature</button>
-      <button class="filter-btn" id="vf-hotfix" onclick="vToggleFilter('Hotfix')">🔥 Hotfix</button>
       <div class="view-toggle">
         <button id="v-view-table" onclick="vSetView('table')">▤ Table</button>
         <button class="active" id="v-view-timeline" onclick="vSetView('timeline')">⏱ Timeline</button>
@@ -562,7 +561,7 @@ tbody tr:hover .row-actions{opacity:1}
         <div class="form-group"><label class="form-label">Version / Release</label><input class="form-input" id="vf-version" placeholder="e.g. v2.4.1"></div>
         <div class="form-group full"><label class="form-label">What Changed</label><input class="form-input" id="vf-title" placeholder="Brief summary of what was deployed"></div>
         <div class="form-group full"><label class="form-label">Description</label><textarea class="form-textarea" id="vf-desc" placeholder="Details about this deployment…"></textarea></div>
-        <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="vf-category"><option value="">— Select —</option><option>Bug Fix</option><option>Feature</option><option>Config Change</option><option>Hotfix</option></select></div>
+        <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="vf-category"><option value="">— Select —</option><option>Bug Fix</option><option>Feature</option><option>Config Change</option></select></div>
         <div class="form-group"><label class="form-label">Affected Area</label><input class="form-input" id="vf-area" placeholder="e.g. Registration, Billing, Reports"></div>
         <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="vf-status"><option value="">— Select —</option><option>Deployed</option></select></div>
         <div class="form-group"><label class="form-label">Deployed By</label><input class="form-input" id="vf-updatedBy" placeholder="Who deployed this change"></div>
@@ -749,7 +748,7 @@ function renderDashboard(){
   // Dev stats
   const vTotal=devUpdates.length, vDeployed=devUpdates.filter(r=>r.status==='Deployed').length;
   const vFeatures=devUpdates.filter(r=>r.category==='Feature').length;
-  const vBugs=devUpdates.filter(r=>r.category==='Bug Fix'||r.category==='Hotfix').length;
+  const vBugs=devUpdates.filter(r=>r.category==='Bug Fix').length;
 
   el.innerHTML=`
     <div class="dash-card" onclick="switchTab('disputes')">
@@ -1292,7 +1291,6 @@ function vCatPill(c){
   if(c==='Bug Fix')return'<span class="pill p-red">🐛 Bug Fix</span>';
   if(c==='Feature')return'<span class="pill p-grn">✨ Feature</span>';
   if(c==='Config Change')return'<span class="pill p-amb">⚙ Config</span>';
-  if(c==='Hotfix')return'<span class="pill p-red">🔥 Hotfix</span>';
   return`<span class="pill p-gray">${c}</span>`;
 }
 function vStatusPill(s){
@@ -1385,15 +1383,15 @@ function vRenderStats(){
   const deployed=devUpdates.filter(r=>r.status==='Deployed').length;
   const now=new Date();const week=new Date(now.getTime()-7*864e5);
   const recent=devUpdates.filter(r=>{try{return new Date(r.date)>=week}catch(e){return false}}).length;
-  const bugs=devUpdates.filter(r=>r.category==='Bug Fix'||r.category==='Hotfix').length;
+  const bugs=devUpdates.filter(r=>r.category==='Bug Fix').length;
   const features=devUpdates.filter(r=>r.category==='Feature').length;
   document.getElementById('v-statsbar').innerHTML=[
     {l:'Total Deployments',v:total,s:'All Time',d:'dot-pur',f:''},
     {l:'Deployed',v:deployed,s:'In Production',d:'dot-grn',f:'Deployed'},
     {l:'Last 7 Days',v:recent,s:'Recent Activity',d:'dot-sky',f:'_recent'},
-    {l:'Bug Fixes',v:bugs,s:'Fixes & Hotfixes',d:'dot-red',f:'_bugs'},
+    {l:'Bug Fixes',v:bugs,s:'Fixes Applied',d:'dot-red',f:'_bugs'},
     {l:'Features',v:features,s:'New Functionality',d:'dot-amb',f:'_features'}
-  ].map(s=>`<div class="stat${(vFilterStatus===s.f||(s.f==='_bugs'&&(vFilterCat==='Bug Fix'||vFilterCat==='Hotfix')))?' active':''}" onclick="vStatClick('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+  ].map(s=>`<div class="stat${(vFilterStatus===s.f||(s.f==='_bugs'&&vFilterCat==='Bug Fix'))?' active':''}" onclick="vStatClick('${s.f}')"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
 }
 
 window.vStatClick=f=>{
@@ -1401,7 +1399,7 @@ window.vStatClick=f=>{
     // Last 7 days is informational only, just clear filters
     vFilterStatus='';vFilterCat='';
   } else if(f==='_bugs'){
-    if(vFilterCat==='Bug Fix'||vFilterCat==='Hotfix'){vFilterCat='';vFilterStatus='';}
+    if(vFilterCat==='Bug Fix'){vFilterCat='';vFilterStatus='';}
     else{vFilterCat='Bug Fix';vFilterStatus='';}
   } else if(f==='_features'){
     if(vFilterCat==='Feature'){vFilterCat='';vFilterStatus='';}
@@ -1413,10 +1411,10 @@ window.vStatClick=f=>{
 };
 
 function vRenderSidebar(){
-  const cats=['Bug Fix','Feature','Config Change','Hotfix'];
+  const cats=['Bug Fix','Feature','Config Change'];
   document.getElementById('v-cat-list').innerHTML=cats.map(c=>{
     const ct=devUpdates.filter(r=>r.category===c).length;if(!ct)return'';
-    return`<div class="sb-row${vFilterCat===c?' active':''}" onclick="vSetCatFilter('${c}')"><span class="sb-name">${c}</span><span class="sb-ct${c==='Bug Fix'||c==='Hotfix'?' hot':''}">${ct}</span></div>`;
+    return`<div class="sb-row${vFilterCat===c?' active':''}" onclick="vSetCatFilter('${c}')"><span class="sb-name">${c}</span><span class="sb-ct${c==='Bug Fix'?' hot':''}">${ct}</span></div>`;
   }).join('');
   const statuses=['Deployed'];
   document.getElementById('v-status-list').innerHTML=statuses.map(s=>{
@@ -1431,10 +1429,9 @@ window.vSetCatFilter=c=>{vFilterCat=vFilterCat===c?'':c;vFilterStatus='';vPage=1
 window.vSetStatusFilter=s=>{vFilterStatus=vFilterStatus===s?'':s;vFilterCat='';vPage=1;vRender()};
 window.vToggleFilter=c=>{
   vFilterCat=vFilterCat===c?'':c;vFilterStatus='';
-  ['vf-bug','vf-feat','vf-hotfix'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  ['vf-bug','vf-feat'].forEach(id=>document.getElementById(id).classList.remove('on'));
   if(vFilterCat==='Bug Fix')document.getElementById('vf-bug').classList.add('on');
   if(vFilterCat==='Feature')document.getElementById('vf-feat').classList.add('on');
-  if(vFilterCat==='Hotfix')document.getElementById('vf-hotfix').classList.add('on');
   vPage=1;vRender();
 };
 window.vSortBy=k=>{if(vSortKey===k)vSortDir*=-1;else{vSortKey=k;vSortDir=-1;}['date','title','version','updatedBy'].forEach(x=>{const el=document.getElementById('vs-'+x);if(el)el.textContent='↕';});const el=document.getElementById('vs-'+k);if(el)el.textContent=vSortDir===1?'↑':'↓';vRender();};
