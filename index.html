@@ -154,6 +154,7 @@ tbody tr:hover .row-actions{opacity:1}
 .p-card-act{padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;border:none;transition:all .12s;font-family:inherit}
 .p-card-act.edit{background:var(--acc-bg);color:var(--acc)}.p-card-act.edit:hover{background:var(--acc);color:#fff}
 .p-card-act.del{background:var(--red-bg);color:var(--red)}.p-card-act.del:hover{background:var(--red);color:#fff}
+.p-card-stripe-link{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;background:#f0e6ff;color:#7c3aed;text-decoration:none;transition:all .12s}.p-card-stripe-link:hover{background:#7c3aed;color:#fff}
 .plan-badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
 .plan-district{background:#dbeafe;color:#1e40af}
 .plan-enterprise{background:#fae8ff;color:#86198f}
@@ -576,6 +577,7 @@ tbody tr:hover .row-actions{opacity:1}
         <div class="form-group"><label class="form-label">Payment Method</label><select class="form-select" id="pf-method"><option value="">— Select —</option><option>Stripe</option><option>Check</option><option>Cash</option><option>ACH / Wire</option><option>Other</option></select></div>
         <div class="form-group"><label class="form-label">Stripe Status</label><select class="form-select" id="pf-stripe"><option value="">— Select —</option><option>Paid</option><option>Unpaid</option><option>Partial</option><option>N/A</option></select></div>
         <div class="form-group"><label class="form-label">Account Status</label><select class="form-select" id="pf-acctStatus"><option value="">— Select —</option><option>Active</option><option>Past Due</option><option>Suspended</option><option>Cancelled</option><option>Grace Period</option></select></div>
+        <div class="form-group full"><label class="form-label">Stripe Link</label><input class="form-input" id="pf-stripeLink" type="url" placeholder="https://dashboard.stripe.com/subscriptions/..."></div>
         <div class="form-group"><label class="form-label">Support Eligible?</label><select class="form-select" id="pf-support"><option value="">— Auto-detect —</option><option>Yes</option><option>No</option><option>Grace Period</option></select></div>
         <div class="form-group"><label class="form-label">Check / Ref Number</label><input class="form-input" id="pf-refNum" placeholder="e.g. Check #4521"></div>
         <div class="form-group"><label class="form-label">Verified By</label><input class="form-input" id="pf-verifiedBy" placeholder="Team member who verified"></div>
@@ -1169,6 +1171,7 @@ function pRender(){
         <div class="p-card-actions" onclick="event.stopPropagation()">
           <button class="p-card-act edit" onclick="pOpenModal('${r.fbKey}')">✏ Edit</button>
           <button class="p-card-act del" onclick="pConfirmDelete('${r.fbKey}')">🗑 Delete</button>
+          ${r.stripeLink?`<a class="p-card-stripe-link" href="${r.stripeLink}" target="_blank" rel="noopener" onclick="event.stopPropagation()">⬡ Stripe</a>`:''}
         </div>
         ${r.verifiedBy?'<span style="font-size:10px;color:var(--c5)">Verified by '+r.verifiedBy+'</span>':''}
       </div>
@@ -1269,6 +1272,7 @@ window.pOpenPanel=fbKey=>{
     </div>
     <div class="dp-sec"><div class="dp-sec-title">Account Status</div>
       <div class="dp-field"><span class="dp-k">Stripe Status</span><span class="dp-v">${pStripePill(r.stripeStatus)}</span></div>
+      <div class="dp-field"><span class="dp-k">Stripe Link</span><span class="dp-v">${r.stripeLink?`<a href="${r.stripeLink}" target="_blank" rel="noopener" style="color:var(--acc);font-size:11px;word-break:break-all">View in Stripe ↗</a>`:'—'}</span></div>
       <div class="dp-field"><span class="dp-k">Account Status</span><span class="dp-v">${pAcctPill(r.acctStatus)}</span></div>
       <div class="dp-field"><span class="dp-k">Support Eligible</span><span class="dp-v">${pSupportPill(r)}</span></div>
       <div class="dp-field"><span class="dp-k">Verified By</span><span class="dp-v">${r.verifiedBy||'—'}</span></div>
@@ -1308,11 +1312,12 @@ window.pOpenModal=fbKey=>{
       document.getElementById('pf-acctStatus').value=r.acctStatus||'';
       document.getElementById('pf-support').value=r.support||'';
       document.getElementById('pf-refNum').value=r.refNum||'';
+      document.getElementById('pf-stripeLink').value=r.stripeLink||'';
       document.getElementById('pf-verifiedBy').value=r.verifiedBy||'';
       document.getElementById('pf-notes').value=r.notes||'';
     }
   } else {
-    ['client','contact','email','amount','paydate','period','plan','method','stripe','acctStatus','support','refNum','verifiedBy','notes'].forEach(f=>document.getElementById('pf-'+f).value='');
+    ['client','contact','email','amount','paydate','period','plan','method','stripe','acctStatus','support','refNum','stripeLink','verifiedBy','notes'].forEach(f=>document.getElementById('pf-'+f).value='');
   }
   document.getElementById('p-modal').classList.add('show');
 };
@@ -1332,6 +1337,7 @@ window.pSavePayment=async()=>{
     acctStatus:document.getElementById('pf-acctStatus').value,
     support:document.getElementById('pf-support').value,
     refNum:document.getElementById('pf-refNum').value.trim(),
+    stripeLink:document.getElementById('pf-stripeLink').value.trim(),
     verifiedBy:document.getElementById('pf-verifiedBy').value.trim(),
     notes:document.getElementById('pf-notes').value.trim(),
     addedBy:userName,addedAt:new Date().toISOString(),
@@ -1363,8 +1369,8 @@ window.pConfirmDelete=fbKey=>{
 };
 
 window.pExportCSV=()=>{
-  const h=['ID','Client','Contact','Email','Plan','Amount','Payment Date','Period','Method','Stripe Status','Account Status','Support Eligible','Ref/Check #','Verified By','Notes','Added By'];
-  const rows=payments.map(r=>[r.id,r.client,r.contact,r.email,r.plan,r.amount,r.paymentDate,r.period,r.method,r.stripeStatus,r.acctStatus,calcSupport(r),r.refNum,r.verifiedBy,r.notes,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  const h=['ID','Client','Contact','Email','Plan','Amount','Payment Date','Period','Method','Stripe Status','Stripe Link','Account Status','Support Eligible','Ref/Check #','Verified By','Notes','Added By'];
+  const rows=payments.map(r=>[r.id,r.client,r.contact,r.email,r.plan,r.amount,r.paymentDate,r.period,r.method,r.stripeStatus,r.stripeLink,r.acctStatus,calcSupport(r),r.refNum,r.verifiedBy,r.notes,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
   const csv=[h.join(','),...rows].join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='payments_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('CSV exported ✓','grn');
