@@ -361,6 +361,8 @@ tbody tr:hover .row-actions{opacity:1}
       <button class="nav-menu-item" id="tab-disputes-btn" onclick="switchTab('disputes')"><span class="nav-menu-icon">⚖</span><span class="nav-menu-label">Dispute Tracker</span></button>
       <button class="nav-menu-item" id="tab-payments-btn" onclick="switchTab('payments')"><span class="nav-menu-icon">💳</span><span class="nav-menu-label">Client Payments</span></button>
       <button class="nav-menu-item" id="tab-devupdates-btn" onclick="switchTab('devupdates')"><span class="nav-menu-icon">🛠</span><span class="nav-menu-label">Development Tracker</span></button>
+      <button class="nav-menu-item" id="tab-feedback-btn" onclick="switchTab('feedback')"><span class="nav-menu-icon">👍</span><span class="nav-menu-label">Positive Feedback Log</span></button>
+      <button class="nav-menu-item" id="tab-implementation-btn" onclick="switchTab('implementation')"><span class="nav-menu-icon">📋</span><span class="nav-menu-label">Implementation Tracker</span></button>
     </div>
   </div>
   <div class="topbar-right">
@@ -518,6 +520,85 @@ tbody tr:hover .row-actions{opacity:1}
 </div>
 </div><!-- end #tab-devupdates -->
 
+<!-- ════════════════════════════════════════════════════════ -->
+<!--                POSITIVE FEEDBACK LOG TAB                -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="tab-view" id="tab-feedback">
+
+<div class="statsbar" id="f-statsbar"></div>
+
+<div class="main">
+  <div class="sidebar">
+    <div style="margin-bottom:8px"><div class="sb-head">By Organization</div><div id="f-org-list"></div></div>
+    <div><div class="sb-head">By CX Rep</div><div id="f-rep-list"></div></div>
+  </div>
+  <div class="content">
+    <div class="toolbar">
+      <div class="search"><span class="si">⌕</span><input type="text" id="f-search-input" placeholder="Search feedback…"></div>
+      <button class="export-btn" onclick="fExportCSV()">⬇ Export CSV</button>
+      <button class="add-btn" onclick="fOpenModal()">+ Add Feedback</button>
+    </div>
+    <div class="table-wrap">
+      <table id="f-main-table">
+        <thead><tr>
+          <th style="width:86px" onclick="fSortBy('date')">Date<span class="sa" id="fs-date">↕</span></th>
+          <th style="width:160px" onclick="fSortBy('organization')">Organization<span class="sa" id="fs-organization">↕</span></th>
+          <th style="width:120px" onclick="fSortBy('submittedBy')">Submitted By<span class="sa" id="fs-submittedBy">↕</span></th>
+          <th style="width:110px" onclick="fSortBy('cxRep')">CX Rep<span class="sa" id="fs-cxRep">↕</span></th>
+          <th>Feedback</th>
+          <th style="width:68px"></th>
+        </tr></thead>
+        <tbody id="f-tbody"></tbody>
+      </table>
+      <div id="f-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">👍</div><div>No feedback logged yet</div></div>
+    </div>
+    <div class="pagination"><span class="pg-info" id="f-pg-info"></span><div class="pg-btns" id="f-pg-btns"></div></div>
+  </div>
+</div>
+</div><!-- end #tab-feedback -->
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!--                IMPLEMENTATION TRACKER TAB               -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="tab-view" id="tab-implementation">
+
+<div class="statsbar" id="i-statsbar"></div>
+
+<div class="main">
+  <div class="sidebar">
+    <div style="margin-bottom:8px"><div class="sb-head">By Status</div><div id="i-status-list"></div></div>
+    <div style="margin-bottom:8px"><div class="sb-head">By Package</div><div id="i-package-list"></div></div>
+    <div><div class="sb-head">By Consultant</div><div id="i-consultant-list"></div></div>
+  </div>
+  <div class="content">
+    <div class="toolbar">
+      <div class="search"><span class="si">⌕</span><input type="text" id="i-search-input" placeholder="Search implementations…"></div>
+      <button class="filter-btn" id="if-atrisk" onclick="iToggleFilter('At Risk')">⚠ At Risk</button>
+      <button class="filter-btn" id="if-live" onclick="iToggleFilter('Live')">✓ Live</button>
+      <button class="export-btn" onclick="iExportCSV()">⬇ Export CSV</button>
+      <button class="add-btn" onclick="iOpenModal()">+ Add Implementation</button>
+    </div>
+    <div class="table-wrap">
+      <table id="i-main-table">
+        <thead><tr>
+          <th style="width:150px" onclick="iSortBy('organization')">Organization<span class="sa" id="is-organization">↕</span></th>
+          <th style="width:90px">Package</th>
+          <th style="width:110px">Status</th>
+          <th style="width:80px">Sentiment</th>
+          <th style="width:50px" onclick="iSortBy('nps')">NPS<span class="sa" id="is-nps">↕</span></th>
+          <th style="width:90px" onclick="iSortBy('goLiveDate')">Go Live<span class="sa" id="is-goLiveDate">↕</span></th>
+          <th style="width:110px">Consultant</th>
+          <th style="width:68px"></th>
+        </tr></thead>
+        <tbody id="i-tbody"></tbody>
+      </table>
+      <div id="i-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">📋</div><div>No implementations tracked yet</div></div>
+    </div>
+    <div class="pagination"><span class="pg-info" id="i-pg-info"></span><div class="pg-btns" id="i-pg-btns"></div></div>
+  </div>
+</div>
+</div><!-- end #tab-implementation -->
+
 </div><!-- end #app -->
 
 <!-- OVERLAY -->
@@ -610,6 +691,61 @@ tbody tr:hover .row-actions{opacity:1}
   </div>
 </div>
 
+<!-- ADD/EDIT MODAL — POSITIVE FEEDBACK -->
+<div class="modal" id="f-modal">
+  <div class="modal-bg" onclick="fCloseModal()"></div>
+  <div class="modal-box">
+    <div class="modal-hdr"><div class="modal-title" id="f-modal-title">Add Feedback</div><button class="modal-close" onclick="fCloseModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Date of Feedback</label><input class="form-input" id="ff-date" placeholder="e.g. Oct 16, 2026"></div>
+        <div class="form-group"><label class="form-label">CX Rep</label><input class="form-input" id="ff-cxRep" placeholder="Who received the feedback"></div>
+        <div class="form-group full"><label class="form-label">Organization</label><input class="form-input" id="ff-organization" placeholder="Organization name"></div>
+        <div class="form-group"><label class="form-label">Submitted By</label><input class="form-input" id="ff-submittedBy" placeholder="Name of person giving feedback"></div>
+        <div class="form-group"><label class="form-label">Their Email</label><input class="form-input" id="ff-submittedByEmail" type="email" placeholder="email@example.com"></div>
+        <div class="form-group full"><label class="form-label">Feedback</label><textarea class="form-textarea" id="ff-feedback" placeholder="What did they say?" style="min-height:100px"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="fCloseModal()">Cancel</button><button class="btn-save" onclick="fSaveFeedback()">Save Feedback</button></div>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL — IMPLEMENTATION TRACKER -->
+<div class="modal" id="i-modal">
+  <div class="modal-bg" onclick="iCloseModal()"></div>
+  <div class="modal-box">
+    <div class="modal-hdr"><div class="modal-title" id="i-modal-title">Add Implementation</div><button class="modal-close" onclick="iCloseModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label class="form-label">Organization</label><input class="form-input" id="if-organization" placeholder="Organization name"></div>
+        <div class="form-group"><label class="form-label">Package</label><select class="form-select" id="if-package"><option value="">— Select —</option><option>District</option><option>Enterprise</option><option>Pro</option><option>Lite Plus</option><option>Lite</option></select></div>
+        <div class="form-group"><label class="form-label">Mtg #</label><input class="form-input" id="if-mtgNum" placeholder="e.g. 3"></div>
+        <div class="form-group"><label class="form-label">Sentiment</label><select class="form-select" id="if-sentiment"><option value="">— Select —</option><option>Positive</option><option>Neutral</option><option>Negative</option></select></div>
+        <div class="form-group"><label class="form-label">NPS</label><input class="form-input" id="if-nps" type="number" min="0" max="10" placeholder="0–10"></div>
+        <div class="form-group"><label class="form-label">Implementation Status</label><select class="form-select" id="if-implStatus"><option value="">— Select —</option><option>Not Started</option><option>Kickoff Scheduled</option><option>In Progress</option><option>Live</option><option>Stabilizing</option><option>Completed</option><option>At Risk</option><option>On Hold</option><option>Cancelled</option></select></div>
+        <div class="form-group"><label class="form-label">Consultant</label><input class="form-input" id="if-consultant" placeholder="AHQ consultant"></div>
+        <div class="form-group"><label class="form-label">CoPilot</label><input class="form-input" id="if-copilot" placeholder="AHQ co-pilot"></div>
+        <div class="form-group"><label class="form-label">Customer Admin</label><input class="form-input" id="if-customerAdmin" placeholder="Client-side admin"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="if-email" type="email" placeholder="email@example.com"></div>
+        <div class="form-group"><label class="form-label">Kick Off Date</label><input class="form-input" id="if-kickOffDate" placeholder="e.g. Sep 1, 2026"></div>
+        <div class="form-group"><label class="form-label">Go Live Date</label><input class="form-input" id="if-goLiveDate" placeholder="e.g. Sep 15, 2026"></div>
+        <div class="form-group"><label class="form-label">30-Day Check-In</label><input class="form-input" id="if-checkin30" placeholder="e.g. Oct 15, 2026"></div>
+        <div class="form-group"><label class="form-label">60-Day Check-In</label><input class="form-input" id="if-checkin60" placeholder="e.g. Nov 14, 2026"></div>
+        <div class="form-group"><label class="form-label">90-Day Check-In</label><input class="form-input" id="if-checkin90" placeholder="e.g. Dec 14, 2026"></div>
+        <div class="form-group"><label class="form-label">6 Month Check-In (Adrian)</label><input class="form-input" id="if-checkin6moAdrian" placeholder="e.g. Mar 15, 2027"></div>
+        <div class="form-group"><label class="form-label">9 Month Check-In (Tre)</label><input class="form-input" id="if-checkin9moTre" placeholder="e.g. Jun 15, 2027"></div>
+        <div class="form-group"><label class="form-label">90-Day Confidence Score</label><input class="form-input" id="if-confidence90" type="number" min="0" max="10" placeholder="0–10"></div>
+        <div class="form-group"><label class="form-label">End Date</label><input class="form-input" id="if-endDate" placeholder="e.g. Aug 31, 2027"></div>
+        <div class="form-group"><label class="form-label">Extended End Date</label><input class="form-input" id="if-extendedEndDate" placeholder="e.g. Dec 31, 2027"></div>
+        <div class="form-group"><label class="form-label">Grant Report Mtg</label><input class="form-input" id="if-grantReportMtg" placeholder="e.g. Jan 10, 2027"></div>
+        <div class="form-group"><label class="form-label">First Grant Report Due</label><input class="form-input" id="if-firstGrantReportDue" placeholder="e.g. Jan 31, 2027"></div>
+        <div class="form-group full"><label class="form-label">Notes</label><textarea class="form-textarea" id="if-notes" placeholder="Additional notes…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="iCloseModal()">Cancel</button><button class="btn-save" onclick="iSaveImplementation()">Save Implementation</button></div>
+  </div>
+</div>
+
 <!-- CONFIRM DELETE -->
 <div class="confirm-box" id="confirm-box">
   <span id="confirm-text">Delete this record?</span>
@@ -627,7 +763,7 @@ import { getDatabase, ref, set, push, remove, onValue } from 'https://www.gstati
 // ══════════════════════════════════════════════════
 //  SHARED STATE
 // ══════════════════════════════════════════════════
-let db, disputesRef, paymentsRef, devUpdatesRef;
+let db, disputesRef, paymentsRef, devUpdatesRef, feedbackRef, implementationsRef;
 let currentTab = 'dashboard';
 let userName = localStorage.getItem('disputeos_name')||'';
 let dbURL = localStorage.getItem('disputeos_db')||'';
@@ -639,7 +775,7 @@ function initials(n){return(n||'').split(' ').slice(0,2).map(w=>w[0]).join('')}
 // ══════════════════════════════════════════════════
 //  TAB SWITCHING
 // ══════════════════════════════════════════════════
-const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Development Tracker'};
+const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Development Tracker',feedback:'Positive Feedback Log',implementation:'Implementation Tracker'};
 window.switchTab = function(tab){
   currentTab = tab;
   document.querySelectorAll('.tab-view').forEach(el=>el.classList.remove('active'));
@@ -695,10 +831,12 @@ function bootApp(url){
     disputesRef = ref(db,'disputes');
     paymentsRef = ref(db,'payments');
     devUpdatesRef = ref(db,'devupdates');
+    feedbackRef = ref(db,'positivefeedback');
+    implementationsRef = ref(db,'implementations');
 
-    let disputesLoaded=false, paymentsLoaded=false, devUpdatesLoaded=false;
+    let disputesLoaded=false, paymentsLoaded=false, devUpdatesLoaded=false, feedbackLoaded=false, implementationsLoaded=false;
     function checkReady(){
-      if(disputesLoaded && paymentsLoaded && devUpdatesLoaded){
+      if(disputesLoaded && paymentsLoaded && devUpdatesLoaded && feedbackLoaded && implementationsLoaded){
         document.getElementById('connecting-screen').style.display='none';
         document.getElementById('app').style.display='block';
         setSyncStatus(true);
@@ -738,6 +876,24 @@ function bootApp(url){
       if(currentTab==='dashboard') renderDashboard();
     }, err=>{ /* dispute listener handles errors */ });
 
+    onValue(feedbackRef, snap=>{
+      const val=snap.val();
+      feedback = val ? Object.entries(val).map(([fbKey,d])=>({...d,fbKey})) : [];
+      feedbackLoaded=true;
+      checkReady();
+      fRender();
+      if(currentTab==='dashboard') renderDashboard();
+    }, err=>{ /* dispute listener handles errors */ });
+
+    onValue(implementationsRef, snap=>{
+      const val=snap.val();
+      implementations = val ? Object.entries(val).map(([fbKey,d])=>({...d,fbKey})) : [];
+      implementationsLoaded=true;
+      checkReady();
+      iRender();
+      if(currentTab==='dashboard') renderDashboard();
+    }, err=>{ /* dispute listener handles errors */ });
+
   }catch(e){
     document.getElementById('connecting-screen').style.display='none';
     showToast('Invalid Firebase config — please try again','err');
@@ -762,7 +918,7 @@ window.changeName=function(){
 setTimeout(updateAvatar,100);
 
 // ── SHARED ──
-window.closePanel=()=>{document.getElementById('dpanel').classList.remove('open');document.getElementById('overlay').classList.remove('show');dSelRow=null;pSelRow=null;vSelRow=null;dRender();pRender();if(typeof vRender==='function')vRender();};
+window.closePanel=()=>{document.getElementById('dpanel').classList.remove('open');document.getElementById('overlay').classList.remove('show');dSelRow=null;pSelRow=null;vSelRow=null;fSelRow=null;iSelRow=null;dRender();pRender();if(typeof vRender==='function')vRender();if(typeof fRender==='function')fRender();if(typeof iRender==='function')iRender();};
 window.showToast=(msg,type)=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(type?' '+type:'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);};
 window.hideConfirm=()=>{document.getElementById('confirm-box').classList.remove('show');};
 
@@ -787,6 +943,19 @@ function renderDashboard(){
   const vTotal=devUpdates.length, vDeployed=devUpdates.filter(r=>r.status==='Deployed').length;
   const vFeatures=devUpdates.filter(r=>r.category==='Feature').length;
   const vBugs=devUpdates.filter(r=>r.category==='Bug Fix').length;
+
+  // Feedback stats
+  const fTotal=feedback.length;
+  const fOrgs=new Set(feedback.map(r=>r.organization).filter(Boolean)).size;
+  const fNow=new Date();const fWeek=new Date(fNow.getTime()-7*864e5);
+  const fRecent=feedback.filter(r=>{try{return new Date(r.date)>=fWeek}catch(e){return false}}).length;
+
+  // Implementation stats
+  const iTotal=implementations.length;
+  const iLive=implementations.filter(r=>r.implStatus==='Live'||r.implStatus==='Completed').length;
+  const iAtRisk=implementations.filter(r=>r.implStatus==='At Risk'||r.implStatus==='On Hold').length;
+  const iNpsVals=implementations.filter(r=>r.nps!==''&&r.nps!==undefined&&!isNaN(Number(r.nps))).map(r=>Number(r.nps));
+  const iAvgNps=iNpsVals.length?(iNpsVals.reduce((s,n)=>s+n,0)/iNpsVals.length).toFixed(1):'—';
 
   el.innerHTML=`
     <div class="dash-card" onclick="switchTab('disputes')">
@@ -835,6 +1004,38 @@ function renderDashboard(){
         </div>
       </div>
       <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Development Tracker</div>
+    </div>
+
+    <div class="dash-card" onclick="switchTab('feedback')">
+      <div class="dash-card-head">
+        <div class="dash-card-icon disputes" style="background:var(--grn-bg)">👍</div>
+        <div><div class="dash-card-title">Positive Feedback Log</div><div class="dash-card-sub">Kind Words From Clients</div></div>
+      </div>
+      <div class="dash-card-body">
+        <div class="dash-metrics">
+          <div class="dash-metric"><div class="dash-metric-val">${fTotal}</div><div class="dash-metric-label">Total Logged</div></div>
+          <div class="dash-metric good"><div class="dash-metric-val">${fRecent}</div><div class="dash-metric-label">Last 7 Days</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${fOrgs}</div><div class="dash-metric-label">Organizations</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${[...new Set(feedback.map(r=>r.cxRep).filter(Boolean))].length}</div><div class="dash-metric-label">CX Reps</div></div>
+        </div>
+      </div>
+      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Feedback Log</div>
+    </div>
+
+    <div class="dash-card" onclick="switchTab('implementation')">
+      <div class="dash-card-head">
+        <div class="dash-card-icon payments" style="background:var(--sky-bg)">📋</div>
+        <div><div class="dash-card-title">Implementation Tracker</div><div class="dash-card-sub">Onboarding &amp; Rollout Progress</div></div>
+      </div>
+      <div class="dash-card-body">
+        <div class="dash-metrics">
+          <div class="dash-metric"><div class="dash-metric-val">${iTotal}</div><div class="dash-metric-label">Total Clients</div></div>
+          <div class="dash-metric good"><div class="dash-metric-val">${iLive}</div><div class="dash-metric-label">Live / Completed</div></div>
+          <div class="dash-metric${iAtRisk?' alert':''}"><div class="dash-metric-val">${iAtRisk}</div><div class="dash-metric-label">At Risk / On Hold</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${iAvgNps}</div><div class="dash-metric-label">Avg NPS</div></div>
+        </div>
+      </div>
+      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Implementation Tracker</div>
     </div>
   `;
 }
@@ -1631,6 +1832,357 @@ window.vExportCSV=()=>{
   const rows=devUpdates.map(r=>[r.id,r.date,r.title,r.description,r.category,r.area,r.version,r.status,r.updatedBy,r.link,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
   const csv=[h.join(','),...rows].join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='dev_updates_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('CSV exported ✓','grn');
+};
+
+// ══════════════════════════════════════════════════
+//  POSITIVE FEEDBACK MODULE
+// ══════════════════════════════════════════════════
+let feedback=[], fSortKey='date', fSortDir=-1, fSearch='', fFilterOrg='', fFilterRep='', fPage=1, fSelRow=null, fEditId=null, fPendingDelete=null;
+const F_PER=10;
+
+function fGetFiltered(){
+  let d=[...feedback];
+  if(fSearch){const t=fSearch.toLowerCase();d=d.filter(r=>(r.organization||'').toLowerCase().includes(t)||(r.submittedBy||'').toLowerCase().includes(t)||(r.submittedByEmail||'').toLowerCase().includes(t)||(r.cxRep||'').toLowerCase().includes(t)||(r.feedback||'').toLowerCase().includes(t));}
+  if(fFilterOrg)d=d.filter(r=>r.organization===fFilterOrg);
+  if(fFilterRep)d=d.filter(r=>r.cxRep===fFilterRep);
+  d.sort((a,b)=>{let av,bv;if(fSortKey==='date'){av=new Date(a.date||0);bv=new Date(b.date||0);}else{av=(a[fSortKey]||'').toLowerCase();bv=(b[fSortKey]||'').toLowerCase();}return av<bv?-fSortDir:av>bv?fSortDir:0;});
+  return d;
+}
+
+function fRender(){
+  const filtered=fGetFiltered();const total=filtered.length;const pages=Math.max(1,Math.ceil(total/F_PER));if(fPage>pages)fPage=1;
+  const slice=filtered.slice((fPage-1)*F_PER,fPage*F_PER);
+  const tb=document.getElementById('f-tbody');if(!tb)return;const em=document.getElementById('f-empty');const tbl=document.getElementById('f-main-table');
+  if(!slice.length){tb.innerHTML='';em.style.display='';tbl.style.display='none';}else{em.style.display='none';tbl.style.display='';}
+  tb.innerHTML=slice.map(r=>`
+    <tr onclick="fOpenPanel('${r.fbKey}')" class="${fSelRow===r.fbKey?'sel':''}">
+      <td><span class="dt">${(r.date||'').replace(', 2026','')}</span></td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="pav" style="background:${pc(r.organization)}">${initials(r.organization)}</div><span class="pn">${r.organization||'—'}</span></div></td>
+      <td><span style="font-size:12px;color:var(--c2)">${r.submittedBy||'—'}</span></td>
+      <td><span style="font-size:11px;color:var(--c3)">${r.cxRep||'—'}</span></td>
+      <td><span style="font-size:11px;color:var(--c2)">${(r.feedback||'').length>90?(r.feedback.slice(0,90)+'…'):(r.feedback||'—')}</span></td>
+      <td onclick="event.stopPropagation()"><div class="row-actions"><button class="ra-btn ra-edit" onclick="fOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="fConfirmDelete('${r.fbKey}')">Del</button></div></td>
+    </tr>`).join('');
+  document.getElementById('f-pg-info').textContent=total?`${(fPage-1)*F_PER+1}–${Math.min(fPage*F_PER,total)} of ${total}`:'0 feedback entries';
+  fRenderPagination(pages);fRenderStats();fRenderSidebar();
+}
+
+function fRenderPagination(pages){
+  const pb=document.getElementById('f-pg-btns');let h=`<button class="pg-btn" onclick="fGoPage(${fPage-1})" ${fPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++)h+=`<button class="pg-btn${i===fPage?' cur':''}" onclick="fGoPage(${i})">${i}</button>`;
+  h+=`<button class="pg-btn" onclick="fGoPage(${fPage+1})" ${fPage===pages?'disabled':''}>›</button>`;pb.innerHTML=h;
+}
+window.fGoPage=p=>{fPage=p;fRender()};
+
+function fRenderStats(){
+  const total=feedback.length;
+  const orgs=new Set(feedback.map(r=>r.organization).filter(Boolean)).size;
+  const reps=new Set(feedback.map(r=>r.cxRep).filter(Boolean)).size;
+  const now=new Date();const monthStart=new Date(now.getFullYear(),now.getMonth(),1);const week=new Date(now.getTime()-7*864e5);
+  const thisMonth=feedback.filter(r=>{try{return new Date(r.date)>=monthStart}catch(e){return false}}).length;
+  const recent=feedback.filter(r=>{try{return new Date(r.date)>=week}catch(e){return false}}).length;
+  document.getElementById('f-statsbar').innerHTML=[
+    {l:'Total Feedback',v:total,s:'All Time',d:'dot-pur'},
+    {l:'This Month',v:thisMonth,s:'Logged',d:'dot-grn'},
+    {l:'Last 7 Days',v:recent,s:'Recent Activity',d:'dot-sky'},
+    {l:'Organizations',v:orgs,s:'Unique Orgs',d:'dot-amb'},
+    {l:'CX Reps',v:reps,s:'Engaged',d:'dot-grn'}
+  ].map(s=>`<div class="stat"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+}
+
+function fRenderSidebar(){
+  const orgs=[...new Set(feedback.map(r=>r.organization).filter(Boolean))];
+  document.getElementById('f-org-list').innerHTML=orgs.map(o=>({o,c:feedback.filter(r=>r.organization===o).length})).sort((a,b)=>b.c-a.c).map(({o,c})=>`<div class="sb-row${fFilterOrg===o?' active':''}" onclick="fSetOrg('${o.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><div class="pav" style="background:${pc(o)};width:20px;height:20px;font-size:8px;border-radius:3px">${initials(o)}</div><span class="sb-name">${o}</span><span class="sb-ct">${c}</span></div>`).join('');
+  const reps=[...new Set(feedback.map(r=>r.cxRep).filter(Boolean))];
+  document.getElementById('f-rep-list').innerHTML=reps.map(rp=>{const c=feedback.filter(r=>r.cxRep===rp).length;return`<div class="sb-row${fFilterRep===rp?' active':''}" onclick="fSetRep('${rp.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><span class="sb-name">${rp}</span><span class="sb-ct">${c}</span></div>`;}).join('');
+}
+
+window.fSetOrg=o=>{fFilterOrg=fFilterOrg===o?'':o;fPage=1;fRender()};
+window.fSetRep=r=>{fFilterRep=fFilterRep===r?'':r;fPage=1;fRender()};
+window.fSortBy=k=>{if(fSortKey===k)fSortDir*=-1;else{fSortKey=k;fSortDir=-1;}['date','organization','submittedBy','cxRep'].forEach(x=>{const el=document.getElementById('fs-'+x);if(el)el.textContent='↕';});const el=document.getElementById('fs-'+k);if(el)el.textContent=fSortDir===1?'↑':'↓';fRender();};
+document.getElementById('f-search-input').addEventListener('input',function(){fSearch=this.value;fPage=1;fRender()});
+
+// ── FEEDBACK DETAIL PANEL ──
+window.fOpenPanel=fbKey=>{
+  const r=feedback.find(x=>x.fbKey===fbKey);if(!r)return;
+  fSelRow=fbKey;fRender();
+  document.getElementById('dp-title').textContent=r.organization||'Feedback';
+  document.getElementById('dp-sub').textContent=(r.submittedBy||'')+(r.cxRep?' · '+r.cxRep:'');
+  document.getElementById('dp-body').innerHTML=`
+    <div class="dp-sec"><div class="dp-sec-title">Feedback Info</div>
+      <div class="dp-field"><span class="dp-k">Date</span><span class="dp-v">${r.date||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Organization</span><span class="dp-v">${r.organization||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Submitted By</span><span class="dp-v">${r.submittedBy||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Email</span><span class="dp-v" style="color:var(--acc)">${r.submittedByEmail||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">CX Rep</span><span class="dp-v">${r.cxRep||'—'}</span></div>
+    </div>
+    ${r.feedback?`<div class="dp-sec"><div class="dp-sec-title">Feedback</div><div style="font-size:11px;color:var(--c2);background:var(--c8);padding:10px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.6">${r.feedback}</div></div>`:''}
+    ${r.addedBy?`<div class="added-by">Added by <strong>${r.addedBy}</strong>${r.addedAt?' · '+new Date(r.addedAt).toLocaleDateString():''}</div>`:''}
+    <div class="dp-acts">
+      <button class="dp-btn primary" onclick="fOpenModal('${fbKey}');closePanel()">✏ Edit</button>
+      <button class="dp-btn danger" onclick="fConfirmDelete('${fbKey}');closePanel()">🗑 Delete</button>
+    </div>`;
+  document.getElementById('dpanel').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+};
+
+// ── FEEDBACK MODAL ──
+window.fOpenModal=fbKey=>{
+  fEditId=fbKey||null;
+  document.getElementById('f-modal-title').textContent=fbKey?'Edit Feedback':'Add Feedback';
+  const fields=['date','cxRep','organization','submittedBy','submittedByEmail','feedback'];
+  if(fbKey){
+    const r=feedback.find(x=>x.fbKey===fbKey);
+    if(r)fields.forEach(f=>{document.getElementById('ff-'+f).value=r[f]||'';});
+  } else {
+    fields.forEach(f=>document.getElementById('ff-'+f).value='');
+    document.getElementById('ff-date').value=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  }
+  document.getElementById('f-modal').classList.add('show');
+};
+window.fCloseModal=()=>{document.getElementById('f-modal').classList.remove('show');fEditId=null;};
+
+window.fSaveFeedback=async()=>{
+  const d={
+    date:document.getElementById('ff-date').value.trim(),
+    cxRep:document.getElementById('ff-cxRep').value.trim(),
+    organization:document.getElementById('ff-organization').value.trim(),
+    submittedBy:document.getElementById('ff-submittedBy').value.trim(),
+    submittedByEmail:document.getElementById('ff-submittedByEmail').value.trim(),
+    feedback:document.getElementById('ff-feedback').value.trim(),
+    addedBy:userName,addedAt:new Date().toISOString(),
+  };
+  if(!d.organization){showToast('Organization is required','err');return;}
+  try{
+    if(fEditId){
+      const existing=feedback.find(x=>x.fbKey===fEditId);
+      d.addedBy=existing?.addedBy||userName;d.addedAt=existing?.addedAt||d.addedAt;
+      d.lastEditedBy=userName;d.lastEditedAt=new Date().toISOString();
+      await set(ref(db,'positivefeedback/'+fEditId),d);
+    }else{
+      await push(feedbackRef,d);
+    }
+    const fWasEdit=!!fEditId;fCloseModal();showToast(fWasEdit?'Feedback updated ✓':'Feedback added ✓','grn');
+  }catch(e){showToast('Save failed — check connection','err');}
+};
+
+window.fConfirmDelete=fbKey=>{
+  fPendingDelete=fbKey;
+  document.getElementById('confirm-text').textContent='Delete this feedback entry?';
+  document.getElementById('confirm-box').classList.add('show');
+  document.getElementById('confirm-yes').onclick=async()=>{
+    try{await remove(ref(db,'positivefeedback/'+fPendingDelete));hideConfirm();showToast('Feedback deleted','');}
+    catch(e){showToast('Delete failed','err');}
+  };
+};
+
+window.fExportCSV=()=>{
+  const h=['Date','Organization','Submitted By','Email','CX Rep','Feedback','Added By'];
+  const rows=feedback.map(r=>[r.date,r.organization,r.submittedBy,r.submittedByEmail,r.cxRep,r.feedback,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  const csv=[h.join(','),...rows].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='positive_feedback_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('CSV exported ✓','grn');
+};
+
+
+// ══════════════════════════════════════════════════
+//  IMPLEMENTATION TRACKER MODULE
+// ══════════════════════════════════════════════════
+let implementations=[], iSortKey='organization', iSortDir=1, iSearch='', iFilterStatus='', iFilterPackage='', iFilterConsultant='', iPage=1, iSelRow=null, iEditId=null, iPendingDelete=null;
+const I_PER=10;
+const I_FIELDS=['organization','package','mtgNum','sentiment','nps','implStatus','consultant','copilot','customerAdmin','email','kickOffDate','goLiveDate','checkin30','checkin60','checkin90','checkin6moAdrian','checkin9moTre','confidence90','notes','endDate','extendedEndDate','grantReportMtg','firstGrantReportDue'];
+
+function iStatusPill(s){
+  if(!s)return'<span class="pill p-gray">—</span>';
+  if(s==='Live'||s==='Completed')return`<span class="pill p-grn">✓ ${s}</span>`;
+  if(s==='At Risk')return'<span class="pill p-red">⚠ At Risk</span>';
+  if(s==='On Hold'||s==='Cancelled')return`<span class="pill p-red">${s}</span>`;
+  if(s==='In Progress'||s==='Stabilizing')return`<span class="pill p-sky">${s}</span>`;
+  if(s==='Kickoff Scheduled')return'<span class="pill p-amb">Kickoff Scheduled</span>';
+  return`<span class="pill p-gray">${s}</span>`;
+}
+function iSentimentPill(s){
+  if(!s)return'<span class="pill p-gray">—</span>';
+  if(s==='Positive')return'<span class="pill p-grn">🙂 Positive</span>';
+  if(s==='Negative')return'<span class="pill p-red">🙁 Negative</span>';
+  if(s==='Neutral')return'<span class="pill p-gray">😐 Neutral</span>';
+  return`<span class="pill p-gray">${s}</span>`;
+}
+
+function iGetFiltered(){
+  let d=[...implementations];
+  if(iSearch){const t=iSearch.toLowerCase();d=d.filter(r=>(r.organization||'').toLowerCase().includes(t)||(r.consultant||'').toLowerCase().includes(t)||(r.copilot||'').toLowerCase().includes(t)||(r.customerAdmin||'').toLowerCase().includes(t)||(r.email||'').toLowerCase().includes(t)||(r.notes||'').toLowerCase().includes(t));}
+  if(iFilterStatus)d=d.filter(r=>r.implStatus===iFilterStatus);
+  if(iFilterPackage)d=d.filter(r=>r.package===iFilterPackage);
+  if(iFilterConsultant)d=d.filter(r=>r.consultant===iFilterConsultant);
+  d.sort((a,b)=>{let av,bv;if(iSortKey==='nps'||iSortKey==='confidence90'){av=Number(a[iSortKey])||0;bv=Number(b[iSortKey])||0;}else if(iSortKey==='goLiveDate'||iSortKey==='kickOffDate'){av=new Date(a[iSortKey]||0);bv=new Date(b[iSortKey]||0);}else{av=(a[iSortKey]||'').toLowerCase();bv=(b[iSortKey]||'').toLowerCase();}return av<bv?-iSortDir:av>bv?iSortDir:0;});
+  return d;
+}
+
+function iRender(){
+  const filtered=iGetFiltered();const total=filtered.length;const pages=Math.max(1,Math.ceil(total/I_PER));if(iPage>pages)iPage=1;
+  const slice=filtered.slice((iPage-1)*I_PER,iPage*I_PER);
+  const tb=document.getElementById('i-tbody');if(!tb)return;const em=document.getElementById('i-empty');const tbl=document.getElementById('i-main-table');
+  if(!slice.length){tb.innerHTML='';em.style.display='';tbl.style.display='none';}else{em.style.display='none';tbl.style.display='';}
+  tb.innerHTML=slice.map(r=>`
+    <tr onclick="iOpenPanel('${r.fbKey}')" class="${iSelRow===r.fbKey?'sel':''}">
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="pav" style="background:${pc(r.organization)}">${initials(r.organization)}</div><span class="pn">${r.organization||'—'}</span></div></td>
+      <td>${r.package?`<span class="plan-badge plan-${r.package.toLowerCase().replace(' ','')}">${r.package}</span>`:'—'}</td>
+      <td>${iStatusPill(r.implStatus)}</td>
+      <td>${iSentimentPill(r.sentiment)}</td>
+      <td><span style="font-size:12px;font-weight:600">${r.nps!==undefined&&r.nps!==''?r.nps:'—'}</span></td>
+      <td><span class="dt">${(r.goLiveDate||'—').replace(', 2026','')}</span></td>
+      <td><span style="font-size:11px;color:var(--c3)">${r.consultant||'—'}</span></td>
+      <td onclick="event.stopPropagation()"><div class="row-actions"><button class="ra-btn ra-edit" onclick="iOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="iConfirmDelete('${r.fbKey}')">Del</button></div></td>
+    </tr>`).join('');
+  document.getElementById('i-pg-info').textContent=total?`${(iPage-1)*I_PER+1}–${Math.min(iPage*I_PER,total)} of ${total}`:'0 implementations';
+  iRenderPagination(pages);iRenderStats();iRenderSidebar();
+}
+
+function iRenderPagination(pages){
+  const pb=document.getElementById('i-pg-btns');let h=`<button class="pg-btn" onclick="iGoPage(${iPage-1})" ${iPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++)h+=`<button class="pg-btn${i===iPage?' cur':''}" onclick="iGoPage(${i})">${i}</button>`;
+  h+=`<button class="pg-btn" onclick="iGoPage(${iPage+1})" ${iPage===pages?'disabled':''}>›</button>`;pb.innerHTML=h;
+}
+window.iGoPage=p=>{iPage=p;iRender()};
+
+function iRenderStats(){
+  const total=implementations.length;
+  const live=implementations.filter(r=>r.implStatus==='Live'||r.implStatus==='Completed').length;
+  const inProgress=implementations.filter(r=>r.implStatus==='In Progress'||r.implStatus==='Kickoff Scheduled'||r.implStatus==='Stabilizing').length;
+  const atRisk=implementations.filter(r=>r.implStatus==='At Risk'||r.implStatus==='On Hold').length;
+  const npsVals=implementations.filter(r=>r.nps!==''&&r.nps!==undefined&&!isNaN(Number(r.nps))).map(r=>Number(r.nps));
+  const avgNps=npsVals.length?(npsVals.reduce((s,n)=>s+n,0)/npsVals.length).toFixed(1):'—';
+  document.getElementById('i-statsbar').innerHTML=[
+    {l:'Total Clients',v:total,s:'All Time',d:'dot-pur',f:''},
+    {l:'Live / Completed',v:live,s:'Rolled Out',d:'dot-grn',f:'Live'},
+    {l:'In Progress',v:inProgress,s:'Onboarding',d:'dot-sky',f:'In Progress'},
+    {l:'At Risk / On Hold',v:atRisk,s:'Needs Attention',d:'dot-red',f:'At Risk'},
+    {l:'Avg NPS',v:avgNps,s:'Across Clients',d:'dot-amb',f:''}
+  ].map(s=>`<div class="stat${iFilterStatus===s.f&&s.f?' active':''}" onclick="${s.f?`iSetStatusFilter('${s.f}')`:''}"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+}
+
+function iRenderSidebar(){
+  const statuses=['Not Started','Kickoff Scheduled','In Progress','Live','Stabilizing','Completed','At Risk','On Hold','Cancelled'];
+  document.getElementById('i-status-list').innerHTML=statuses.map(s=>{
+    const ct=implementations.filter(r=>r.implStatus===s).length;if(!ct)return'';
+    return`<div class="sb-row${iFilterStatus===s?' active':''}" onclick="iSetStatusFilter('${s}')"><span class="sb-name">${s}</span><span class="sb-ct${s==='At Risk'?' hot':''}">${ct}</span></div>`;
+  }).join('');
+  const packages=[...new Set(implementations.map(r=>r.package).filter(Boolean))];
+  document.getElementById('i-package-list').innerHTML=packages.map(p=>{const ct=implementations.filter(r=>r.package===p).length;return`<div class="sb-row${iFilterPackage===p?' active':''}" onclick="iSetPackageFilter('${p}')"><span class="sb-name">${p}</span><span class="sb-ct">${ct}</span></div>`;}).join('');
+  const consultants=[...new Set(implementations.map(r=>r.consultant).filter(Boolean))];
+  document.getElementById('i-consultant-list').innerHTML=consultants.map(c=>{const ct=implementations.filter(r=>r.consultant===c).length;return`<div class="sb-row${iFilterConsultant===c?' active':''}" onclick="iSetConsultantFilter('${c.replace(/'/g,"\\'")}')"><span class="sb-name">${c}</span><span class="sb-ct">${ct}</span></div>`;}).join('');
+}
+
+window.iSetStatusFilter=s=>{iFilterStatus=iFilterStatus===s?'':s;iPage=1;iRender()};
+window.iSetPackageFilter=p=>{iFilterPackage=iFilterPackage===p?'':p;iPage=1;iRender()};
+window.iSetConsultantFilter=c=>{iFilterConsultant=iFilterConsultant===c?'':c;iPage=1;iRender()};
+window.iToggleFilter=s=>{
+  iFilterStatus=iFilterStatus===s?'':s;
+  ['if-atrisk','if-live'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  if(iFilterStatus==='At Risk')document.getElementById('if-atrisk').classList.add('on');
+  if(iFilterStatus==='Live')document.getElementById('if-live').classList.add('on');
+  iPage=1;iRender();
+};
+window.iSortBy=k=>{if(iSortKey===k)iSortDir*=-1;else{iSortKey=k;iSortDir=-1;}['organization','nps','goLiveDate'].forEach(x=>{const el=document.getElementById('is-'+x);if(el)el.textContent='↕';});const el=document.getElementById('is-'+k);if(el)el.textContent=iSortDir===1?'↑':'↓';iRender();};
+document.getElementById('i-search-input').addEventListener('input',function(){iSearch=this.value;iPage=1;iRender()});
+
+// ── IMPLEMENTATION DETAIL PANEL ──
+window.iOpenPanel=fbKey=>{
+  const r=implementations.find(x=>x.fbKey===fbKey);if(!r)return;
+  iSelRow=fbKey;iRender();
+  document.getElementById('dp-title').textContent=r.organization||'Implementation';
+  document.getElementById('dp-sub').textContent=(r.package||'')+(r.implStatus?' · '+r.implStatus:'');
+  document.getElementById('dp-body').innerHTML=`
+    <div class="dp-sec"><div class="dp-sec-title">Program</div>
+      <div class="dp-field"><span class="dp-k">Package</span><span class="dp-v">${r.package||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Mtg #</span><span class="dp-v">${r.mtgNum||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Status</span><span class="dp-v">${iStatusPill(r.implStatus)}</span></div>
+      <div class="dp-field"><span class="dp-k">Sentiment</span><span class="dp-v">${iSentimentPill(r.sentiment)}</span></div>
+      <div class="dp-field"><span class="dp-k">NPS</span><span class="dp-v">${r.nps!==undefined&&r.nps!==''?r.nps:'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">90-Day Confidence</span><span class="dp-v">${r.confidence90!==undefined&&r.confidence90!==''?r.confidence90:'—'}</span></div>
+    </div>
+    <div class="dp-sec"><div class="dp-sec-title">Team &amp; Contacts</div>
+      <div class="dp-field"><span class="dp-k">Consultant</span><span class="dp-v">${r.consultant||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">CoPilot</span><span class="dp-v">${r.copilot||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Customer Admin</span><span class="dp-v">${r.customerAdmin||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Email</span><span class="dp-v" style="color:var(--acc)">${r.email||'—'}</span></div>
+    </div>
+    <div class="dp-sec"><div class="dp-sec-title">Timeline &amp; Check-Ins</div>
+      <div class="dp-field"><span class="dp-k">Kick Off</span><span class="dp-v">${r.kickOffDate||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Go Live</span><span class="dp-v">${r.goLiveDate||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">30-Day</span><span class="dp-v">${r.checkin30||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">60-Day</span><span class="dp-v">${r.checkin60||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">90-Day</span><span class="dp-v">${r.checkin90||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">6 Mo (Adrian)</span><span class="dp-v">${r.checkin6moAdrian||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">9 Mo (Tre)</span><span class="dp-v">${r.checkin9moTre||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">End Date</span><span class="dp-v">${r.endDate||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Extended End</span><span class="dp-v">${r.extendedEndDate||'—'}</span></div>
+    </div>
+    <div class="dp-sec"><div class="dp-sec-title">Grant Reporting</div>
+      <div class="dp-field"><span class="dp-k">Grant Report Mtg</span><span class="dp-v">${r.grantReportMtg||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">1st Report Due</span><span class="dp-v">${r.firstGrantReportDue||'—'}</span></div>
+    </div>
+    ${r.notes?`<div class="dp-sec"><div class="dp-sec-title">Notes</div><div style="font-size:11px;color:var(--c2);background:var(--c8);padding:10px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.6">${r.notes}</div></div>`:''}
+    ${r.addedBy?`<div class="added-by">Added by <strong>${r.addedBy}</strong>${r.addedAt?' · '+new Date(r.addedAt).toLocaleDateString():''}${r.lastEditedBy?' · Edited by <strong>'+r.lastEditedBy+'</strong>':''}</div>`:''}
+    <div class="dp-acts">
+      <button class="dp-btn primary" onclick="iOpenModal('${fbKey}');closePanel()">✏ Edit</button>
+      <button class="dp-btn danger" onclick="iConfirmDelete('${fbKey}');closePanel()">🗑 Delete</button>
+    </div>`;
+  document.getElementById('dpanel').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+};
+
+// ── IMPLEMENTATION MODAL ──
+window.iOpenModal=fbKey=>{
+  iEditId=fbKey||null;
+  document.getElementById('i-modal-title').textContent=fbKey?'Edit Implementation':'Add Implementation';
+  if(fbKey){
+    const r=implementations.find(x=>x.fbKey===fbKey);
+    if(r)I_FIELDS.forEach(f=>{document.getElementById('if-'+f).value=r[f]!==undefined?r[f]:'';});
+  } else {
+    I_FIELDS.forEach(f=>document.getElementById('if-'+f).value='');
+  }
+  document.getElementById('i-modal').classList.add('show');
+};
+window.iCloseModal=()=>{document.getElementById('i-modal').classList.remove('show');iEditId=null;};
+
+window.iSaveImplementation=async()=>{
+  const d={addedBy:userName,addedAt:new Date().toISOString()};
+  I_FIELDS.forEach(f=>{
+    const v=document.getElementById('if-'+f).value.trim();
+    d[f]=(f==='nps'||f==='confidence90')?(v===''?'':Number(v)):v;
+  });
+  if(!d.organization){showToast('Organization is required','err');return;}
+  try{
+    if(iEditId){
+      const existing=implementations.find(x=>x.fbKey===iEditId);
+      d.addedBy=existing?.addedBy||userName;d.addedAt=existing?.addedAt||d.addedAt;
+      d.lastEditedBy=userName;d.lastEditedAt=new Date().toISOString();
+      await set(ref(db,'implementations/'+iEditId),d);
+    }else{
+      await push(implementationsRef,d);
+    }
+    const iWasEdit=!!iEditId;iCloseModal();showToast(iWasEdit?'Implementation updated ✓':'Implementation added ✓','grn');
+  }catch(e){showToast('Save failed — check connection','err');}
+};
+
+window.iConfirmDelete=fbKey=>{
+  iPendingDelete=fbKey;
+  document.getElementById('confirm-text').textContent='Delete this implementation record?';
+  document.getElementById('confirm-box').classList.add('show');
+  document.getElementById('confirm-yes').onclick=async()=>{
+    try{await remove(ref(db,'implementations/'+iPendingDelete));hideConfirm();showToast('Implementation deleted','');}
+    catch(e){showToast('Delete failed','err');}
+  };
+};
+
+window.iExportCSV=()=>{
+  const h=['Organization','Package','Mtg#','Sentiment','NPS','Implementation Status','Consultant','CoPilot','Customer Admin','Email','Kick Off Date','Go Live Date','30-Day Check-In','60-Day Check-In','90-Day Check-In','6 Month Check-In (Adrian)','9 Month Check-In (Tre)','90-Day Confidence Score','Notes','End Date','Extended End Date','Grant Report Mtg','First Grant Report Due','Added By'];
+  const rows=implementations.map(r=>[...I_FIELDS.map(f=>r[f]),r.addedBy].map(v=>`"${(v===undefined||v===null?'':v).toString().replace(/"/g,'""')}"`).join(','));
+  const csv=[h.join(','),...rows].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='implementation_tracker_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('CSV exported ✓','grn');
 };
 </script>
