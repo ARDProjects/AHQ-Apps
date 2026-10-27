@@ -79,6 +79,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--c9);color:var(
 .main{display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 128px)}
 .sidebar{background:#fff;border-right:1px solid var(--c7);overflow-y:auto;padding:14px 0}
 .sb-head{padding:5px 18px;font-size:10px;font-weight:700;color:var(--c5);text-transform:uppercase;letter-spacing:.8px}
+.sb-group-head{padding:10px 18px 4px;font-size:9px;font-weight:700;color:var(--c4);text-transform:uppercase;letter-spacing:.6px;border-top:1px solid var(--c7);margin-top:6px}
+.sb-group-head:first-child{border-top:none;margin-top:0}
 .sb-row{display:flex;align-items:center;justify-content:space-between;padding:7px 18px;cursor:pointer;transition:background .1s;gap:8px}
 .sb-row:hover{background:var(--c8)}
 .sb-row.active{background:var(--acc-bg);border-right:3px solid var(--acc)}
@@ -612,24 +614,27 @@ tbody tr:hover .row-actions{opacity:1}
     <div><div class="sb-head">By Category</div><div id="k-cat-list"></div></div>
   </div>
   <div class="content">
-    <div class="toolbar">
-      <div class="search"><span class="si">⌕</span><input type="text" id="k-search-input" placeholder="Search knowledge base…"></div>
-      <button class="export-btn" onclick="kExportCSV()">⬇ Export CSV</button>
-      <button class="add-btn" onclick="kOpenModal()">+ Add Article</button>
+    <div id="k-list-view">
+      <div class="toolbar">
+        <div class="search"><span class="si">⌕</span><input type="text" id="k-search-input" placeholder="Search knowledge base…"></div>
+        <button class="export-btn" onclick="kExportCSV()">⬇ Export CSV</button>
+        <button class="add-btn" onclick="kOpenModal()">+ Add Article</button>
+      </div>
+      <div class="table-wrap">
+        <table id="k-main-table">
+          <thead><tr>
+            <th onclick="kSortBy('title')">Article<span class="sa" id="ks-title">↕</span></th>
+            <th style="width:170px" onclick="kSortBy('category')">Category<span class="sa" id="ks-category">↕</span></th>
+            <th style="width:110px" onclick="kSortBy('addedBy')">Added By<span class="sa" id="ks-addedBy">↕</span></th>
+            <th style="width:98px"></th>
+          </tr></thead>
+          <tbody id="k-tbody"></tbody>
+        </table>
+        <div id="k-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">📚</div><div>No knowledge base articles yet</div></div>
+      </div>
+      <div class="pagination"><span class="pg-info" id="k-pg-info"></span><div class="pg-btns" id="k-pg-btns"></div></div>
     </div>
-    <div class="table-wrap">
-      <table id="k-main-table">
-        <thead><tr>
-          <th onclick="kSortBy('title')">Article<span class="sa" id="ks-title">↕</span></th>
-          <th style="width:140px" onclick="kSortBy('category')">Category<span class="sa" id="ks-category">↕</span></th>
-          <th style="width:110px" onclick="kSortBy('addedBy')">Added By<span class="sa" id="ks-addedBy">↕</span></th>
-          <th style="width:78px"></th>
-        </tr></thead>
-        <tbody id="k-tbody"></tbody>
-      </table>
-      <div id="k-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">📚</div><div>No knowledge base articles yet</div></div>
-    </div>
-    <div class="pagination"><span class="pg-info" id="k-pg-info"></span><div class="pg-btns" id="k-pg-btns"></div></div>
+    <div id="k-reader-view" style="display:none"></div>
   </div>
 </div>
 </div><!-- end #tab-knowledgebase -->
@@ -954,7 +959,10 @@ function bootApp(url){
       knowledgebaseLoaded=true;
       checkReady();
       kRender();
+      if(kReaderKey){if(knowledgebase.find(x=>x.fbKey===kReaderKey))kOpenReader(kReaderKey);else if(typeof kCloseReader==='function')kCloseReader();}
       if(currentTab==='dashboard') renderDashboard();
+      // One-time data fix: normalize legacy "aL" author tag to "AL"
+      knowledgebase.filter(r=>r.addedBy==='aL').forEach(r=>{set(ref(db,'knowledgebase/'+r.fbKey+'/addedBy'),'AL');});
     }, err=>{ /* dispute listener handles errors */ });
 
   }catch(e){
@@ -2275,16 +2283,64 @@ window.iExportCSV=()=>{
 // ══════════════════════════════════════════════════
 //  KNOWLEDGE BASE MODULE
 // ══════════════════════════════════════════════════
-let knowledgebase=[], kSortKey='title', kSortDir=1, kSearch='', kFilterCat='', kPage=1, kSelRow=null, kEditId=null, kPendingDelete=null;
+let knowledgebase=[], kSortKey='title', kSortDir=1, kSearch='', kFilterCat='', kPage=1, kSelRow=null, kEditId=null, kPendingDelete=null, kReaderKey=null;
 const K_PER=10;
 const K_PILL_CLASSES=['p-pur','p-sky','p-grn','p-amb','p-red'];
 function kCatPillClass(cat){let h=0;for(let i=0;i<cat.length;i++)h=(h*31+cat.charCodeAt(i))>>>0;return K_PILL_CLASSES[h%K_PILL_CLASSES.length];}
 
+// Maps each category to the top-level section it lives under on support.afterschoolhq.com
+const K_PARENT_MAP={
+  'Your Account':'Parents & Registrants','Registration':'Parents & Registrants','Billing & Payments':'Parents & Registrants',
+  'Account & Settings':'Activity Providers','Creating & Managing Activities':'Activity Providers','Activity Billing & Pricing':'Activity Providers',
+  'Sharing & Promoting Activities':'Activity Providers','Registration & Enrollment':'Activity Providers','Student Roster & Communication':'Activity Providers',
+  'Attendance':'Activity Providers','Forms & Surveys':'Activity Providers','Payments & Accounting':'Activity Providers',
+  'Staff & Volunteers':'Activity Providers','Reports & Data':'Activity Providers','Integrations':'Activity Providers',
+  'Referral Partners':'Referral Partners','FAQs':'FAQs','Contact Us':'Contact Us','Getting Started':'Getting Started'
+};
+// "Check In & Check Out" exists as its own subsection under BOTH Parents & Registrants and Activity
+// Providers on the live site — these are the exact source links that belong to the parent-side one.
+const K_CICO_PARENT_LINKS=['https://support.afterschoolhq.com/knowledge/how-to-set-up/manage-your-pin-code-for-check-in-check-out','https://support.afterschoolhq.com/knowledge/how-to-check-in-and-check-out','https://support.afterschoolhq.com/knowledge/how-to-add-an-authorized-pick-up-person','https://support.afterschoolhq.com/knowledge/troubleshooting-pin-verification-texts','https://support.afterschoolhq.com/knowledge/how-to-check-in-and-check-out-multiple-children-at-once'];
+function kParentOf(r){
+  if(!r||!r.category)return'';
+  if(r.category==='Check In & Check Out')return K_CICO_PARENT_LINKS.includes((r.link||'').split('?')[0])?'Parents & Registrants':'Activity Providers';
+  return K_PARENT_MAP[r.category]||'';
+}
+function kHighlightTerm(text,term){
+  if(!term)return text;
+  const idx=text.toLowerCase().indexOf(term);
+  if(idx<0)return text;
+  return text.slice(0,idx)+'<mark style="background:#fef08a;padding:0 1px;border-radius:2px">'+text.slice(idx,idx+term.length)+'</mark>'+text.slice(idx+term.length);
+}
+function kPreviewText(r,term){
+  const content=r.content||'';
+  if(term && !(r.title||'').toLowerCase().includes(term)){
+    const idx=content.toLowerCase().indexOf(term);
+    if(idx>=0){
+      const start=Math.max(0,idx-40),end=Math.min(content.length,idx+term.length+70);
+      const snippet=(start>0?'…':'')+content.slice(start,end)+(end<content.length?'…':'');
+      return kHighlightTerm(snippet,term);
+    }
+  }
+  return content.length>110?(content.slice(0,110)+'…'):content;
+}
+
+function kRankOf(r,t){
+  if((r.title||'').toLowerCase().includes(t))return 0;
+  if((r.category||'').toLowerCase().includes(t)||kParentOf(r).toLowerCase().includes(t))return 1;
+  if((r.internalNotes||'').toLowerCase().includes(t))return 2;
+  return 3; // content-only match
+}
 function kGetFiltered(){
   let d=[...knowledgebase];
-  if(kSearch){const t=kSearch.toLowerCase();d=d.filter(r=>(r.title||'').toLowerCase().includes(t)||(r.category||'').toLowerCase().includes(t)||(r.content||'').toLowerCase().includes(t)||(r.internalNotes||'').toLowerCase().includes(t));}
+  if(kSearch){
+    const t=kSearch.toLowerCase();
+    d=d.filter(r=>(r.title||'').toLowerCase().includes(t)||(r.category||'').toLowerCase().includes(t)||kParentOf(r).toLowerCase().includes(t)||(r.content||'').toLowerCase().includes(t)||(r.internalNotes||'').toLowerCase().includes(t));
+  }
   if(kFilterCat)d=d.filter(r=>r.category===kFilterCat);
-  d.sort((a,b)=>{let av=(a[kSortKey]||'').toString().toLowerCase(),bv=(b[kSortKey]||'').toString().toLowerCase();return av<bv?-kSortDir:av>bv?kSortDir:0;});
+  d.sort((a,b)=>{
+    if(kSearch){const t=kSearch.toLowerCase();const ra=kRankOf(a,t),rb=kRankOf(b,t);if(ra!==rb)return ra-rb;}
+    let av=(a[kSortKey]||'').toString().toLowerCase(),bv=(b[kSortKey]||'').toString().toLowerCase();return av<bv?-kSortDir:av>bv?kSortDir:0;
+  });
   return d;
 }
 
@@ -2293,12 +2349,13 @@ function kRender(){
   const slice=filtered.slice((kPage-1)*K_PER,kPage*K_PER);
   const tb=document.getElementById('k-tbody');if(!tb)return;const em=document.getElementById('k-empty');const tbl=document.getElementById('k-main-table');
   if(!slice.length){tb.innerHTML='';em.style.display='';tbl.style.display='none';}else{em.style.display='none';tbl.style.display='';}
+  const term=kSearch?kSearch.toLowerCase():'';
   tb.innerHTML=slice.map(r=>`
     <tr onclick="kOpenPanel('${r.fbKey}')" class="${kSelRow===r.fbKey?'sel':''}">
-      <td><div style="display:flex;align-items:center;gap:6px"><div style="font-weight:500;font-size:12px">${r.title||'—'}</div>${r.internalNotes?'<span class="pill p-amb" style="font-size:9px;padding:2px 6px;white-space:nowrap">🔒 Notes</span>':''}</div>${r.content?`<div style="font-size:11px;color:var(--c3);margin-top:2px">${r.content.length>110?(r.content.slice(0,110)+'…'):r.content}</div>`:''}</td>
-      <td>${r.category?`<span class="pill ${kCatPillClass(r.category)}">${r.category}</span>`:'<span class="pill p-gray">—</span>'}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div style="font-weight:500;font-size:12px">${kHighlightTerm(r.title||'—',term)}</div>${r.internalNotes?'<span class="pill p-amb" style="font-size:9px;padding:2px 6px;white-space:nowrap">🔒 Notes</span>':''}</div>${r.content?`<div style="font-size:11px;color:var(--c3);margin-top:2px">${kPreviewText(r,term)}</div>`:''}</td>
+      <td>${r.category?`<div style="font-size:9px;color:var(--c4);text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px">${kParentOf(r)||'—'}</div><span class="pill ${kCatPillClass(r.category)}">${r.category}</span>`:'<span class="pill p-gray">—</span>'}</td>
       <td><span style="font-size:11px;color:var(--c3)">${r.addedBy||'—'}</span></td>
-      <td onclick="event.stopPropagation()"><div class="row-actions">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" class="ra-btn" style="background:var(--sky-bg);color:var(--sky);text-decoration:none" title="Open original source" onclick="event.stopPropagation()">🔗</a>`:''}<button class="ra-btn ra-edit" onclick="kOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="kConfirmDelete('${r.fbKey}')">Del</button></div></td>
+      <td onclick="event.stopPropagation()"><div class="row-actions">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" class="ra-btn" style="background:var(--sky-bg);color:var(--sky);text-decoration:none" title="Open original source" onclick="event.stopPropagation()">🔗</a>`:''}<button class="ra-btn" style="background:var(--acc-bg);color:var(--acc)" title="View in full" onclick="kOpenReader('${r.fbKey}')">⤢</button><button class="ra-btn ra-edit" onclick="kOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="kConfirmDelete('${r.fbKey}')">Del</button></div></td>
     </tr>`).join('');
   document.getElementById('k-pg-info').textContent=total?`${(kPage-1)*K_PER+1}–${Math.min(kPage*K_PER,total)} of ${total}`:'0 articles';
   kRenderPagination(pages);kRenderStats();kRenderSidebar();
@@ -2325,9 +2382,19 @@ function kRenderStats(){
   ].map(s=>`<div class="stat"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
 }
 
+const K_SECTION_ORDER=['Parents & Registrants','Activity Providers','Getting Started','Referral Partners','FAQs','Contact Us'];
 function kRenderSidebar(){
   const cats=[...new Set(knowledgebase.map(r=>r.category).filter(Boolean))];
-  document.getElementById('k-cat-list').innerHTML=cats.map(c=>({c,n:knowledgebase.filter(r=>r.category===c).length})).sort((a,b)=>b.n-a.n).map(({c,n})=>`<div class="sb-row${kFilterCat===c?' active':''}" onclick="kSetCat('${c.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><span class="sb-name">${c}</span><span class="sb-ct">${n}</span></div>`).join('');
+  const rows=cats.map(c=>({c,n:knowledgebase.filter(r=>r.category===c).length,p:c==='Check In & Check Out'?'Activity Providers':(K_PARENT_MAP[c]||'Other')}));
+  const groups={};
+  rows.forEach(x=>{(groups[x.p]=groups[x.p]||[]).push(x)});
+  const order=[...K_SECTION_ORDER,...Object.keys(groups).filter(p=>!K_SECTION_ORDER.includes(p))];
+  let html='';
+  order.filter(p=>groups[p]&&groups[p].length).forEach(p=>{
+    html+=`<div class="sb-group-head">${p}</div>`;
+    html+=groups[p].sort((a,b)=>b.n-a.n).map(({c,n})=>`<div class="sb-row${kFilterCat===c?' active':''}" onclick="kSetCat('${c.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><span class="sb-name">${c}</span><span class="sb-ct">${n}</span></div>`).join('');
+  });
+  document.getElementById('k-cat-list').innerHTML=html;
 }
 
 window.kSetCat=c=>{kFilterCat=kFilterCat===c?'':c;kPage=1;kRender()};
@@ -2338,22 +2405,74 @@ document.getElementById('k-search-input').addEventListener('input',function(){kS
 window.kOpenPanel=fbKey=>{
   const r=knowledgebase.find(x=>x.fbKey===fbKey);if(!r)return;
   kSelRow=fbKey;kRender();
+  const parent=kParentOf(r);
   document.getElementById('dp-title').textContent=r.title||'Article';
   document.getElementById('dp-sub').textContent=r.category||'';
   document.getElementById('dp-body').innerHTML=`
     <div class="dp-sec"><div class="dp-sec-title">Details</div>
-      <div class="dp-field"><span class="dp-k">Category</span><span class="dp-v">${r.category||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Section</span><span class="dp-v">${parent?parent+' › ':''}${r.category||'—'}</span></div>
       ${r.link?`<div class="dp-field"><span class="dp-k">Source</span><span class="dp-v"><a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc)">View original article ↗</a></span></div>`:''}
     </div>
-    <div class="dp-sec"><div class="dp-sec-title">Article</div><div style="font-size:12px;color:var(--c1);background:var(--c8);padding:12px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.7;max-height:360px;overflow-y:auto">${r.content?r.content:'<span style="color:var(--c4)">No content added yet — click Edit to write or paste it in.</span>'}</div></div>
-    ${r.internalNotes?`<div class="dp-sec"><div class="dp-sec-title" style="color:#92400e">🔒 Internal Notes — CS Team Only</div><div style="font-size:12px;color:#78350f;background:#fffbeb;border:1px solid #fde68a;padding:12px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.6">${r.internalNotes}</div></div>`:''}
+    <div class="dp-sec"><div class="dp-sec-title">Article</div><div style="font-size:12px;color:var(--c1);background:var(--c8);padding:12px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.7;max-height:300px;overflow-y:auto">${r.content?r.content:'<span style="color:var(--c4)">No content added yet — click Edit to write or paste it in.</span>'}</div></div>
+    <div class="dp-sec">
+      <div class="dp-sec-title" style="color:#92400e">🔒 Internal Notes — CS Team Only</div>
+      <textarea id="dp-notes-input" placeholder="Jot down tips, workarounds, or context for the team — saved separately from the article itself…" style="width:100%;min-height:100px;resize:vertical;padding:10px 12px;border:1px solid #fde68a;background:#fffbeb;border-radius:var(--rad-sm);font-size:12px;color:#78350f;font-family:inherit;line-height:1.5;outline:none;box-sizing:border-box">${r.internalNotes||''}</textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="dp-btn primary" style="flex:0 0 auto;padding:6px 16px" onclick="kSaveNotes('${fbKey}')">💾 Save Notes</button></div>
+    </div>
     ${r.addedBy?`<div class="added-by">Added by <strong>${r.addedBy}</strong>${r.addedAt?' · '+new Date(r.addedAt).toLocaleDateString():''}${r.lastEditedBy?' · Edited by <strong>'+r.lastEditedBy+'</strong>':''}</div>`:''}
     <div class="dp-acts">
-      <button class="dp-btn primary" onclick="kOpenModal('${fbKey}');closePanel()">✏ Edit</button>
+      <button class="dp-btn" onclick="kOpenReader('${fbKey}')">⤢ View in Full</button>
+      <button class="dp-btn" onclick="kOpenModal('${fbKey}');closePanel()">✏ Edit Article</button>
       <button class="dp-btn danger" onclick="kConfirmDelete('${fbKey}');closePanel()">🗑 Delete</button>
     </div>`;
   document.getElementById('dpanel').classList.add('open');
   document.getElementById('overlay').classList.add('show');
+};
+
+// ── KNOWLEDGE BASE — FULL ARTICLE READER ──
+window.kOpenReader=fbKey=>{
+  const r=knowledgebase.find(x=>x.fbKey===fbKey);if(!r)return;
+  kReaderKey=fbKey;closePanel();
+  document.getElementById('k-list-view').style.display='none';
+  const rv=document.getElementById('k-reader-view');rv.style.display='';
+  const parent=kParentOf(r);
+  rv.innerHTML=`
+    <button class="dp-btn" style="width:auto;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;margin-bottom:16px" onclick="kCloseReader()">← Back to Articles</button>
+    <div style="background:var(--c9,#fff);border:1px solid var(--c7);border-radius:var(--rad-sm);padding:28px 32px;max-width:860px">
+      <div style="font-size:11px;color:var(--c4);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">${parent?parent+' › ':''}${r.category||''}</div>
+      <div style="font-size:22px;font-weight:700;color:var(--c1);margin-bottom:6px;line-height:1.3">${r.title||'Untitled'}</div>
+      ${r.addedBy?`<div class="added-by" style="margin-bottom:18px">Added by <strong>${r.addedBy}</strong>${r.addedAt?' · '+new Date(r.addedAt).toLocaleDateString():''}${r.lastEditedBy?' · Edited by <strong>'+r.lastEditedBy+'</strong>':''}</div>`:''}
+      ${r.link?`<div style="margin-bottom:18px"><a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc);font-size:12px">View original source article ↗</a></div>`:''}
+      <div style="font-size:13px;color:var(--c1);white-space:pre-wrap;line-height:1.8;margin-bottom:26px">${r.content?r.content:'<span style="color:var(--c4)">No content added yet — click Edit Article to write or paste it in.</span>'}</div>
+      <div style="border-top:1px solid var(--c7);padding-top:18px">
+        <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px">🔒 Internal Notes — CS Team Only</div>
+        <textarea id="kr-notes-input" placeholder="Jot down tips, workarounds, or context for the team — saved separately from the article itself…" style="width:100%;min-height:120px;resize:vertical;padding:10px 12px;border:1px solid #fde68a;background:#fffbeb;border-radius:var(--rad-sm);font-size:12px;color:#78350f;font-family:inherit;line-height:1.5;outline:none;box-sizing:border-box">${r.internalNotes||''}</textarea>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+          <button class="dp-btn" onclick="kOpenModal('${fbKey}')">✏ Edit Article</button>
+          <button class="dp-btn danger" onclick="kConfirmDelete('${fbKey}')">🗑 Delete</button>
+          <button class="dp-btn primary" style="flex:0 0 auto;padding:6px 16px" onclick="kSaveNotes('${fbKey}','kr-notes-input')">💾 Save Notes</button>
+        </div>
+      </div>
+    </div>`;
+};
+window.kCloseReader=()=>{
+  kReaderKey=null;
+  document.getElementById('k-reader-view').style.display='none';
+  document.getElementById('k-reader-view').innerHTML='';
+  document.getElementById('k-list-view').style.display='';
+};
+
+window.kSaveNotes=async(fbKey,inputId)=>{
+  const ta=document.getElementById(inputId||'dp-notes-input');if(!ta)return;
+  const val=ta.value.trim();
+  try{
+    const existing=knowledgebase.find(x=>x.fbKey===fbKey);
+    if(!existing){showToast('Article not found','err');return;}
+    const {fbKey:_omit, ...rest}=existing;
+    const d={...rest, internalNotes:val, lastEditedBy:userName, lastEditedAt:new Date().toISOString()};
+    await set(ref(db,'knowledgebase/'+fbKey), d);
+    showToast('Notes saved ✓','grn');
+  }catch(e){showToast('Save failed — check connection','err');}
 };
 
 // ── KNOWLEDGE BASE MODAL ──
