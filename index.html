@@ -363,6 +363,7 @@ tbody tr:hover .row-actions{opacity:1}
       <button class="nav-menu-item" id="tab-devupdates-btn" onclick="switchTab('devupdates')"><span class="nav-menu-icon">🛠</span><span class="nav-menu-label">Development Tracker</span></button>
       <button class="nav-menu-item" id="tab-feedback-btn" onclick="switchTab('feedback')"><span class="nav-menu-icon">👍</span><span class="nav-menu-label">Positive Feedback Log</span></button>
       <button class="nav-menu-item" id="tab-implementation-btn" onclick="switchTab('implementation')"><span class="nav-menu-icon">📋</span><span class="nav-menu-label">Implementation Tracker</span></button>
+      <button class="nav-menu-item" id="tab-knowledgebase-btn" onclick="switchTab('knowledgebase')"><span class="nav-menu-icon">📚</span><span class="nav-menu-label">Knowledge Base</span></button>
     </div>
   </div>
   <div class="topbar-right">
@@ -599,6 +600,40 @@ tbody tr:hover .row-actions{opacity:1}
 </div>
 </div><!-- end #tab-implementation -->
 
+<!-- ════════════════════════════════════════════════════════ -->
+<!--                KNOWLEDGE BASE TAB                        -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="tab-view" id="tab-knowledgebase">
+
+<div class="statsbar" id="k-statsbar"></div>
+
+<div class="main">
+  <div class="sidebar">
+    <div><div class="sb-head">By Category</div><div id="k-cat-list"></div></div>
+  </div>
+  <div class="content">
+    <div class="toolbar">
+      <div class="search"><span class="si">⌕</span><input type="text" id="k-search-input" placeholder="Search knowledge base…"></div>
+      <button class="export-btn" onclick="kExportCSV()">⬇ Export CSV</button>
+      <button class="add-btn" onclick="kOpenModal()">+ Add Article</button>
+    </div>
+    <div class="table-wrap">
+      <table id="k-main-table">
+        <thead><tr>
+          <th onclick="kSortBy('title')">Article<span class="sa" id="ks-title">↕</span></th>
+          <th style="width:140px" onclick="kSortBy('category')">Category<span class="sa" id="ks-category">↕</span></th>
+          <th style="width:110px" onclick="kSortBy('addedBy')">Added By<span class="sa" id="ks-addedBy">↕</span></th>
+          <th style="width:78px"></th>
+        </tr></thead>
+        <tbody id="k-tbody"></tbody>
+      </table>
+      <div id="k-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">📚</div><div>No knowledge base articles yet</div></div>
+    </div>
+    <div class="pagination"><span class="pg-info" id="k-pg-info"></span><div class="pg-btns" id="k-pg-btns"></div></div>
+  </div>
+</div>
+</div><!-- end #tab-knowledgebase -->
+
 </div><!-- end #app -->
 
 <!-- OVERLAY -->
@@ -746,6 +781,23 @@ tbody tr:hover .row-actions{opacity:1}
   </div>
 </div>
 
+<!-- ADD/EDIT MODAL — KNOWLEDGE BASE -->
+<div class="modal" id="k-modal">
+  <div class="modal-bg" onclick="kCloseModal()"></div>
+  <div class="modal-box">
+    <div class="modal-hdr"><div class="modal-title" id="k-modal-title">Add Article</div><button class="modal-close" onclick="kCloseModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label class="form-label">Article Title</label><input class="form-input" id="kf-title" placeholder="e.g. How to issue a refund"></div>
+        <div class="form-group full"><label class="form-label">Link to Support Article</label><input class="form-input" id="kf-link" type="url" placeholder="https://support.afterschoolhq.com/..."></div>
+        <div class="form-group full"><label class="form-label">Category</label><input class="form-input" id="kf-category" placeholder="e.g. Billing, Enrollment, Technical"></div>
+        <div class="form-group full"><label class="form-label">Description</label><textarea class="form-textarea" id="kf-description" placeholder="What this article covers, and when to share it with a client…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="kCloseModal()">Cancel</button><button class="btn-save" onclick="kSaveArticle()">Save Article</button></div>
+  </div>
+</div>
+
 <!-- CONFIRM DELETE -->
 <div class="confirm-box" id="confirm-box">
   <span id="confirm-text">Delete this record?</span>
@@ -763,7 +815,7 @@ import { getDatabase, ref, set, push, remove, onValue } from 'https://www.gstati
 // ══════════════════════════════════════════════════
 //  SHARED STATE
 // ══════════════════════════════════════════════════
-let db, disputesRef, paymentsRef, devUpdatesRef, feedbackRef, implementationsRef;
+let db, disputesRef, paymentsRef, devUpdatesRef, feedbackRef, implementationsRef, knowledgebaseRef;
 let currentTab = 'dashboard';
 let userName = localStorage.getItem('disputeos_name')||'';
 let dbURL = localStorage.getItem('disputeos_db')||'';
@@ -775,7 +827,7 @@ function initials(n){return(n||'').split(' ').slice(0,2).map(w=>w[0]).join('')}
 // ══════════════════════════════════════════════════
 //  TAB SWITCHING
 // ══════════════════════════════════════════════════
-const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Development Tracker',feedback:'Positive Feedback Log',implementation:'Implementation Tracker'};
+const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Development Tracker',feedback:'Positive Feedback Log',implementation:'Implementation Tracker',knowledgebase:'Knowledge Base'};
 window.switchTab = function(tab){
   currentTab = tab;
   document.querySelectorAll('.tab-view').forEach(el=>el.classList.remove('active'));
@@ -833,10 +885,11 @@ function bootApp(url){
     devUpdatesRef = ref(db,'devupdates');
     feedbackRef = ref(db,'positivefeedback');
     implementationsRef = ref(db,'implementations');
+    knowledgebaseRef = ref(db,'knowledgebase');
 
-    let disputesLoaded=false, paymentsLoaded=false, devUpdatesLoaded=false, feedbackLoaded=false, implementationsLoaded=false;
+    let disputesLoaded=false, paymentsLoaded=false, devUpdatesLoaded=false, feedbackLoaded=false, implementationsLoaded=false, knowledgebaseLoaded=false;
     function checkReady(){
-      if(disputesLoaded && paymentsLoaded && devUpdatesLoaded && feedbackLoaded && implementationsLoaded){
+      if(disputesLoaded && paymentsLoaded && devUpdatesLoaded && feedbackLoaded && implementationsLoaded && knowledgebaseLoaded){
         document.getElementById('connecting-screen').style.display='none';
         document.getElementById('app').style.display='block';
         setSyncStatus(true);
@@ -894,6 +947,15 @@ function bootApp(url){
       if(currentTab==='dashboard') renderDashboard();
     }, err=>{ /* dispute listener handles errors */ });
 
+    onValue(knowledgebaseRef, snap=>{
+      const val=snap.val();
+      knowledgebase = val ? Object.entries(val).map(([fbKey,d])=>({...d,fbKey})) : [];
+      knowledgebaseLoaded=true;
+      checkReady();
+      kRender();
+      if(currentTab==='dashboard') renderDashboard();
+    }, err=>{ /* dispute listener handles errors */ });
+
   }catch(e){
     document.getElementById('connecting-screen').style.display='none';
     showToast('Invalid Firebase config — please try again','err');
@@ -918,7 +980,7 @@ window.changeName=function(){
 setTimeout(updateAvatar,100);
 
 // ── SHARED ──
-window.closePanel=()=>{document.getElementById('dpanel').classList.remove('open');document.getElementById('overlay').classList.remove('show');dSelRow=null;pSelRow=null;vSelRow=null;fSelRow=null;iSelRow=null;dRender();pRender();if(typeof vRender==='function')vRender();if(typeof fRender==='function')fRender();if(typeof iRender==='function')iRender();};
+window.closePanel=()=>{document.getElementById('dpanel').classList.remove('open');document.getElementById('overlay').classList.remove('show');dSelRow=null;pSelRow=null;vSelRow=null;fSelRow=null;iSelRow=null;kSelRow=null;dRender();pRender();if(typeof vRender==='function')vRender();if(typeof fRender==='function')fRender();if(typeof iRender==='function')iRender();if(typeof kRender==='function')kRender();};
 window.showToast=(msg,type)=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(type?' '+type:'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);};
 window.hideConfirm=()=>{document.getElementById('confirm-box').classList.remove('show');};
 
@@ -956,6 +1018,13 @@ function renderDashboard(){
   const iAtRisk=implementations.filter(r=>r.implStatus==='At Risk'||r.implStatus==='On Hold').length;
   const iNpsVals=implementations.filter(r=>r.nps!==''&&r.nps!==undefined&&!isNaN(Number(r.nps))).map(r=>Number(r.nps));
   const iAvgNps=iNpsVals.length?(iNpsVals.reduce((s,n)=>s+n,0)/iNpsVals.length).toFixed(1):'—';
+
+  // Knowledge base stats
+  const kTotal=knowledgebase.length;
+  const kCats=new Set(knowledgebase.map(r=>r.category).filter(Boolean)).size;
+  const kNow=new Date();const kMonthStart=new Date(kNow.getFullYear(),kNow.getMonth(),1);const kWeek=new Date(kNow.getTime()-7*864e5);
+  const kThisMonth=knowledgebase.filter(r=>{try{return new Date(r.addedAt)>=kMonthStart}catch(e){return false}}).length;
+  const kRecent=knowledgebase.filter(r=>{try{return new Date(r.addedAt)>=kWeek}catch(e){return false}}).length;
 
   el.innerHTML=`
     <div class="dash-card" onclick="switchTab('disputes')">
@@ -1036,6 +1105,22 @@ function renderDashboard(){
         </div>
       </div>
       <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Implementation Tracker</div>
+    </div>
+
+    <div class="dash-card" onclick="switchTab('knowledgebase')">
+      <div class="dash-card-head">
+        <div class="dash-card-icon" style="background:#ede9fe">📚</div>
+        <div><div class="dash-card-title">Knowledge Base</div><div class="dash-card-sub">Support Article Links &amp; Reference</div></div>
+      </div>
+      <div class="dash-card-body">
+        <div class="dash-metrics">
+          <div class="dash-metric"><div class="dash-metric-val">${kTotal}</div><div class="dash-metric-label">Total Articles</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${kCats}</div><div class="dash-metric-label">Categories</div></div>
+          <div class="dash-metric good"><div class="dash-metric-val">${kThisMonth}</div><div class="dash-metric-label">Added This Month</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${kRecent}</div><div class="dash-metric-label">Last 7 Days</div></div>
+        </div>
+      </div>
+      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Knowledge Base</div>
     </div>
   `;
 }
@@ -2183,6 +2268,145 @@ window.iExportCSV=()=>{
   const rows=implementations.map(r=>[...I_FIELDS.map(f=>r[f]),r.addedBy].map(v=>`"${(v===undefined||v===null?'':v).toString().replace(/"/g,'""')}"`).join(','));
   const csv=[h.join(','),...rows].join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='implementation_tracker_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('CSV exported ✓','grn');
+};
+
+// ══════════════════════════════════════════════════
+//  KNOWLEDGE BASE MODULE
+// ══════════════════════════════════════════════════
+let knowledgebase=[], kSortKey='title', kSortDir=1, kSearch='', kFilterCat='', kPage=1, kSelRow=null, kEditId=null, kPendingDelete=null;
+const K_PER=10;
+const K_PILL_CLASSES=['p-pur','p-sky','p-grn','p-amb','p-red'];
+function kCatPillClass(cat){let h=0;for(let i=0;i<cat.length;i++)h=(h*31+cat.charCodeAt(i))>>>0;return K_PILL_CLASSES[h%K_PILL_CLASSES.length];}
+
+function kGetFiltered(){
+  let d=[...knowledgebase];
+  if(kSearch){const t=kSearch.toLowerCase();d=d.filter(r=>(r.title||'').toLowerCase().includes(t)||(r.category||'').toLowerCase().includes(t)||(r.description||'').toLowerCase().includes(t));}
+  if(kFilterCat)d=d.filter(r=>r.category===kFilterCat);
+  d.sort((a,b)=>{let av=(a[kSortKey]||'').toString().toLowerCase(),bv=(b[kSortKey]||'').toString().toLowerCase();return av<bv?-kSortDir:av>bv?kSortDir:0;});
+  return d;
+}
+
+function kRender(){
+  const filtered=kGetFiltered();const total=filtered.length;const pages=Math.max(1,Math.ceil(total/K_PER));if(kPage>pages)kPage=1;
+  const slice=filtered.slice((kPage-1)*K_PER,kPage*K_PER);
+  const tb=document.getElementById('k-tbody');if(!tb)return;const em=document.getElementById('k-empty');const tbl=document.getElementById('k-main-table');
+  if(!slice.length){tb.innerHTML='';em.style.display='';tbl.style.display='none';}else{em.style.display='none';tbl.style.display='';}
+  tb.innerHTML=slice.map(r=>`
+    <tr onclick="kOpenPanel('${r.fbKey}')" class="${kSelRow===r.fbKey?'sel':''}">
+      <td><div style="font-weight:500;font-size:12px">${r.title||'—'}</div>${r.description?`<div style="font-size:11px;color:var(--c3);margin-top:2px">${r.description.length>90?(r.description.slice(0,90)+'…'):r.description}</div>`:''}</td>
+      <td>${r.category?`<span class="pill ${kCatPillClass(r.category)}">${r.category}</span>`:'<span class="pill p-gray">—</span>'}</td>
+      <td><span style="font-size:11px;color:var(--c3)">${r.addedBy||'—'}</span></td>
+      <td onclick="event.stopPropagation()"><div class="row-actions">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" class="ra-btn" style="background:var(--sky-bg);color:var(--sky);text-decoration:none" title="Open article" onclick="event.stopPropagation()">🔗</a>`:''}<button class="ra-btn ra-edit" onclick="kOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="kConfirmDelete('${r.fbKey}')">Del</button></div></td>
+    </tr>`).join('');
+  document.getElementById('k-pg-info').textContent=total?`${(kPage-1)*K_PER+1}–${Math.min(kPage*K_PER,total)} of ${total}`:'0 articles';
+  kRenderPagination(pages);kRenderStats();kRenderSidebar();
+}
+
+function kRenderPagination(pages){
+  const pb=document.getElementById('k-pg-btns');let h=`<button class="pg-btn" onclick="kGoPage(${kPage-1})" ${kPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++)h+=`<button class="pg-btn${i===kPage?' cur':''}" onclick="kGoPage(${i})">${i}</button>`;
+  h+=`<button class="pg-btn" onclick="kGoPage(${kPage+1})" ${kPage===pages?'disabled':''}>›</button>`;pb.innerHTML=h;
+}
+window.kGoPage=p=>{kPage=p;kRender()};
+
+function kRenderStats(){
+  const total=knowledgebase.length;
+  const cats=new Set(knowledgebase.map(r=>r.category).filter(Boolean)).size;
+  const now=new Date();const monthStart=new Date(now.getFullYear(),now.getMonth(),1);const week=new Date(now.getTime()-7*864e5);
+  const thisMonth=knowledgebase.filter(r=>{try{return new Date(r.addedAt)>=monthStart}catch(e){return false}}).length;
+  const recent=knowledgebase.filter(r=>{try{return new Date(r.addedAt)>=week}catch(e){return false}}).length;
+  document.getElementById('k-statsbar').innerHTML=[
+    {l:'Total Articles',v:total,s:'All Time',d:'dot-pur'},
+    {l:'Categories',v:cats,s:'Topics Covered',d:'dot-sky'},
+    {l:'Added This Month',v:thisMonth,s:'New Articles',d:'dot-grn'},
+    {l:'Last 7 Days',v:recent,s:'Recent Activity',d:'dot-amb'}
+  ].map(s=>`<div class="stat"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+}
+
+function kRenderSidebar(){
+  const cats=[...new Set(knowledgebase.map(r=>r.category).filter(Boolean))];
+  document.getElementById('k-cat-list').innerHTML=cats.map(c=>({c,n:knowledgebase.filter(r=>r.category===c).length})).sort((a,b)=>b.n-a.n).map(({c,n})=>`<div class="sb-row${kFilterCat===c?' active':''}" onclick="kSetCat('${c.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><span class="sb-name">${c}</span><span class="sb-ct">${n}</span></div>`).join('');
+}
+
+window.kSetCat=c=>{kFilterCat=kFilterCat===c?'':c;kPage=1;kRender()};
+window.kSortBy=k=>{if(kSortKey===k)kSortDir*=-1;else{kSortKey=k;kSortDir=1;}['title','category','addedBy'].forEach(x=>{const el=document.getElementById('ks-'+x);if(el)el.textContent='↕';});const el=document.getElementById('ks-'+k);if(el)el.textContent=kSortDir===1?'↑':'↓';kRender();};
+document.getElementById('k-search-input').addEventListener('input',function(){kSearch=this.value;kPage=1;kRender()});
+
+// ── KNOWLEDGE BASE DETAIL PANEL ──
+window.kOpenPanel=fbKey=>{
+  const r=knowledgebase.find(x=>x.fbKey===fbKey);if(!r)return;
+  kSelRow=fbKey;kRender();
+  document.getElementById('dp-title').textContent=r.title||'Article';
+  document.getElementById('dp-sub').textContent=r.category||'';
+  document.getElementById('dp-body').innerHTML=`
+    <div class="dp-sec"><div class="dp-sec-title">Article Info</div>
+      <div class="dp-field"><span class="dp-k">Category</span><span class="dp-v">${r.category||'—'}</span></div>
+      <div class="dp-field"><span class="dp-k">Link</span><span class="dp-v" style="color:var(--acc);word-break:break-all">${r.link?`<a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc)">${r.link}</a>`:'—'}</span></div>
+    </div>
+    ${r.description?`<div class="dp-sec"><div class="dp-sec-title">Description</div><div style="font-size:11px;color:var(--c2);background:var(--c8);padding:10px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.6">${r.description}</div></div>`:''}
+    ${r.addedBy?`<div class="added-by">Added by <strong>${r.addedBy}</strong>${r.addedAt?' · '+new Date(r.addedAt).toLocaleDateString():''}${r.lastEditedBy?' · Edited by <strong>'+r.lastEditedBy+'</strong>':''}</div>`:''}
+    <div class="dp-acts">
+      ${r.link?`<a class="dp-btn primary" href="${r.link}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">🔗 Open Article</a>`:''}
+      <button class="dp-btn" onclick="kOpenModal('${fbKey}');closePanel()">✏ Edit</button>
+      <button class="dp-btn danger" onclick="kConfirmDelete('${fbKey}');closePanel()">🗑 Delete</button>
+    </div>`;
+  document.getElementById('dpanel').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+};
+
+// ── KNOWLEDGE BASE MODAL ──
+window.kOpenModal=fbKey=>{
+  kEditId=fbKey||null;
+  document.getElementById('k-modal-title').textContent=fbKey?'Edit Article':'Add Article';
+  const fields=['title','link','category','description'];
+  if(fbKey){
+    const r=knowledgebase.find(x=>x.fbKey===fbKey);
+    if(r)fields.forEach(f=>{document.getElementById('kf-'+f).value=r[f]||'';});
+  } else {
+    fields.forEach(f=>document.getElementById('kf-'+f).value='');
+  }
+  document.getElementById('k-modal').classList.add('show');
+};
+window.kCloseModal=()=>{document.getElementById('k-modal').classList.remove('show');kEditId=null;};
+
+window.kSaveArticle=async()=>{
+  const d={
+    title:document.getElementById('kf-title').value.trim(),
+    link:document.getElementById('kf-link').value.trim(),
+    category:document.getElementById('kf-category').value.trim(),
+    description:document.getElementById('kf-description').value.trim(),
+    addedBy:userName,addedAt:new Date().toISOString(),
+  };
+  if(!d.title){showToast('Article title is required','err');return;}
+  try{
+    if(kEditId){
+      const existing=knowledgebase.find(x=>x.fbKey===kEditId);
+      d.addedBy=existing?.addedBy||userName;d.addedAt=existing?.addedAt||d.addedAt;
+      d.lastEditedBy=userName;d.lastEditedAt=new Date().toISOString();
+      await set(ref(db,'knowledgebase/'+kEditId),d);
+    }else{
+      await push(knowledgebaseRef,d);
+    }
+    const kWasEdit=!!kEditId;kCloseModal();showToast(kWasEdit?'Article updated ✓':'Article added ✓','grn');
+  }catch(e){showToast('Save failed — check connection','err');}
+};
+
+window.kConfirmDelete=fbKey=>{
+  kPendingDelete=fbKey;
+  document.getElementById('confirm-text').textContent='Delete this knowledge base article?';
+  document.getElementById('confirm-box').classList.add('show');
+  document.getElementById('confirm-yes').onclick=async()=>{
+    try{await remove(ref(db,'knowledgebase/'+kPendingDelete));hideConfirm();showToast('Article deleted','');}
+    catch(e){showToast('Delete failed','err');}
+  };
+};
+
+window.kExportCSV=()=>{
+  const h=['Title','Link','Category','Description','Added By'];
+  const rows=knowledgebase.map(r=>[r.title,r.link,r.category,r.description,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  const csv=[h.join(','),...rows].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='knowledge_base_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('CSV exported ✓','grn');
 };
 </script>
