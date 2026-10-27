@@ -318,7 +318,25 @@ tbody tr:hover .row-actions{opacity:1}
 .v-tl-desc{font-size:11px;color:var(--c3);margin-bottom:6px;line-height:1.5}
 .v-tl-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .v-tl-tag{font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--c8);color:var(--c3)}
+
+/* Rich article content (Knowledge Base) */
+.kb-article-body p{margin:0 0 12px}
+.kb-article-body p:last-child{margin-bottom:0}
+.kb-article-body ul,.kb-article-body ol{margin:0 0 12px 22px;padding:0}
+.kb-article-body li{margin-bottom:4px}
+.kb-article-body h1,.kb-article-body h2,.kb-article-body h3{margin:16px 0 8px;font-weight:700;line-height:1.3}
+.kb-article-body h1:first-child,.kb-article-body h2:first-child,.kb-article-body h3:first-child{margin-top:0}
+.kb-article-body blockquote{margin:0 0 12px;padding-left:12px;border-left:3px solid var(--c7);color:var(--c3)}
+.kb-article-body a{color:var(--acc)}
+.kb-article-body strong{font-weight:700}
+.kb-article-body em{font-style:italic}
+#kf-content-editor .ql-editor{min-height:180px;font-size:13px;line-height:1.6}
+#kf-content-editor .ql-container.ql-snow,#kf-content-editor .ql-toolbar.ql-snow{border-color:var(--c6);font-family:inherit}
+#kf-content-editor .ql-container.ql-snow{border-radius:0 0 var(--rad-sm) var(--rad-sm)}
+#kf-content-editor .ql-toolbar.ql-snow{border-radius:var(--rad-sm) var(--rad-sm) 0 0}
 </style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 </head>
 <body>
 
@@ -796,7 +814,7 @@ tbody tr:hover .row-actions{opacity:1}
         <div class="form-group full"><label class="form-label">Article Title</label><input class="form-input" id="kf-title" placeholder="e.g. How to issue a refund"></div>
         <div class="form-group"><label class="form-label">Category</label><input class="form-input" id="kf-category" placeholder="e.g. Billing, Enrollment, Technical"></div>
         <div class="form-group"><label class="form-label">Source Link <span style="font-weight:400;color:var(--c4)">(optional)</span></label><input class="form-input" id="kf-link" type="url" placeholder="https://support.afterschoolhq.com/..."></div>
-        <div class="form-group full"><label class="form-label">Article Content</label><textarea class="form-textarea" id="kf-content" placeholder="Write or paste the article here so your team has it in one place — editable any time…" style="min-height:200px"></textarea></div>
+        <div class="form-group full"><label class="form-label">Article Content</label><div id="kf-content-editor"></div></div>
         <div class="form-group full"><label class="form-label">Internal Notes <span style="font-weight:400;color:var(--c4)">(CS team only — never shown to customers)</span></label><textarea class="form-textarea" id="kf-internalNotes" placeholder="Tips, workarounds, gotchas, or context for the team…" style="min-height:90px;background:#fffbeb;border-color:#fde68a"></textarea></div>
       </div>
     </div>
@@ -2311,8 +2329,14 @@ function kHighlightTerm(text,term){
   if(idx<0)return text;
   return text.slice(0,idx)+'<mark style="background:#fef08a;padding:0 1px;border-radius:2px">'+text.slice(idx,idx+term.length)+'</mark>'+text.slice(idx+term.length);
 }
+function kStripHtml(html){
+  if(!html)return'';
+  const spaced=html.replace(/<\/(p|div|li|h[1-6])>/gi,'$& ').replace(/<br\s*\/?>/gi,' ');
+  const d=document.createElement('div');d.innerHTML=spaced;
+  return (d.textContent||d.innerText||'').replace(/[ \t]+/g,' ').trim();
+}
 function kPreviewText(r,term){
-  const content=r.content||'';
+  const content=kStripHtml(r.content);
   if(term && !(r.title||'').toLowerCase().includes(term)){
     const idx=content.toLowerCase().indexOf(term);
     if(idx>=0){
@@ -2334,7 +2358,7 @@ function kGetFiltered(){
   let d=[...knowledgebase];
   if(kSearch){
     const t=kSearch.toLowerCase();
-    d=d.filter(r=>(r.title||'').toLowerCase().includes(t)||(r.category||'').toLowerCase().includes(t)||kParentOf(r).toLowerCase().includes(t)||(r.content||'').toLowerCase().includes(t)||(r.internalNotes||'').toLowerCase().includes(t));
+    d=d.filter(r=>(r.title||'').toLowerCase().includes(t)||(r.category||'').toLowerCase().includes(t)||kParentOf(r).toLowerCase().includes(t)||kStripHtml(r.content).toLowerCase().includes(t)||(r.internalNotes||'').toLowerCase().includes(t));
   }
   if(kFilterCat)d=d.filter(r=>r.category===kFilterCat);
   d.sort((a,b)=>{
@@ -2413,7 +2437,7 @@ window.kOpenPanel=fbKey=>{
       <div class="dp-field"><span class="dp-k">Section</span><span class="dp-v">${parent?parent+' › ':''}${r.category||'—'}</span></div>
       ${r.link?`<div class="dp-field"><span class="dp-k">Source</span><span class="dp-v"><a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc)">View original article ↗</a></span></div>`:''}
     </div>
-    <div class="dp-sec"><div class="dp-sec-title">Article</div><div style="font-size:12px;color:var(--c1);background:var(--c8);padding:12px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.7;max-height:300px;overflow-y:auto">${r.content?r.content:'<span style="color:var(--c4)">No content added yet — click Edit to write or paste it in.</span>'}</div></div>
+    <div class="dp-sec"><div class="dp-sec-title">Article</div><div class="kb-article-body" style="font-size:12px;color:var(--c1);background:var(--c8);padding:12px 14px;border-radius:var(--rad-sm);white-space:pre-wrap;line-height:1.7;max-height:300px;overflow-y:auto">${r.content?r.content:'<span style="color:var(--c4)">No content added yet — click Edit to write or paste it in.</span>'}</div></div>
     <div class="dp-sec">
       <div class="dp-sec-title" style="color:#92400e">🔒 Internal Notes — CS Team Only</div>
       <textarea id="dp-notes-input" placeholder="Jot down tips, workarounds, or context for the team — saved separately from the article itself…" style="width:100%;min-height:100px;resize:vertical;padding:10px 12px;border:1px solid #fde68a;background:#fffbeb;border-radius:var(--rad-sm);font-size:12px;color:#78350f;font-family:inherit;line-height:1.5;outline:none;box-sizing:border-box">${r.internalNotes||''}</textarea>
@@ -2443,7 +2467,7 @@ window.kOpenReader=fbKey=>{
       <div style="font-size:22px;font-weight:700;color:var(--c1);margin-bottom:6px;line-height:1.3">${r.title||'Untitled'}</div>
       ${r.addedBy?`<div class="added-by" style="margin-bottom:18px">Added by <strong>${r.addedBy}</strong>${r.addedAt?' · '+new Date(r.addedAt).toLocaleDateString():''}${r.lastEditedBy?' · Edited by <strong>'+r.lastEditedBy+'</strong>':''}</div>`:''}
       ${r.link?`<div style="margin-bottom:18px"><a href="${r.link}" target="_blank" rel="noopener" style="color:var(--acc);font-size:12px">View original source article ↗</a></div>`:''}
-      <div style="font-size:13px;color:var(--c1);white-space:pre-wrap;line-height:1.8;margin-bottom:26px">${r.content?r.content:'<span style="color:var(--c4)">No content added yet — click Edit Article to write or paste it in.</span>'}</div>
+      <div class="kb-article-body" style="font-size:13px;color:var(--c1);white-space:pre-wrap;line-height:1.8;margin-bottom:26px">${r.content?r.content:'<span style="color:var(--c4)">No content added yet — click Edit Article to write or paste it in.</span>'}</div>
       <div style="border-top:1px solid var(--c7);padding-top:18px">
         <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px">🔒 Internal Notes — CS Team Only</div>
         <textarea id="kr-notes-input" placeholder="Jot down tips, workarounds, or context for the team — saved separately from the article itself…" style="width:100%;min-height:120px;resize:vertical;padding:10px 12px;border:1px solid #fde68a;background:#fffbeb;border-radius:var(--rad-sm);font-size:12px;color:#78350f;font-family:inherit;line-height:1.5;outline:none;box-sizing:border-box">${r.internalNotes||''}</textarea>
@@ -2476,15 +2500,37 @@ window.kSaveNotes=async(fbKey,inputId)=>{
 };
 
 // ── KNOWLEDGE BASE MODAL ──
-const K_FIELDS=['title','link','category','content','internalNotes'];
+const K_FIELDS=['title','link','category','internalNotes'];
+let kContentQuill=null;
+function kGetQuill(){
+  if(!kContentQuill && window.Quill){
+    kContentQuill=new Quill('#kf-content-editor',{theme:'snow',placeholder:'Write or paste the article here so your team has it in one place — editable any time…',modules:{toolbar:[['bold','italic','underline'],[{header:[2,3,false]}],[{list:'ordered'},{list:'bullet'}],['blockquote','link'],['clean']]}});
+  }
+  return kContentQuill;
+}
+function kLooksLikeHtml(s){return /<\/?(p|div|br|strong|b|em|i|u|ul|ol|li|h[1-6]|a|blockquote|span)[\s>\/]/i.test(s||'');}
+function kEscapeHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function kPlainToEditorHtml(s){
+  if(!s)return'';
+  return s.split(/\n{2,}/).map(p=>'<p>'+kEscapeHtml(p).replace(/\n/g,'<br>')+'</p>').join('');
+}
+function kContentToEditorHtml(content){
+  if(!content)return'';
+  return kLooksLikeHtml(content)?content:kPlainToEditorHtml(content);
+}
 window.kOpenModal=fbKey=>{
   kEditId=fbKey||null;
+  const q=kGetQuill();
   document.getElementById('k-modal-title').textContent=fbKey?'Edit Article':'Add Article';
   if(fbKey){
     const r=knowledgebase.find(x=>x.fbKey===fbKey);
-    if(r)K_FIELDS.forEach(f=>{document.getElementById('kf-'+f).value=r[f]||'';});
+    if(r){
+      K_FIELDS.forEach(f=>{document.getElementById('kf-'+f).value=r[f]||'';});
+      if(q)q.root.innerHTML=kContentToEditorHtml(r.content);
+    }
   } else {
     K_FIELDS.forEach(f=>document.getElementById('kf-'+f).value='');
+    if(q)q.setText('');
   }
   document.getElementById('k-modal').classList.add('show');
 };
@@ -2493,6 +2539,8 @@ window.kCloseModal=()=>{document.getElementById('k-modal').classList.remove('sho
 window.kSaveArticle=async()=>{
   const d={addedBy:userName,addedAt:new Date().toISOString()};
   K_FIELDS.forEach(f=>{d[f]=document.getElementById('kf-'+f).value.trim();});
+  const q=kGetQuill();
+  d.content=q&&q.getText().trim()?q.root.innerHTML:'';
   if(!d.title){showToast('Article title is required','err');return;}
   try{
     if(kEditId){
@@ -2519,7 +2567,7 @@ window.kConfirmDelete=fbKey=>{
 
 window.kExportCSV=()=>{
   const h=['Title','Category','Source Link','Content','Internal Notes','Added By'];
-  const rows=knowledgebase.map(r=>[r.title,r.category,r.link,r.content,r.internalNotes,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  const rows=knowledgebase.map(r=>[r.title,r.category,r.link,kStripHtml(r.content),r.internalNotes,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
   const csv=[h.join(','),...rows].join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='knowledge_base_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('CSV exported ✓','grn');
