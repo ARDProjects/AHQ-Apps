@@ -715,7 +715,7 @@ tbody tr:hover .row-actions{opacity:1}
       </table>
       <div id="sf-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">🏫</div><div>No schools added yet</div></div>
     </div>
-    <div class="pagination"><span class="pg-info" id="sf-pg-info"></span><div class="pg-btns" id="sf-pg-btns"></div></div>
+    <div class="pagination"><span class="pg-info" id="sf-pg-info"></span><div class="view-toggle" id="sf-size-toggle"></div><div class="pg-btns" id="sf-pg-btns"></div></div>
   </div>
 </div>
 </div><!-- end #tab-districtfeatures -->
@@ -2785,8 +2785,9 @@ window.kExportCSV=()=>{
 // ══════════════════════════════════════════════════
 const SF_FEATURES=['Accept ACH','Accept Donations','Accept Payments','Activity Notes','Advanced Registration Management','Advanced Reports','Advanced Stripe Integration','AI Reporting Assistant','All Age Payment','All Age Registration','Allow Applications','Allow Invites','Allow Multiple CICO Per Activity','Allow Parent Make Payment','Allow Pay Later','Allow Payment Plans','Allow Registrant Import','Allow Student Registration','Allow Subscription Plans','Always Force CICO Setup On Registration','Attendance','Auto Check Out','Back Date Attendance','Check In Check Out With Forms','CICO Identification','CICO Roster By Day','Customer Audit Log','Custom Url','Disable Account Creation','Drop In','Email Messaging','Express Mode','Find Duplicate Registrants','Free Activity Limit','Grafana','Hide Timezone On Activity Page','Ignore Required Field For Manual Entry','Incoming Grades','Join Survey Responses To Registrations','Limit Instructor Registrant View','Lock Attendance','Locked Notes','Manage Activity Groups','Manage Check In Check Out','Manage CICO Pin','Manage Contacts','Manage Coupons','Manage External Leagues','Manage Field Trips','Manage Forms','Manage Leagues','Manage Learning Pods','Manage Locations','Manage Permission Slips','Manage Student Notes','Manage Volunteer Opportunities','Manual Stripe Payouts','Messaging App','Participants','Participant Tagging','Payments Percentage Fee','Payments Percentage Flat Fee','Prevent Enrollment In Overlapping Activities','Send Notification When Student Is Checked In','Send Notification When Student Is Checked Out','Sorting By Start Date','Stripe Account Retention Before Disconnect','Student CRM','Submission Reports 2','Survey','Tagging','Teacher 1099','Team Accounts','Text Messaging','Trial Days','Use Stripe Connected Account','View Insights'];
 
-let schools=[], sfSortKey='districtName', sfSortDir=1, sfSearch='', sfFilterDistrict='', sfPage=1, sfEditId=null, sfPendingDelete=null;
+let schools=[], sfSortKey='districtName', sfSortDir=1, sfSearch='', sfFilterDistrict='', sfPage=1, sfEditId=null, sfPendingDelete=null, sfPerPage=10;
 const SF_PER=10;
+const SF_PAGE_SIZES=[10,20,50,'all'];
 
 function sfActiveCount(features){
   if(!features)return 0;
@@ -2802,8 +2803,11 @@ function sfGetFiltered(){
 }
 
 function sfRender(){
-  const filtered=sfGetFiltered();const total=filtered.length;const pages=Math.max(1,Math.ceil(total/SF_PER));if(sfPage>pages)sfPage=1;
-  const slice=filtered.slice((sfPage-1)*SF_PER,sfPage*SF_PER);
+  const filtered=sfGetFiltered();const total=filtered.length;
+  const showAll=sfPerPage==='all';
+  const perPage=showAll?Math.max(total,1):sfPerPage;
+  const pages=Math.max(1,Math.ceil(total/perPage));if(sfPage>pages)sfPage=1;
+  const slice=showAll?filtered:filtered.slice((sfPage-1)*perPage,sfPage*perPage);
   const tb=document.getElementById('sf-tbody');if(!tb)return;const em=document.getElementById('sf-empty');const tbl=document.getElementById('sf-main-table');
   if(!slice.length){tb.innerHTML='';em.style.display='';tbl.style.display='none';}else{em.style.display='none';tbl.style.display='';}
   tb.innerHTML=slice.map(r=>{
@@ -2818,12 +2822,20 @@ function sfRender(){
       <td><span class="dt">${updated?new Date(updated).toLocaleDateString():'—'}</span></td>
       <td onclick="event.stopPropagation()"><div class="row-actions"><button class="ra-btn ra-edit" onclick="sfOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="sfConfirmDelete('${r.fbKey}')">Del</button></div></td>
     </tr>`;}).join('');
-  document.getElementById('sf-pg-info').textContent=total?`${(sfPage-1)*SF_PER+1}–${Math.min(sfPage*SF_PER,total)} of ${total}`:'0 schools';
-  sfRenderPagination(pages);sfRenderStats();sfRenderSidebar();
+  document.getElementById('sf-pg-info').textContent=total?(showAll?`Showing all ${total}`:`${(sfPage-1)*perPage+1}–${Math.min(sfPage*perPage,total)} of ${total}`):'0 schools';
+  sfRenderSizeToggle();sfRenderPagination(pages,showAll);sfRenderStats();sfRenderSidebar();
 }
 
-function sfRenderPagination(pages){
-  const pb=document.getElementById('sf-pg-btns');let h=`<button class="pg-btn" onclick="sfGoPage(${sfPage-1})" ${sfPage===1?'disabled':''}>‹</button>`;
+function sfRenderSizeToggle(){
+  const el=document.getElementById('sf-size-toggle');if(!el)return;
+  el.innerHTML=SF_PAGE_SIZES.map(s=>`<button class="${sfPerPage===s?'active':''}" onclick="sfSetPageSize('${s}')">${s==='all'?'Show All':s}</button>`).join('');
+}
+window.sfSetPageSize=s=>{sfPerPage=(s==='all')?'all':Number(s);sfPage=1;sfRender()};
+
+function sfRenderPagination(pages,showAll){
+  const pb=document.getElementById('sf-pg-btns');
+  if(showAll){pb.innerHTML='';return;}
+  let h=`<button class="pg-btn" onclick="sfGoPage(${sfPage-1})" ${sfPage===1?'disabled':''}>‹</button>`;
   for(let i=1;i<=pages;i++)h+=`<button class="pg-btn${i===sfPage?' cur':''}" onclick="sfGoPage(${i})">${i}</button>`;
   h+=`<button class="pg-btn" onclick="sfGoPage(${sfPage+1})" ${sfPage===pages?'disabled':''}>›</button>`;pb.innerHTML=h;
 }
