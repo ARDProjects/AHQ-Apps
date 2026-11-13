@@ -14,8 +14,7 @@
 }
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--c9);color:var(--c1);font-size:13px;line-height:1.5;min-height:100vh}
 
-/* ── SETUP SCREEN ── */
-#setup-screen{position:fixed;inset:0;background:var(--c1);display:flex;align-items:center;justify-content:center;z-index:1000}
+/* ── SETUP BOX (shared by lock screen) ── */
 .setup-box{background:#fff;border-radius:16px;width:400px;max-width:95vw;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.4);padding:36px 32px 28px}
 .setup-logo{display:flex;align-items:center;gap:8px;margin-bottom:24px}
 .setup-logo-dot{width:9px;height:9px;border-radius:50%;background:var(--acc2)}
@@ -372,38 +371,27 @@ tbody tr:hover .row-actions{opacity:1}
 </head>
 <body>
 
-<!-- ══ SETUP SCREEN ══ -->
+<!-- ══ LOCK SCREEN ══ -->
 <div id="lock-screen">
   <div class="setup-box">
     <div class="setup-logo"><span class="setup-logo-dot"></span><span class="setup-logo-text">AfterSchool HQ</span></div>
     <h2>Team Access</h2>
-    <p>This is an internal AHQ CS Team tool. Enter the team password to continue.</p>
+    <div class="setup-input-group">
+      <label class="setup-label">Your Name</label>
+      <input class="setup-input" id="lock-name-input" placeholder="e.g. Al" autocomplete="name" onkeydown="if(event.key==='Enter')unlockApp()">
+    </div>
     <div class="setup-input-group">
       <label class="setup-label">Password</label>
       <input class="setup-input" id="lock-password-input" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')unlockApp()">
       <div class="setup-err" id="lock-err">Incorrect password — please try again</div>
     </div>
-    <button class="setup-btn" id="lock-btn" onclick="unlockApp()">Unlock →</button>
-    <div class="setup-hint">🔒 AHQ CS Team only</div>
-  </div>
-</div>
-
-<div id="setup-screen">
-  <div class="setup-box">
-    <div class="setup-logo"><span class="setup-logo-dot"></span><span class="setup-logo-text">AfterSchool HQ</span></div>
-    <h2>Welcome</h2>
-    <p>Enter your access details to get started.</p>
     <div class="setup-input-group">
       <label class="setup-label">Database URL</label>
-      <input class="setup-input" id="db-url-input" placeholder="https://your-project-default-rtdb.firebaseio.com" autocomplete="off" spellcheck="false">
-      <div class="setup-err" id="url-err">Please enter a valid database URL</div>
+      <input class="setup-input" id="lock-db-input" placeholder="https://your-project-default-rtdb.firebaseio.com" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')unlockApp()">
+      <div class="setup-err" id="lock-url-err">Please enter a valid database URL</div>
     </div>
-    <div class="setup-input-group">
-      <label class="setup-label">Your Name</label>
-      <input class="setup-input" id="setup-name-input" placeholder="e.g. Al" autocomplete="off">
-    </div>
-    <button class="setup-btn" onclick="connectFirebase()">Connect →</button>
-    <div class="setup-hint">🔒 Your data is private and secure</div>
+    <button class="setup-btn" id="lock-btn" onclick="unlockApp()">Unlock →</button>
+    <div class="setup-hint">🔒 AHQ CS Team only</div>
   </div>
 </div>
 
@@ -1033,16 +1021,35 @@ const authApp = initializeApp(FIREBASE_CONFIG, 'disputeos-shared');
 const auth = getAuth(authApp);
 
 window.unlockApp = function(){
+  const nameInput = document.getElementById('lock-name-input');
   const pwInput = document.getElementById('lock-password-input');
-  const errEl = document.getElementById('lock-err');
+  const dbInput = document.getElementById('lock-db-input');
+  const pwErr = document.getElementById('lock-err');
+  const urlErr = document.getElementById('lock-url-err');
   const btn = document.getElementById('lock-btn');
+
+  const name = nameInput.value.trim();
   const pw = pwInput.value;
+  const url = dbInput.value.trim().replace(/\/$/,'');
+
+  pwErr.style.display='none';
+  urlErr.style.display='none';
+  dbInput.classList.remove('err');
+
+  if(!name){ nameInput.focus(); return; }
+  if(!url.includes('firebaseio.com')){ urlErr.style.display='block'; dbInput.classList.add('err'); return; }
   if(!pw){ pwInput.focus(); return; }
-  errEl.style.display='none';
+
   btn.disabled = true;
   btn.textContent = 'Unlocking…';
-  signInWithEmailAndPassword(auth, SHARED_LOGIN_EMAIL, pw).catch(()=>{
-    errEl.style.display='block';
+  signInWithEmailAndPassword(auth, SHARED_LOGIN_EMAIL, pw).then(()=>{
+    localStorage.setItem('disputeos_db', url);
+    localStorage.setItem('disputeos_name', name);
+    dbURL = url; userName = name;
+    document.getElementById('lock-screen').style.display='none';
+    startApp();
+  }).catch(()=>{
+    pwErr.style.display='block';
     pwInput.value='';
     pwInput.focus();
   }).finally(()=>{
@@ -1055,13 +1062,19 @@ window.lockApp = function(){
   signOut(auth).finally(()=>location.reload());
 };
 
+let firstAuthCheck = true;
 onAuthStateChanged(auth, user=>{
   if(user){
     document.getElementById('lock-screen').style.display='none';
-    startApp();
+    if(firstAuthCheck) startApp();
   } else {
     document.getElementById('lock-screen').style.display='flex';
+    if(firstAuthCheck){
+      if(dbURL) document.getElementById('lock-db-input').value=dbURL;
+      if(userName) document.getElementById('lock-name-input').value=userName;
+    }
   }
+  firstAuthCheck = false;
 });
 
 // ══════════════════════════════════════════════════
@@ -1105,29 +1118,13 @@ document.addEventListener('click',function(e){
 // ══════════════════════════════════════════════════
 //  BOOT (runs only once the team password gate passes)
 // ══════════════════════════════════════════════════
+let appStarted = false;
 function startApp(){
-  if(dbURL && userName){
-    document.getElementById('setup-screen').style.display='none';
-    bootApp(dbURL);
-  } else {
-    if(dbURL) document.getElementById('db-url-input').value=dbURL;
-    if(userName) document.getElementById('setup-name-input').value=userName;
-  }
+  if(appStarted) return;
+  if(!(dbURL && userName)) return;
+  appStarted = true;
+  bootApp(dbURL);
 }
-
-window.connectFirebase = function(){
-  const url = document.getElementById('db-url-input').value.trim().replace(/\/$/,'');
-  const name = document.getElementById('setup-name-input').value.trim();
-  const errEl = document.getElementById('url-err');
-  if(!url.includes('firebaseio.com')){errEl.style.display='block';document.getElementById('db-url-input').classList.add('err');return;}
-  errEl.style.display='none';
-  if(!name){document.getElementById('setup-name-input').focus();return;}
-  localStorage.setItem('disputeos_db', url);
-  localStorage.setItem('disputeos_name', name);
-  dbURL=url; userName=name;
-  document.getElementById('setup-screen').style.display='none';
-  bootApp(url);
-};
 
 function bootApp(url){
   document.getElementById('connecting-screen').style.display='flex';
