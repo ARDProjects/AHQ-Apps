@@ -412,6 +412,7 @@ tbody tr:hover .row-actions{opacity:1}
       <button class="nav-menu-item" id="tab-implementation-btn" onclick="switchTab('implementation')"><span class="nav-menu-icon">📋</span><span class="nav-menu-label">Implementation Tracker</span></button>
       <button class="nav-menu-item" id="tab-knowledgebase-btn" onclick="switchTab('knowledgebase')"><span class="nav-menu-icon">📚</span><span class="nav-menu-label">Knowledge Base</span></button>
       <button class="nav-menu-item" id="tab-districtfeatures-btn" onclick="switchTab('districtfeatures')"><span class="nav-menu-icon">🏫</span><span class="nav-menu-label">District Features</span></button>
+      <button class="nav-menu-item" id="tab-planref-btn" onclick="switchTab('planref')"><span class="nav-menu-icon">🏷</span><span class="nav-menu-label">Plan Reference</span></button>
     </div>
   </div>
   <div class="topbar-right">
@@ -720,6 +721,35 @@ tbody tr:hover .row-actions{opacity:1}
 </div>
 </div><!-- end #tab-districtfeatures -->
 
+<!-- ════════════════════════════════════════════════════════ -->
+<!--              PLAN REFERENCE TAB                         -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="tab-view" id="tab-planref">
+
+<div class="statsbar" id="pr-statsbar"></div>
+
+<div class="content" style="padding:0">
+  <div class="toolbar">
+    <div class="search"><span class="si">⌕</span><input type="text" id="pr-search-input" placeholder="Search features…"></div>
+    <div style="margin-left:auto;font-size:11px;color:var(--c4)">Changes save automatically</div>
+  </div>
+  <div class="feat-hint" style="margin:14px 18px 0">Reference only — these aren't tied to any customer account. Enter <strong>0</strong> to leave a feature off for that plan, or a number greater than 0 for the max the plan allows, so the team knows what to enable when setting up a Lite, Lite Plus, Pro, or Enterprise community center account.</div>
+  <div class="table-wrap">
+    <table id="pr-main-table">
+      <thead><tr>
+        <th>Feature</th>
+        <th style="width:100px;text-align:center">Lite</th>
+        <th style="width:100px;text-align:center">Lite Plus</th>
+        <th style="width:100px;text-align:center">Pro</th>
+        <th style="width:100px;text-align:center">Enterprise</th>
+      </tr></thead>
+      <tbody id="pr-tbody"></tbody>
+    </table>
+    <div id="pr-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">🔍</div><div>No features match your search</div></div>
+  </div>
+</div>
+</div><!-- end #tab-planref -->
+
 </div><!-- end #app -->
 
 <!-- OVERLAY -->
@@ -959,7 +989,7 @@ import { getDatabase, ref, set, push, remove, onValue } from 'https://www.gstati
 // ══════════════════════════════════════════════════
 //  SHARED STATE
 // ══════════════════════════════════════════════════
-let db, disputesRef, paymentsRef, devUpdatesRef, feedbackRef, implementationsRef, knowledgebaseRef, districtFeaturesRef;
+let db, disputesRef, paymentsRef, devUpdatesRef, feedbackRef, implementationsRef, knowledgebaseRef, districtFeaturesRef, planFeaturesRef;
 let currentTab = 'dashboard';
 let userName = localStorage.getItem('disputeos_name')||'';
 let dbURL = localStorage.getItem('disputeos_db')||'';
@@ -971,7 +1001,7 @@ function initials(n){return(n||'').split(' ').slice(0,2).map(w=>w[0]).join('')}
 // ══════════════════════════════════════════════════
 //  TAB SWITCHING
 // ══════════════════════════════════════════════════
-const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Development Tracker',feedback:'Positive Feedback Log',implementation:'Implementation Tracker',knowledgebase:'Knowledge Base',districtfeatures:'District Features'};
+const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Development Tracker',feedback:'Positive Feedback Log',implementation:'Implementation Tracker',knowledgebase:'Knowledge Base',districtfeatures:'District Features',planref:'Plan Reference'};
 window.switchTab = function(tab){
   currentTab = tab;
   document.querySelectorAll('.tab-view').forEach(el=>el.classList.remove('active'));
@@ -1031,10 +1061,11 @@ function bootApp(url){
     implementationsRef = ref(db,'implementations');
     knowledgebaseRef = ref(db,'knowledgebase');
     districtFeaturesRef = ref(db,'districtfeatures');
+    planFeaturesRef = ref(db,'planfeatures');
 
-    let disputesLoaded=false, paymentsLoaded=false, devUpdatesLoaded=false, feedbackLoaded=false, implementationsLoaded=false, knowledgebaseLoaded=false, districtFeaturesLoaded=false;
+    let disputesLoaded=false, paymentsLoaded=false, devUpdatesLoaded=false, feedbackLoaded=false, implementationsLoaded=false, knowledgebaseLoaded=false, districtFeaturesLoaded=false, planFeaturesLoaded=false;
     function checkReady(){
-      if(disputesLoaded && paymentsLoaded && devUpdatesLoaded && feedbackLoaded && implementationsLoaded && knowledgebaseLoaded && districtFeaturesLoaded){
+      if(disputesLoaded && paymentsLoaded && devUpdatesLoaded && feedbackLoaded && implementationsLoaded && knowledgebaseLoaded && districtFeaturesLoaded && planFeaturesLoaded){
         document.getElementById('connecting-screen').style.display='none';
         document.getElementById('app').style.display='block';
         setSyncStatus(true);
@@ -1110,6 +1141,15 @@ function bootApp(url){
       districtFeaturesLoaded=true;
       checkReady();
       sfRender();
+      if(currentTab==='dashboard') renderDashboard();
+    }, err=>{ /* dispute listener handles errors */ });
+
+    onValue(planFeaturesRef, snap=>{
+      const val=snap.val();
+      planFeatures = val || {};
+      planFeaturesLoaded=true;
+      checkReady();
+      prRender();
       if(currentTab==='dashboard') renderDashboard();
     }, err=>{ /* dispute listener handles errors */ });
 
@@ -1300,6 +1340,22 @@ function renderDashboard(){
         </div>
       </div>
       <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open District Features</div>
+    </div>
+
+    <div class="dash-card" onclick="switchTab('planref')">
+      <div class="dash-card-head">
+        <div class="dash-card-icon" style="background:#fef9c3">🏷</div>
+        <div><div class="dash-card-title">Plan Reference</div><div class="dash-card-sub">Standard Features By Plan Tier</div></div>
+      </div>
+      <div class="dash-card-body">
+        <div class="dash-metrics">
+          <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Lite'])}</div><div class="dash-metric-label">Lite</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Lite Plus'])}</div><div class="dash-metric-label">Lite Plus</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Pro'])}</div><div class="dash-metric-label">Pro</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Enterprise'])}</div><div class="dash-metric-label">Enterprise</div></div>
+        </div>
+      </div>
+      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Plan Reference</div>
     </div>
   `;
 }
@@ -2926,6 +2982,51 @@ window.sfExportCSV=()=>{
   const csv=[h.join(','),...rows].join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='district_features_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('CSV exported ✓','grn');
+};
+
+// ══════════════════════════════════════════════════
+//  PLAN REFERENCE MODULE
+// ══════════════════════════════════════════════════
+const PR_PLANS=['Lite','Lite Plus','Pro','Enterprise'];
+let planFeatures={}, prSearch='';
+
+function prActiveCount(obj){
+  if(!obj)return 0;
+  return SF_FEATURES.filter(f=>Number(obj[f]||0)>0).length;
+}
+
+function prRender(){
+  const tb=document.getElementById('pr-tbody');if(!tb)return;
+  const em=document.getElementById('pr-empty');const tbl=document.getElementById('pr-main-table');
+  const t=prSearch.toLowerCase();
+  const feats=t?SF_FEATURES.filter(f=>f.toLowerCase().includes(t)):SF_FEATURES;
+  if(!feats.length){tb.innerHTML='';em.style.display='';tbl.style.display='none';}else{em.style.display='none';tbl.style.display='';}
+  tb.innerHTML=feats.map(f=>{
+    const safe=f.replace(/'/g,"\\'");
+    return `<tr>
+      <td><span style="font-size:12px;color:var(--c2)">${f}</span></td>
+      ${PR_PLANS.map(p=>{const v=Number((planFeatures[p]||{})[f]||0);return `<td style="text-align:center"><input type="number" min="0" class="feat-num" value="${v}" onchange="prSetValue('${p.replace(/'/g,"\\'")}','${safe}',this.value)"></td>`;}).join('')}
+    </tr>`;
+  }).join('');
+  prRenderStats();
+}
+
+function prRenderStats(){
+  const dots=['dot-sky','dot-pur','dot-amb','dot-grn'];
+  document.getElementById('pr-statsbar').innerHTML=PR_PLANS.map((p,i)=>{
+    const n=prActiveCount(planFeatures[p]);
+    return `<div class="stat"><div class="stat-label"><span class="dot ${dots[i%dots.length]}"></span>${p}</div><div class="stat-val">${n} / ${SF_FEATURES.length}</div><div class="stat-sub">Features Enabled</div></div>`;
+  }).join('');
+}
+
+document.getElementById('pr-search-input').addEventListener('input',function(){prSearch=this.value;prRender()});
+
+window.prSetValue=async(plan,feature,val)=>{
+  const n=Math.max(0,parseInt(val)||0);
+  try{
+    await set(ref(db,'planfeatures/'+plan+'/'+feature), n);
+    showToast(feature+' set for '+plan+' ✓','grn');
+  }catch(e){showToast('Save failed — check connection','err');}
 };
 </script>
 </body>
