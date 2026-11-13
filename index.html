@@ -258,6 +258,16 @@ tbody tr:hover .row-actions{opacity:1}
 .toast.err{background:#991b1b}
 .empty-state{text-align:center;padding:48px;color:var(--c5)}
 
+/* ── DISTRICT FEATURES ── */
+.feat-hint{font-size:11px;color:var(--c4);background:var(--c8);padding:8px 12px;border-radius:var(--rad-sm);margin-bottom:14px;line-height:1.5}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 14px}
+.feat-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:var(--rad-sm);background:var(--c9);border:1px solid var(--c8);transition:all .12s}
+.feat-row.on{background:var(--grn-bg);border-color:#a7f3d0}
+.feat-name{font-size:11px;color:var(--c2);line-height:1.3}
+.feat-num{width:54px;padding:5px 6px;border:1px solid var(--c6);border-radius:4px;font-size:11px;text-align:center;font-family:inherit;flex-shrink:0}
+.feat-num:focus{border-color:var(--acc);outline:none;box-shadow:0 0 0 2px rgba(99,102,241,.15)}
+@media(max-width:900px){.feat-grid{grid-template-columns:1fr 1fr}}
+
 /* ── SUPPORT ELIGIBILITY BANNER ── */
 .support-banner{padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
 .support-yes{background:var(--grn-bg);color:#065f46}
@@ -401,6 +411,7 @@ tbody tr:hover .row-actions{opacity:1}
       <button class="nav-menu-item" id="tab-feedback-btn" onclick="switchTab('feedback')"><span class="nav-menu-icon">👍</span><span class="nav-menu-label">Positive Feedback Log</span></button>
       <button class="nav-menu-item" id="tab-implementation-btn" onclick="switchTab('implementation')"><span class="nav-menu-icon">📋</span><span class="nav-menu-label">Implementation Tracker</span></button>
       <button class="nav-menu-item" id="tab-knowledgebase-btn" onclick="switchTab('knowledgebase')"><span class="nav-menu-icon">📚</span><span class="nav-menu-label">Knowledge Base</span></button>
+      <button class="nav-menu-item" id="tab-districtfeatures-btn" onclick="switchTab('districtfeatures')"><span class="nav-menu-icon">🏫</span><span class="nav-menu-label">District Features</span></button>
     </div>
   </div>
   <div class="topbar-right">
@@ -674,6 +685,41 @@ tbody tr:hover .row-actions{opacity:1}
 </div>
 </div><!-- end #tab-knowledgebase -->
 
+<!-- ════════════════════════════════════════════════════════ -->
+<!--              DISTRICT FEATURES TAB                      -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="tab-view" id="tab-districtfeatures">
+
+<div class="statsbar" id="sf-statsbar"></div>
+
+<div class="main">
+  <div class="sidebar">
+    <div><div class="sb-head">By District</div><div id="sf-district-list"></div></div>
+  </div>
+  <div class="content">
+    <div class="toolbar">
+      <div class="search"><span class="si">⌕</span><input type="text" id="sf-search-input" placeholder="Search districts or schools…"></div>
+      <button class="export-btn" onclick="sfExportCSV()">⬇ Export CSV</button>
+      <button class="add-btn" onclick="sfOpenModal()">+ Add School</button>
+    </div>
+    <div class="table-wrap">
+      <table id="sf-main-table">
+        <thead><tr>
+          <th style="width:170px" onclick="sfSortBy('districtName')">District<span class="sa" id="sfs-districtName">↕</span></th>
+          <th style="width:190px" onclick="sfSortBy('schoolName')">School<span class="sa" id="sfs-schoolName">↕</span></th>
+          <th style="width:130px">Features Enabled</th>
+          <th style="width:110px" onclick="sfSortBy('lastEditedAt')">Last Updated<span class="sa" id="sfs-lastEditedAt">↕</span></th>
+          <th style="width:68px"></th>
+        </tr></thead>
+        <tbody id="sf-tbody"></tbody>
+      </table>
+      <div id="sf-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">🏫</div><div>No schools added yet</div></div>
+    </div>
+    <div class="pagination"><span class="pg-info" id="sf-pg-info"></span><div class="pg-btns" id="sf-pg-btns"></div></div>
+  </div>
+</div>
+</div><!-- end #tab-districtfeatures -->
+
 </div><!-- end #app -->
 
 <!-- OVERLAY -->
@@ -879,6 +925,23 @@ tbody tr:hover .row-actions{opacity:1}
   </div>
 </div>
 
+<!-- ADD/EDIT MODAL — DISTRICT FEATURES -->
+<div class="modal" id="sf-modal">
+  <div class="modal-bg" onclick="sfCloseModal()"></div>
+  <div class="modal-box" style="width:860px">
+    <div class="modal-hdr"><div class="modal-title" id="sf-modal-title">Add School</div><button class="modal-close" onclick="sfCloseModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid" style="margin-bottom:18px">
+        <div class="form-group"><label class="form-label">District Name</label><input class="form-input" id="sff-districtName" list="sf-district-options" placeholder="e.g. Tucson Unified School District"><datalist id="sf-district-options"></datalist></div>
+        <div class="form-group"><label class="form-label">School Name</label><input class="form-input" id="sff-schoolName" placeholder="e.g. Lincoln Elementary"></div>
+      </div>
+      <div class="feat-hint">Enter <strong>0</strong> to turn a feature off, or a number greater than 0 to turn it on — that number is the max allowed by the package (e.g. enter 1 for a simple on/off feature).</div>
+      <div class="feat-grid" id="sf-feature-grid"></div>
+    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="sfCloseModal()">Cancel</button><button class="btn-save" onclick="sfSaveSchool()">Save School</button></div>
+  </div>
+</div>
+
 <!-- CONFIRM DELETE -->
 <div class="confirm-box" id="confirm-box">
   <span id="confirm-text">Delete this record?</span>
@@ -896,7 +959,7 @@ import { getDatabase, ref, set, push, remove, onValue } from 'https://www.gstati
 // ══════════════════════════════════════════════════
 //  SHARED STATE
 // ══════════════════════════════════════════════════
-let db, disputesRef, paymentsRef, devUpdatesRef, feedbackRef, implementationsRef, knowledgebaseRef;
+let db, disputesRef, paymentsRef, devUpdatesRef, feedbackRef, implementationsRef, knowledgebaseRef, districtFeaturesRef;
 let currentTab = 'dashboard';
 let userName = localStorage.getItem('disputeos_name')||'';
 let dbURL = localStorage.getItem('disputeos_db')||'';
@@ -908,7 +971,7 @@ function initials(n){return(n||'').split(' ').slice(0,2).map(w=>w[0]).join('')}
 // ══════════════════════════════════════════════════
 //  TAB SWITCHING
 // ══════════════════════════════════════════════════
-const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Development Tracker',feedback:'Positive Feedback Log',implementation:'Implementation Tracker',knowledgebase:'Knowledge Base'};
+const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Development Tracker',feedback:'Positive Feedback Log',implementation:'Implementation Tracker',knowledgebase:'Knowledge Base',districtfeatures:'District Features'};
 window.switchTab = function(tab){
   currentTab = tab;
   document.querySelectorAll('.tab-view').forEach(el=>el.classList.remove('active'));
@@ -967,10 +1030,11 @@ function bootApp(url){
     feedbackRef = ref(db,'positivefeedback');
     implementationsRef = ref(db,'implementations');
     knowledgebaseRef = ref(db,'knowledgebase');
+    districtFeaturesRef = ref(db,'districtfeatures');
 
-    let disputesLoaded=false, paymentsLoaded=false, devUpdatesLoaded=false, feedbackLoaded=false, implementationsLoaded=false, knowledgebaseLoaded=false;
+    let disputesLoaded=false, paymentsLoaded=false, devUpdatesLoaded=false, feedbackLoaded=false, implementationsLoaded=false, knowledgebaseLoaded=false, districtFeaturesLoaded=false;
     function checkReady(){
-      if(disputesLoaded && paymentsLoaded && devUpdatesLoaded && feedbackLoaded && implementationsLoaded && knowledgebaseLoaded){
+      if(disputesLoaded && paymentsLoaded && devUpdatesLoaded && feedbackLoaded && implementationsLoaded && knowledgebaseLoaded && districtFeaturesLoaded){
         document.getElementById('connecting-screen').style.display='none';
         document.getElementById('app').style.display='block';
         setSyncStatus(true);
@@ -1038,6 +1102,15 @@ function bootApp(url){
       if(currentTab==='dashboard') renderDashboard();
       // One-time data fix: normalize legacy "aL" author tag to "AL"
       knowledgebase.filter(r=>r.addedBy==='aL').forEach(r=>{set(ref(db,'knowledgebase/'+r.fbKey+'/addedBy'),'AL');});
+    }, err=>{ /* dispute listener handles errors */ });
+
+    onValue(districtFeaturesRef, snap=>{
+      const val=snap.val();
+      schools = val ? Object.entries(val).map(([fbKey,d])=>({...d,fbKey})) : [];
+      districtFeaturesLoaded=true;
+      checkReady();
+      sfRender();
+      if(currentTab==='dashboard') renderDashboard();
     }, err=>{ /* dispute listener handles errors */ });
 
   }catch(e){
@@ -1109,6 +1182,12 @@ function renderDashboard(){
   const kNow=new Date();const kMonthStart=new Date(kNow.getFullYear(),kNow.getMonth(),1);const kWeek=new Date(kNow.getTime()-7*864e5);
   const kThisMonth=knowledgebase.filter(r=>{try{return new Date(r.addedAt)>=kMonthStart}catch(e){return false}}).length;
   const kRecent=knowledgebase.filter(r=>{try{return new Date(r.addedAt)>=kWeek}catch(e){return false}}).length;
+
+  // District features stats
+  const sfTotal=schools.length;
+  const sfDistricts=new Set(schools.map(r=>r.districtName).filter(Boolean)).size;
+  const sfWithFeatures=schools.filter(r=>sfActiveCount(r.features)>0).length;
+  const sfNoneActive=schools.filter(r=>sfActiveCount(r.features)===0).length;
 
   el.innerHTML=`
     <div class="dash-card" onclick="switchTab('disputes')">
@@ -1205,6 +1284,22 @@ function renderDashboard(){
         </div>
       </div>
       <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Knowledge Base</div>
+    </div>
+
+    <div class="dash-card" onclick="switchTab('districtfeatures')">
+      <div class="dash-card-head">
+        <div class="dash-card-icon" style="background:#fce7f3">🏫</div>
+        <div><div class="dash-card-title">District Features</div><div class="dash-card-sub">Feature Access By District &amp; School</div></div>
+      </div>
+      <div class="dash-card-body">
+        <div class="dash-metrics">
+          <div class="dash-metric"><div class="dash-metric-val">${sfTotal}</div><div class="dash-metric-label">Total Schools</div></div>
+          <div class="dash-metric"><div class="dash-metric-val">${sfDistricts}</div><div class="dash-metric-label">Districts</div></div>
+          <div class="dash-metric good"><div class="dash-metric-val">${sfWithFeatures}</div><div class="dash-metric-label">With Features On</div></div>
+          <div class="dash-metric${sfNoneActive?' warn':''}"><div class="dash-metric-val">${sfNoneActive}</div><div class="dash-metric-label">Nothing Enabled</div></div>
+        </div>
+      </div>
+      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open District Features</div>
     </div>
   `;
 }
@@ -2682,6 +2777,142 @@ window.kExportCSV=()=>{
   const rows=knowledgebase.map(r=>[r.title,r.category,r.link,kStripHtml(r.content),r.internalNotes,r.addedBy].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
   const csv=[h.join(','),...rows].join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='knowledge_base_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('CSV exported ✓','grn');
+};
+
+// ══════════════════════════════════════════════════
+//  DISTRICT FEATURES MODULE
+// ══════════════════════════════════════════════════
+const SF_FEATURES=['Accept ACH','Accept Donations','Accept Payments','Activity Notes','Advanced Registration Management','Advanced Reports','Advanced Stripe Integration','AI Reporting Assistant','All Age Payment','All Age Registration','Allow Applications','Allow Invites','Allow Multiple CICO Per Activity','Allow Parent Make Payment','Allow Pay Later','Allow Payment Plans','Allow Registrant Import','Allow Student Registration','Allow Subscription Plans','Always Force CICO Setup On Registration','Attendance','Auto Check Out','Back Date Attendance','Check In Check Out With Forms','CICO Identification','CICO Roster By Day','Customer Audit Log','Custom Url','Disable Account Creation','Drop In','Email Messaging','Express Mode','Find Duplicate Registrants','Free Activity Limit','Grafana','Hide Timezone On Activity Page','Ignore Required Field For Manual Entry','Incoming Grades','Join Survey Responses To Registrations','Limit Instructor Registrant View','Lock Attendance','Locked Notes','Manage Activity Groups','Manage Check In Check Out','Manage CICO Pin','Manage Contacts','Manage Coupons','Manage External Leagues','Manage Field Trips','Manage Forms','Manage Leagues','Manage Learning Pods','Manage Locations','Manage Permission Slips','Manage Student Notes','Manage Volunteer Opportunities','Manual Stripe Payouts','Messaging App','Participants','Participant Tagging','Payments Percentage Fee','Payments Percentage Flat Fee','Prevent Enrollment In Overlapping Activities','Send Notification When Student Is Checked In','Send Notification When Student Is Checked Out','Sorting By Start Date','Stripe Account Retention Before Disconnect','Student CRM','Submission Reports 2','Survey','Tagging','Teacher 1099','Team Accounts','Text Messaging','Trial Days','Use Stripe Connected Account','View Insights'];
+
+let schools=[], sfSortKey='districtName', sfSortDir=1, sfSearch='', sfFilterDistrict='', sfPage=1, sfEditId=null, sfPendingDelete=null;
+const SF_PER=10;
+
+function sfActiveCount(features){
+  if(!features)return 0;
+  return SF_FEATURES.filter(f=>Number(features[f]||0)>0).length;
+}
+
+function sfGetFiltered(){
+  let d=[...schools];
+  if(sfSearch){const t=sfSearch.toLowerCase();d=d.filter(r=>(r.districtName||'').toLowerCase().includes(t)||(r.schoolName||'').toLowerCase().includes(t));}
+  if(sfFilterDistrict)d=d.filter(r=>r.districtName===sfFilterDistrict);
+  d.sort((a,b)=>{let av,bv;if(sfSortKey==='lastEditedAt'){av=new Date(a.lastEditedAt||a.addedAt||0);bv=new Date(b.lastEditedAt||b.addedAt||0);}else{av=(a[sfSortKey]||'').toLowerCase();bv=(b[sfSortKey]||'').toLowerCase();}return av<bv?-sfSortDir:av>bv?sfSortDir:0;});
+  return d;
+}
+
+function sfRender(){
+  const filtered=sfGetFiltered();const total=filtered.length;const pages=Math.max(1,Math.ceil(total/SF_PER));if(sfPage>pages)sfPage=1;
+  const slice=filtered.slice((sfPage-1)*SF_PER,sfPage*SF_PER);
+  const tb=document.getElementById('sf-tbody');if(!tb)return;const em=document.getElementById('sf-empty');const tbl=document.getElementById('sf-main-table');
+  if(!slice.length){tb.innerHTML='';em.style.display='';tbl.style.display='none';}else{em.style.display='none';tbl.style.display='';}
+  tb.innerHTML=slice.map(r=>{
+    const active=sfActiveCount(r.features);const totalFeat=SF_FEATURES.length;
+    const pillClass=active===0?'p-gray':active===totalFeat?'p-grn':'p-amb';
+    const updated=r.lastEditedAt||r.addedAt;
+    return `
+    <tr onclick="sfOpenModal('${r.fbKey}')">
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="pav" style="background:${pc(r.districtName)}">${initials(r.districtName)}</div><span class="pn">${r.districtName||'—'}</span></div></td>
+      <td><span style="font-size:12px;color:var(--c2)">${r.schoolName||'—'}</span></td>
+      <td><span class="pill ${pillClass}">${active} / ${totalFeat}</span></td>
+      <td><span class="dt">${updated?new Date(updated).toLocaleDateString():'—'}</span></td>
+      <td onclick="event.stopPropagation()"><div class="row-actions"><button class="ra-btn ra-edit" onclick="sfOpenModal('${r.fbKey}')">Edit</button><button class="ra-btn ra-del" onclick="sfConfirmDelete('${r.fbKey}')">Del</button></div></td>
+    </tr>`;}).join('');
+  document.getElementById('sf-pg-info').textContent=total?`${(sfPage-1)*SF_PER+1}–${Math.min(sfPage*SF_PER,total)} of ${total}`:'0 schools';
+  sfRenderPagination(pages);sfRenderStats();sfRenderSidebar();
+}
+
+function sfRenderPagination(pages){
+  const pb=document.getElementById('sf-pg-btns');let h=`<button class="pg-btn" onclick="sfGoPage(${sfPage-1})" ${sfPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++)h+=`<button class="pg-btn${i===sfPage?' cur':''}" onclick="sfGoPage(${i})">${i}</button>`;
+  h+=`<button class="pg-btn" onclick="sfGoPage(${sfPage+1})" ${sfPage===pages?'disabled':''}>›</button>`;pb.innerHTML=h;
+}
+window.sfGoPage=p=>{sfPage=p;sfRender()};
+
+function sfRenderStats(){
+  const total=schools.length;
+  const districts=new Set(schools.map(r=>r.districtName).filter(Boolean)).size;
+  const withFeatures=schools.filter(r=>sfActiveCount(r.features)>0).length;
+  const avgActive=total?(schools.reduce((s,r)=>s+sfActiveCount(r.features),0)/total).toFixed(1):'0';
+  const noneActive=schools.filter(r=>sfActiveCount(r.features)===0).length;
+  document.getElementById('sf-statsbar').innerHTML=[
+    {l:'Total Schools',v:total,s:'All Time',d:'dot-pur'},
+    {l:'Districts',v:districts,s:'Unique Districts',d:'dot-sky'},
+    {l:'With Features On',v:withFeatures,s:'At Least 1 Active',d:'dot-grn'},
+    {l:'Avg Features Active',v:avgActive,s:`Of ${SF_FEATURES.length} Total`,d:'dot-amb'},
+    {l:'No Features On',v:noneActive,s:'Fully Disabled',d:'dot-red'}
+  ].map(s=>`<div class="stat"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
+}
+
+function sfRenderSidebar(){
+  const districts=[...new Set(schools.map(r=>r.districtName).filter(Boolean))];
+  document.getElementById('sf-district-list').innerHTML=districts.map(dn=>({dn,c:schools.filter(r=>r.districtName===dn).length})).sort((a,b)=>b.c-a.c).map(({dn,c})=>`<div class="sb-row${sfFilterDistrict===dn?' active':''}" onclick="sfSetDistrict('${dn.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><div class="pav" style="background:${pc(dn)};width:20px;height:20px;font-size:8px;border-radius:3px">${initials(dn)}</div><span class="sb-name">${dn}</span><span class="sb-ct">${c}</span></div>`).join('');
+}
+
+window.sfSetDistrict=dn=>{sfFilterDistrict=sfFilterDistrict===dn?'':dn;sfPage=1;sfRender()};
+window.sfSortBy=k=>{if(sfSortKey===k)sfSortDir*=-1;else{sfSortKey=k;sfSortDir=-1;}['districtName','schoolName','lastEditedAt'].forEach(x=>{const el=document.getElementById('sfs-'+x);if(el)el.textContent='↕';});const el=document.getElementById('sfs-'+k);if(el)el.textContent=sfSortDir===1?'↑':'↓';sfRender();};
+document.getElementById('sf-search-input').addEventListener('input',function(){sfSearch=this.value;sfPage=1;sfRender()});
+
+// ── DISTRICT FEATURES MODAL ──
+window.sfOpenModal=fbKey=>{
+  sfEditId=fbKey||null;
+  document.getElementById('sf-modal-title').textContent=fbKey?'Edit School':'Add School';
+  const districts=[...new Set(schools.map(r=>r.districtName).filter(Boolean))].sort();
+  document.getElementById('sf-district-options').innerHTML=districts.map(dn=>`<option value="${dn.replace(/"/g,'&quot;')}">`).join('');
+  let existing=null;
+  if(fbKey){existing=schools.find(x=>x.fbKey===fbKey);}
+  document.getElementById('sff-districtName').value=existing?.districtName||'';
+  document.getElementById('sff-schoolName').value=existing?.schoolName||'';
+  const feat=existing?.features||{};
+  document.getElementById('sf-feature-grid').innerHTML=SF_FEATURES.map((f,idx)=>{
+    const v=Number(feat[f]||0);
+    return `<div class="feat-row${v>0?' on':''}" id="sf-featrow-${idx}"><span class="feat-name">${f}</span><input type="number" min="0" class="feat-num" id="sf-feat-${idx}" value="${v}" oninput="sfToggleFeatRow(${idx})"></div>`;
+  }).join('');
+  document.getElementById('sf-modal').classList.add('show');
+};
+window.sfToggleFeatRow=idx=>{
+  const input=document.getElementById('sf-feat-'+idx);const row=document.getElementById('sf-featrow-'+idx);
+  if(!input||!row)return;
+  row.classList.toggle('on',Number(input.value||0)>0);
+};
+window.sfCloseModal=()=>{document.getElementById('sf-modal').classList.remove('show');sfEditId=null;};
+
+window.sfSaveSchool=async()=>{
+  const districtName=document.getElementById('sff-districtName').value.trim();
+  const schoolName=document.getElementById('sff-schoolName').value.trim();
+  if(!districtName||!schoolName){showToast('District and school name are required','err');return;}
+  const features={};
+  SF_FEATURES.forEach((f,idx)=>{const el=document.getElementById('sf-feat-'+idx);features[f]=Math.max(0,parseInt(el?.value)||0);});
+  const d={districtName,schoolName,features,addedBy:userName,addedAt:new Date().toISOString()};
+  try{
+    if(sfEditId){
+      const existing=schools.find(x=>x.fbKey===sfEditId);
+      d.addedBy=existing?.addedBy||userName;d.addedAt=existing?.addedAt||d.addedAt;
+      d.lastEditedBy=userName;d.lastEditedAt=new Date().toISOString();
+      await set(ref(db,'districtfeatures/'+sfEditId),d);
+    }else{
+      await push(districtFeaturesRef,d);
+    }
+    const sfWasEdit=!!sfEditId;sfCloseModal();showToast(sfWasEdit?'School updated ✓':'School added ✓','grn');
+  }catch(e){showToast('Save failed — check connection','err');}
+};
+
+window.sfConfirmDelete=fbKey=>{
+  sfPendingDelete=fbKey;
+  const r=schools.find(x=>x.fbKey===fbKey);
+  document.getElementById('confirm-text').textContent=`Delete ${r?.schoolName||'this school'}?`;
+  document.getElementById('confirm-box').classList.add('show');
+  document.getElementById('confirm-yes').onclick=async()=>{
+    try{await remove(ref(db,'districtfeatures/'+sfPendingDelete));hideConfirm();showToast('School deleted','');}
+    catch(e){showToast('Delete failed','err');}
+  };
+};
+
+window.sfExportCSV=()=>{
+  const h=['District','School',...SF_FEATURES,'Added By'];
+  const rows=schools.map(r=>[r.districtName,r.schoolName,...SF_FEATURES.map(f=>Number(r.features?.[f]||0)),r.addedBy].map(v=>`"${(v===undefined||v===null?'':v).toString().replace(/"/g,'""')}"`).join(','));
+  const csv=[h.join(','),...rows].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='district_features_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('CSV exported ✓','grn');
 };
 </script>
