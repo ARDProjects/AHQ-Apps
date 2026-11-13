@@ -387,7 +387,7 @@ tbody tr:hover .row-actions{opacity:1}
     </div>
     <div class="setup-input-group">
       <label class="setup-label">Database URL</label>
-      <input class="setup-input" id="lock-db-input" placeholder="https://your-project-default-rtdb.firebaseio.com" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')unlockApp()">
+      <input class="setup-input" id="lock-db-input" placeholder="https://ahq-apps-default-rtdb.firebaseio.com" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')unlockApp()">
       <div class="setup-err" id="lock-url-err">Please enter a valid database URL</div>
     </div>
     <button class="setup-btn" id="lock-btn" onclick="unlockApp()">Unlock →</button>
@@ -1012,9 +1012,9 @@ import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from
 //  TEAM ACCESS GATE
 // ══════════════════════════════════════════════════
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyB0S4Ex00JYcJq-pOJRkTnbzPdaesWw2mI",
-  authDomain: "disputetracker.firebaseapp.com",
-  projectId: "disputetracker"
+  apiKey: "AIzaSyCx0Q8RHkCQinw3rZx_4Ey6xkvwI82rQOU",
+  authDomain: "ahq-apps.firebaseapp.com",
+  projectId: "ahq-apps"
 };
 const SHARED_LOGIN_EMAIL = 'team@afterschoolhq.com';
 const authApp = initializeApp(FIREBASE_CONFIG, 'disputeos-shared');
@@ -1084,6 +1084,12 @@ let db, disputesRef, paymentsRef, devUpdatesRef, feedbackRef, implementationsRef
 let currentTab = 'dashboard';
 let userName = localStorage.getItem('disputeos_name')||'';
 let dbURL = localStorage.getItem('disputeos_db')||'';
+// One-time migration: the database moved from disputetracker to ahqapps.
+// Anyone with the old URL cached in this browser is auto-redirected to the new one.
+if(dbURL === 'https://disputetracker-default-rtdb.firebaseio.com'){
+  dbURL = 'https://ahq-apps-default-rtdb.firebaseio.com';
+  localStorage.setItem('disputeos_db', dbURL);
+}
 const COLORS=['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6'];
 const colorMap={};let ci=0;
 function pc(p){if(!colorMap[p])colorMap[p]=COLORS[ci++%COLORS.length];return colorMap[p]}
