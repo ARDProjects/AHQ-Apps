@@ -579,7 +579,7 @@ tbody tr:hover .row-actions{opacity:1}
 <div class="main">
   <div class="sidebar">
     <div style="margin-bottom:8px"><div class="sb-head">By Organization</div><div id="f-org-list"></div></div>
-    <div><div class="sb-head">By CX Rep</div><div id="f-rep-list"></div></div>
+    <div><div class="sb-head">By Quarter</div><div id="f-quarter-list"></div></div>
   </div>
   <div class="content">
     <div class="toolbar">
@@ -2154,14 +2154,17 @@ window.vExportCSV=()=>{
 // ══════════════════════════════════════════════════
 //  POSITIVE FEEDBACK MODULE
 // ══════════════════════════════════════════════════
-let feedback=[], fSortKey='date', fSortDir=-1, fSearch='', fFilterOrg='', fFilterRep='', fPage=1, fSelRow=null, fEditId=null, fPendingDelete=null;
+let feedback=[], fSortKey='date', fSortDir=-1, fSearch='', fFilterOrg='', fFilterQuarter='', fPage=1, fSelRow=null, fEditId=null, fPendingDelete=null;
+function fParseDate(s){if(!s)return null;const d=new Date(s);return isNaN(d)?null:d;}
+function fQuarterOf(s){const d=fParseDate(s);if(!d)return'';return'Q'+(Math.floor(d.getMonth()/3)+1)+' '+d.getFullYear();}
+function fQuarterSortKey(q){const m=q.match(/^Q(\d) (\d+)$/);return m?Number(m[2])*10+Number(m[1]):0;}
 const F_PER=10;
 
 function fGetFiltered(){
   let d=[...feedback];
   if(fSearch){const t=fSearch.toLowerCase();d=d.filter(r=>(r.organization||'').toLowerCase().includes(t)||(r.submittedBy||'').toLowerCase().includes(t)||(r.submittedByEmail||'').toLowerCase().includes(t)||(r.cxRep||'').toLowerCase().includes(t)||(r.feedback||'').toLowerCase().includes(t));}
   if(fFilterOrg)d=d.filter(r=>r.organization===fFilterOrg);
-  if(fFilterRep)d=d.filter(r=>r.cxRep===fFilterRep);
+  if(fFilterQuarter)d=d.filter(r=>fQuarterOf(r.date)===fFilterQuarter);
   d.sort((a,b)=>{let av,bv;if(fSortKey==='date'){av=new Date(a.date||0);bv=new Date(b.date||0);}else{av=(a[fSortKey]||'').toLowerCase();bv=(b[fSortKey]||'').toLowerCase();}return av<bv?-fSortDir:av>bv?fSortDir:0;});
   return d;
 }
@@ -2194,28 +2197,28 @@ window.fGoPage=p=>{fPage=p;fRender()};
 function fRenderStats(){
   const total=feedback.length;
   const orgs=new Set(feedback.map(r=>r.organization).filter(Boolean)).size;
-  const reps=new Set(feedback.map(r=>r.cxRep).filter(Boolean)).size;
   const now=new Date();const monthStart=new Date(now.getFullYear(),now.getMonth(),1);const week=new Date(now.getTime()-7*864e5);
   const thisMonth=feedback.filter(r=>{try{return new Date(r.date)>=monthStart}catch(e){return false}}).length;
   const recent=feedback.filter(r=>{try{return new Date(r.date)>=week}catch(e){return false}}).length;
+  const thisQuarter=feedback.filter(r=>fQuarterOf(r.date)===fQuarterOf(now.toISOString())).length;
   document.getElementById('f-statsbar').innerHTML=[
     {l:'Total Feedback',v:total,s:'All Time',d:'dot-pur'},
     {l:'This Month',v:thisMonth,s:'Logged',d:'dot-grn'},
     {l:'Last 7 Days',v:recent,s:'Recent Activity',d:'dot-sky'},
     {l:'Organizations',v:orgs,s:'Unique Orgs',d:'dot-amb'},
-    {l:'CX Reps',v:reps,s:'Engaged',d:'dot-grn'}
+    {l:'This Quarter',v:thisQuarter,s:'Logged',d:'dot-grn'}
   ].map(s=>`<div class="stat"><div class="stat-label"><span class="dot ${s.d}"></span>${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div></div>`).join('');
 }
 
 function fRenderSidebar(){
   const orgs=[...new Set(feedback.map(r=>r.organization).filter(Boolean))];
   document.getElementById('f-org-list').innerHTML=orgs.map(o=>({o,c:feedback.filter(r=>r.organization===o).length})).sort((a,b)=>b.c-a.c).map(({o,c})=>`<div class="sb-row${fFilterOrg===o?' active':''}" onclick="fSetOrg('${o.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><div class="pav" style="background:${pc(o)};width:20px;height:20px;font-size:8px;border-radius:3px">${initials(o)}</div><span class="sb-name">${o}</span><span class="sb-ct">${c}</span></div>`).join('');
-  const reps=[...new Set(feedback.map(r=>r.cxRep).filter(Boolean))];
-  document.getElementById('f-rep-list').innerHTML=reps.map(rp=>{const c=feedback.filter(r=>r.cxRep===rp).length;return`<div class="sb-row${fFilterRep===rp?' active':''}" onclick="fSetRep('${rp.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')"><span class="sb-name">${rp}</span><span class="sb-ct">${c}</span></div>`;}).join('');
+  const quarters=[...new Set(feedback.map(r=>fQuarterOf(r.date)).filter(Boolean))].sort((a,b)=>fQuarterSortKey(b)-fQuarterSortKey(a));
+  document.getElementById('f-quarter-list').innerHTML=quarters.map(q=>{const c=feedback.filter(r=>fQuarterOf(r.date)===q).length;return`<div class="sb-row${fFilterQuarter===q?' active':''}" onclick="fSetQuarter('${q}')"><span class="sb-name">${q}</span><span class="sb-ct">${c}</span></div>`;}).join('');
 }
 
 window.fSetOrg=o=>{fFilterOrg=fFilterOrg===o?'':o;fPage=1;fRender()};
-window.fSetRep=r=>{fFilterRep=fFilterRep===r?'':r;fPage=1;fRender()};
+window.fSetQuarter=q=>{fFilterQuarter=fFilterQuarter===q?'':q;fPage=1;fRender()};
 window.fSortBy=k=>{if(fSortKey===k)fSortDir*=-1;else{fSortKey=k;fSortDir=-1;}['date','organization','submittedBy','cxRep'].forEach(x=>{const el=document.getElementById('fs-'+x);if(el)el.textContent='↕';});const el=document.getElementById('fs-'+k);if(el)el.textContent=fSortDir===1?'↑':'↓';fRender();};
 document.getElementById('f-search-input').addEventListener('input',function(){fSearch=this.value;fPage=1;fRender()});
 
