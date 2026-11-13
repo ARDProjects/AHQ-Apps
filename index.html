@@ -32,6 +32,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--c9);color:var(
 .setup-btn:hover{background:#4f46e5}
 .setup-hint{font-size:11px;color:var(--c5);text-align:center;margin-top:14px}
 
+/* ── LOCK SCREEN ── */
+#lock-screen{position:fixed;inset:0;background:var(--c1);display:flex;align-items:center;justify-content:center;z-index:1100}
+.lock-icon-btn{width:30px;height:30px;border-radius:50%;background:var(--c2);border:none;display:flex;align-items:center;justify-content:center;color:var(--c5);font-size:13px;cursor:pointer;transition:background .15s}
+.lock-icon-btn:hover{background:var(--c3);color:#fff}
+
 /* ── CONNECTING SCREEN ── */
 #connecting-screen{position:fixed;inset:0;background:var(--c1);display:none;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px;color:#fff}
 .spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
@@ -368,6 +373,21 @@ tbody tr:hover .row-actions{opacity:1}
 <body>
 
 <!-- ══ SETUP SCREEN ══ -->
+<div id="lock-screen">
+  <div class="setup-box">
+    <div class="setup-logo"><span class="setup-logo-dot"></span><span class="setup-logo-text">AfterSchool HQ</span></div>
+    <h2>Team Access</h2>
+    <p>This is an internal AHQ CS Team tool. Enter the team password to continue.</p>
+    <div class="setup-input-group">
+      <label class="setup-label">Password</label>
+      <input class="setup-input" id="lock-password-input" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')unlockApp()">
+      <div class="setup-err" id="lock-err">Incorrect password — please try again</div>
+    </div>
+    <button class="setup-btn" id="lock-btn" onclick="unlockApp()">Unlock →</button>
+    <div class="setup-hint">🔒 AHQ CS Team only</div>
+  </div>
+</div>
+
 <div id="setup-screen">
   <div class="setup-box">
     <div class="setup-logo"><span class="setup-logo-dot"></span><span class="setup-logo-text">AfterSchool HQ</span></div>
@@ -418,6 +438,7 @@ tbody tr:hover .row-actions{opacity:1}
     <span class="sync-dot" id="sync-dot"></span>
     <span class="sync-label" id="sync-label">Live</span>
     <span class="badge-count" id="open-count">0</span>
+    <button class="lock-icon-btn" title="Lock app" onclick="lockApp()">🔒</button>
     <div class="avatar" id="user-avatar" title="Change name" onclick="changeName()">AL</div>
   </div>
 </div>
@@ -997,6 +1018,51 @@ tbody tr:hover .row-actions{opacity:1}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, set, push, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+// ══════════════════════════════════════════════════
+//  TEAM ACCESS GATE
+// ══════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB0S4Ex00JYcJq-pOJRkTnbzPdaesWw2mI",
+  authDomain: "disputetracker.firebaseapp.com",
+  projectId: "disputetracker"
+};
+const SHARED_LOGIN_EMAIL = 'team@afterschoolhq.com';
+const authApp = initializeApp(FIREBASE_CONFIG, 'disputeos-shared');
+const auth = getAuth(authApp);
+
+window.unlockApp = function(){
+  const pwInput = document.getElementById('lock-password-input');
+  const errEl = document.getElementById('lock-err');
+  const btn = document.getElementById('lock-btn');
+  const pw = pwInput.value;
+  if(!pw){ pwInput.focus(); return; }
+  errEl.style.display='none';
+  btn.disabled = true;
+  btn.textContent = 'Unlocking…';
+  signInWithEmailAndPassword(auth, SHARED_LOGIN_EMAIL, pw).catch(()=>{
+    errEl.style.display='block';
+    pwInput.value='';
+    pwInput.focus();
+  }).finally(()=>{
+    btn.disabled = false;
+    btn.textContent = 'Unlock →';
+  });
+};
+
+window.lockApp = function(){
+  signOut(auth).finally(()=>location.reload());
+};
+
+onAuthStateChanged(auth, user=>{
+  if(user){
+    document.getElementById('lock-screen').style.display='none';
+    startApp();
+  } else {
+    document.getElementById('lock-screen').style.display='flex';
+  }
+});
 
 // ══════════════════════════════════════════════════
 //  SHARED STATE
@@ -1037,14 +1103,16 @@ document.addEventListener('click',function(e){
 });
 
 // ══════════════════════════════════════════════════
-//  BOOT
+//  BOOT (runs only once the team password gate passes)
 // ══════════════════════════════════════════════════
-if(dbURL && userName){
-  document.getElementById('setup-screen').style.display='none';
-  bootApp(dbURL);
-} else {
-  if(dbURL) document.getElementById('db-url-input').value=dbURL;
-  if(userName) document.getElementById('setup-name-input').value=userName;
+function startApp(){
+  if(dbURL && userName){
+    document.getElementById('setup-screen').style.display='none';
+    bootApp(dbURL);
+  } else {
+    if(dbURL) document.getElementById('db-url-input').value=dbURL;
+    if(userName) document.getElementById('setup-name-input').value=userName;
+  }
 }
 
 window.connectFirebase = function(){
@@ -1064,8 +1132,7 @@ window.connectFirebase = function(){
 function bootApp(url){
   document.getElementById('connecting-screen').style.display='flex';
   try{
-    const app = initializeApp({databaseURL: url, apiKey:'local', projectId:'local'}, 'disputeos-'+Math.random());
-    db = getDatabase(app);
+    db = getDatabase(authApp, url);
     disputesRef = ref(db,'disputes');
     paymentsRef = ref(db,'payments');
     devUpdatesRef = ref(db,'devupdates');
