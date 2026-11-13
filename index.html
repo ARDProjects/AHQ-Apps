@@ -1344,19 +1344,11 @@ function renderDashboard(){
         <div><div class="dash-card-title">Feature Management</div><div class="dash-card-sub">District Features &amp; Plan Reference</div></div>
       </div>
       <div class="dash-card-body">
-        <div style="font-size:10px;font-weight:700;color:var(--c5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">District Features</div>
         <div class="dash-metrics">
           <div class="dash-metric"><div class="dash-metric-val">${sfTotal}</div><div class="dash-metric-label">Total Schools</div></div>
           <div class="dash-metric"><div class="dash-metric-val">${sfDistricts}</div><div class="dash-metric-label">Districts</div></div>
           <div class="dash-metric good"><div class="dash-metric-val">${sfWithFeatures}</div><div class="dash-metric-label">With Features On</div></div>
           <div class="dash-metric${sfNoneActive?' warn':''}"><div class="dash-metric-val">${sfNoneActive}</div><div class="dash-metric-label">Nothing Enabled</div></div>
-        </div>
-        <div style="font-size:10px;font-weight:700;color:var(--c5);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px">Plan Reference</div>
-        <div class="dash-metrics">
-          <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Lite'])}</div><div class="dash-metric-label">Lite</div></div>
-          <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Lite Plus'])}</div><div class="dash-metric-label">Lite Plus</div></div>
-          <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Pro'])}</div><div class="dash-metric-label">Pro</div></div>
-          <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Enterprise'])}</div><div class="dash-metric-label">Enterprise</div></div>
         </div>
       </div>
       <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Feature Management</div>
