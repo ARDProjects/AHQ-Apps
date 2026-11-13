@@ -411,8 +411,7 @@ tbody tr:hover .row-actions{opacity:1}
       <button class="nav-menu-item" id="tab-feedback-btn" onclick="switchTab('feedback')"><span class="nav-menu-icon">👍</span><span class="nav-menu-label">Positive Feedback Log</span></button>
       <button class="nav-menu-item" id="tab-implementation-btn" onclick="switchTab('implementation')"><span class="nav-menu-icon">📋</span><span class="nav-menu-label">Implementation Tracker</span></button>
       <button class="nav-menu-item" id="tab-knowledgebase-btn" onclick="switchTab('knowledgebase')"><span class="nav-menu-icon">📚</span><span class="nav-menu-label">Knowledge Base</span></button>
-      <button class="nav-menu-item" id="tab-districtfeatures-btn" onclick="switchTab('districtfeatures')"><span class="nav-menu-icon">🏫</span><span class="nav-menu-label">District Features</span></button>
-      <button class="nav-menu-item" id="tab-planref-btn" onclick="switchTab('planref')"><span class="nav-menu-icon">🏷</span><span class="nav-menu-label">Plan Reference</span></button>
+      <button class="nav-menu-item" id="tab-districtfeatures-btn" onclick="switchTab('districtfeatures')"><span class="nav-menu-icon">🧩</span><span class="nav-menu-label">Feature Management</span></button>
     </div>
   </div>
   <div class="topbar-right">
@@ -691,6 +690,15 @@ tbody tr:hover .row-actions{opacity:1}
 <!-- ════════════════════════════════════════════════════════ -->
 <div class="tab-view" id="tab-districtfeatures">
 
+<!-- ── Area 1: District Features ── -->
+<div style="padding:16px 24px 10px;display:flex;align-items:center;gap:10px">
+  <span style="font-size:20px">🏫</span>
+  <div>
+    <div style="font-size:14px;font-weight:700;color:var(--c1)">District Features</div>
+    <div style="font-size:11px;color:var(--c4)">Feature Access By District &amp; School</div>
+  </div>
+</div>
+
 <div class="statsbar" id="sf-statsbar"></div>
 
 <div class="main">
@@ -719,12 +727,15 @@ tbody tr:hover .row-actions{opacity:1}
     <div class="pagination"><span class="pg-info" id="sf-pg-info"></span><div class="view-toggle" id="sf-size-toggle"></div><div class="pg-btns" id="sf-pg-btns"></div></div>
   </div>
 </div>
-</div><!-- end #tab-districtfeatures -->
 
-<!-- ════════════════════════════════════════════════════════ -->
-<!--              PLAN REFERENCE TAB                         -->
-<!-- ════════════════════════════════════════════════════════ -->
-<div class="tab-view" id="tab-planref">
+<!-- ── Area 2: Plan Reference (separate area, same tab) ── -->
+<div style="padding:22px 24px 10px;border-top:1px solid var(--c7);display:flex;align-items:center;gap:10px">
+  <span style="font-size:20px">🏷</span>
+  <div>
+    <div style="font-size:14px;font-weight:700;color:var(--c1)">Plan Reference</div>
+    <div style="font-size:11px;color:var(--c4)">Standard Features By Plan Tier</div>
+  </div>
+</div>
 
 <div class="statsbar" id="pr-statsbar"></div>
 
@@ -748,7 +759,8 @@ tbody tr:hover .row-actions{opacity:1}
     <div id="pr-empty" class="empty-state" style="display:none"><div style="font-size:32px;margin-bottom:10px">🔍</div><div>No features match your search</div></div>
   </div>
 </div>
-</div><!-- end #tab-planref -->
+
+</div><!-- end #tab-districtfeatures -->
 
 </div><!-- end #app -->
 
@@ -1001,7 +1013,7 @@ function initials(n){return(n||'').split(' ').slice(0,2).map(w=>w[0]).join('')}
 // ══════════════════════════════════════════════════
 //  TAB SWITCHING
 // ══════════════════════════════════════════════════
-const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Development Tracker',feedback:'Positive Feedback Log',implementation:'Implementation Tracker',knowledgebase:'Knowledge Base',districtfeatures:'District Features',planref:'Plan Reference'};
+const TAB_LABELS = {dashboard:'Dashboard',disputes:'Dispute Tracker',payments:'Client Payments',devupdates:'Development Tracker',feedback:'Positive Feedback Log',implementation:'Implementation Tracker',knowledgebase:'Knowledge Base',districtfeatures:'Feature Management'};
 window.switchTab = function(tab){
   currentTab = tab;
   document.querySelectorAll('.tab-view').forEach(el=>el.classList.remove('active'));
@@ -1328,26 +1340,18 @@ function renderDashboard(){
 
     <div class="dash-card" onclick="switchTab('districtfeatures')">
       <div class="dash-card-head">
-        <div class="dash-card-icon" style="background:#fce7f3">🏫</div>
-        <div><div class="dash-card-title">District Features</div><div class="dash-card-sub">Feature Access By District &amp; School</div></div>
+        <div class="dash-card-icon" style="background:#fce7f3">🧩</div>
+        <div><div class="dash-card-title">Feature Management</div><div class="dash-card-sub">District Features &amp; Plan Reference</div></div>
       </div>
       <div class="dash-card-body">
+        <div style="font-size:10px;font-weight:700;color:var(--c5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">District Features</div>
         <div class="dash-metrics">
           <div class="dash-metric"><div class="dash-metric-val">${sfTotal}</div><div class="dash-metric-label">Total Schools</div></div>
           <div class="dash-metric"><div class="dash-metric-val">${sfDistricts}</div><div class="dash-metric-label">Districts</div></div>
           <div class="dash-metric good"><div class="dash-metric-val">${sfWithFeatures}</div><div class="dash-metric-label">With Features On</div></div>
           <div class="dash-metric${sfNoneActive?' warn':''}"><div class="dash-metric-val">${sfNoneActive}</div><div class="dash-metric-label">Nothing Enabled</div></div>
         </div>
-      </div>
-      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open District Features</div>
-    </div>
-
-    <div class="dash-card" onclick="switchTab('planref')">
-      <div class="dash-card-head">
-        <div class="dash-card-icon" style="background:#fef9c3">🏷</div>
-        <div><div class="dash-card-title">Plan Reference</div><div class="dash-card-sub">Standard Features By Plan Tier</div></div>
-      </div>
-      <div class="dash-card-body">
+        <div style="font-size:10px;font-weight:700;color:var(--c5);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px">Plan Reference</div>
         <div class="dash-metrics">
           <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Lite'])}</div><div class="dash-metric-label">Lite</div></div>
           <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Lite Plus'])}</div><div class="dash-metric-label">Lite Plus</div></div>
@@ -1355,7 +1359,7 @@ function renderDashboard(){
           <div class="dash-metric"><div class="dash-metric-val">${prActiveCount(planFeatures['Enterprise'])}</div><div class="dash-metric-label">Enterprise</div></div>
         </div>
       </div>
-      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Plan Reference</div>
+      <div class="dash-card-footer"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg> Open Feature Management</div>
     </div>
   `;
 }
